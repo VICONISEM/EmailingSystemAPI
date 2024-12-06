@@ -5,6 +5,12 @@ VisualStudioVersion = 17.12.35506.116 d17.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailingSystemAPI", "EmailingSystemAPI\EmailingSystemAPI.csproj", "{A91099EF-168C-4120-9FC5-86CDBD52E068}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailingSystem.Core", "EmailingSystem.Core\EmailingSystem.Core.csproj", "{5D8FC49C-6A81-439B-AA9E-47CAF6E80A04}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailingSystem.Repository", "EmailingSystem.Repository\EmailingSystem.Repository.csproj", "{F9EBDCA8-4602-43C9-BB0B-6F3ED651BAC6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailingSystem.Services", "EmailingSystem.Services\EmailingSystem.Services.csproj", "{FEC3C65C-A614-401E-B23E-3DC1565235F0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +21,18 @@ Global
 		{A91099EF-168C-4120-9FC5-86CDBD52E068}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A91099EF-168C-4120-9FC5-86CDBD52E068}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A91099EF-168C-4120-9FC5-86CDBD52E068}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D8FC49C-6A81-439B-AA9E-47CAF6E80A04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D8FC49C-6A81-439B-AA9E-47CAF6E80A04}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D8FC49C-6A81-439B-AA9E-47CAF6E80A04}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D8FC49C-6A81-439B-AA9E-47CAF6E80A04}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9EBDCA8-4602-43C9-BB0B-6F3ED651BAC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9EBDCA8-4602-43C9-BB0B-6F3ED651BAC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9EBDCA8-4602-43C9-BB0B-6F3ED651BAC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9EBDCA8-4602-43C9-BB0B-6F3ED651BAC6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FEC3C65C-A614-401E-B23E-3DC1565235F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FEC3C65C-A614-401E-B23E-3DC1565235F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FEC3C65C-A614-401E-B23E-3DC1565235F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FEC3C65C-A614-401E-B23E-3DC1565235F0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
