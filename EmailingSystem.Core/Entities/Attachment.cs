@@ -13,7 +13,5 @@ namespace EmailingSystem.Core.Entities
         public long MessageId { get; set; }
         public Message Message { get; set; } = null!;
 
-
-
     }
 }

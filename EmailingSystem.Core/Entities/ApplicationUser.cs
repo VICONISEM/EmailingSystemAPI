@@ -25,7 +25,18 @@ namespace EmailingSystem.Core.Entities
         public string? PicturePath { get; set; } = null!;
         public int DepartmentId { get; set; }
         public Department Department { get; set; } = null!;
-        public int SignatureId { get; set; }
-        public Signature Signature { get; set; } = null!;
+        public int? SignatureId { get; set; }
+        public Signature? Signature { get; set; }
+        public ICollection<Conversation> ConversationsSender { get; set; } = null!;
+        public ICollection<Conversation> ConversationsReceiver { get; set; } = null!;
+        public ICollection<Message> MessagesSender { get; set; } = null!;
+        public ICollection<Message> MessagesReceiver { get; set; } = null!;
+        public ICollection<Draft> DraftsSender { get; set; } = null!;
+        public ICollection<Draft> DraftsReceiver { get; set; } = null!;
+        public ICollection<UserConversationStatus> UserConversationStatuses { get; set; } = null!;
+        public ICollection<UserInbox> UserInboxes { get; set; } = null!;
+        public ICollection<UserSent> UserSents { get; set; } = null!;
+
+
     }
 }
