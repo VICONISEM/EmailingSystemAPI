@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EmailingSystem.Repository.Migrations
 {
     [DbContext(typeof(EmailDbContext))]
-    [Migration("20241207215852_init")]
+    [Migration("20241209190551_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -48,6 +48,9 @@ namespace EmailingSystem.Repository.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
                     b.Property<bool>("LockoutEnabled")
@@ -145,6 +148,9 @@ namespace EmailingSystem.Repository.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<long>("MessageId")
                         .HasColumnType("bigint");
 
@@ -162,6 +168,9 @@ namespace EmailingSystem.Repository.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -226,6 +235,9 @@ namespace EmailingSystem.Repository.Migrations
                     b.Property<int>("CollegeId")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -286,9 +298,6 @@ namespace EmailingSystem.Repository.Migrations
                     b.Property<bool>("IsRead")
                         .HasColumnType("bit");
 
-                    b.Property<long?>("IsRepliedId")
-                        .HasColumnType("bigint");
-
                     b.Property<long?>("ParentMessageId")
                         .HasColumnType("bigint");
 
@@ -340,6 +349,9 @@ namespace EmailingSystem.Repository.Migrations
                     b.Property<string>("FilePath")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 
@@ -535,13 +547,13 @@ namespace EmailingSystem.Repository.Migrations
                     b.HasOne("EmailingSystem.Core.Entities.Department", "Department")
                         .WithOne("User")
                         .HasForeignKey("EmailingSystem.Core.Entities.ApplicationUser", "DepartmentId")
-                        .OnDelete(DeleteBehavior.SetNull)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("EmailingSystem.Core.Entities.Signature", "Signature")
                         .WithOne("User")
                         .HasForeignKey("EmailingSystem.Core.Entities.ApplicationUser", "SignatureId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Department");
 
@@ -568,13 +580,13 @@ namespace EmailingSystem.Repository.Migrations
                     b.HasOne("EmailingSystem.Core.Entities.ApplicationUser", "Receiver")
                         .WithMany("ConversationsReceiver")
                         .HasForeignKey("ReceiverId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("EmailingSystem.Core.Entities.ApplicationUser", "Sender")
                         .WithMany("ConversationsSender")
                         .HasForeignKey("SenderId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("LastMessage");
@@ -600,12 +612,12 @@ namespace EmailingSystem.Repository.Migrations
                     b.HasOne("EmailingSystem.Core.Entities.ApplicationUser", "Receiver")
                         .WithMany("DraftsReceiver")
                         .HasForeignKey("ReceiverId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("EmailingSystem.Core.Entities.ApplicationUser", "Sender")
                         .WithMany("DraftsSender")
                         .HasForeignKey("SenderId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Receiver");
@@ -628,13 +640,13 @@ namespace EmailingSystem.Repository.Migrations
                     b.HasOne("EmailingSystem.Core.Entities.ApplicationUser", "Receiver")
                         .WithMany("MessagesReceiver")
                         .HasForeignKey("ReceiverId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("EmailingSystem.Core.Entities.ApplicationUser", "Sender")
                         .WithMany("MessagesSender")
                         .HasForeignKey("SenderId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Conversation");
@@ -657,7 +669,7 @@ namespace EmailingSystem.Repository.Migrations
                     b.HasOne("EmailingSystem.Core.Entities.ApplicationUser", "User")
                         .WithMany("UserConversationStatuses")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Conversation");
@@ -676,7 +688,7 @@ namespace EmailingSystem.Repository.Migrations
                     b.HasOne("EmailingSystem.Core.Entities.ApplicationUser", "User")
                         .WithMany("UserInboxes")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Conversation");
@@ -695,7 +707,7 @@ namespace EmailingSystem.Repository.Migrations
                     b.HasOne("EmailingSystem.Core.Entities.ApplicationUser", "User")
                         .WithMany("UserSents")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Conversation");

@@ -21,11 +21,11 @@ namespace EmailingSystem.Repository.Data.Configurations
             #region Relations 1-M With User
             builder.HasOne(C => C.Sender)
                    .WithMany(U => U.DraftsSender)
-                   .HasForeignKey(C => C.SenderId).OnDelete(DeleteBehavior.Restrict);
+                   .HasForeignKey(C => C.SenderId).OnDelete(DeleteBehavior.NoAction);
 
             builder.HasOne(C => C.Receiver)
                    .WithMany(U => U.DraftsReceiver)
-                   .HasForeignKey(C => C.ReceiverId).OnDelete(DeleteBehavior.Restrict);
+                   .HasForeignKey(C => C.ReceiverId).OnDelete(DeleteBehavior.SetNull);
             #endregion
 
 

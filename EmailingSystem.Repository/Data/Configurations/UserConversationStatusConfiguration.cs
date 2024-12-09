@@ -32,7 +32,7 @@ namespace EmailingSystem.Repository.Data.Configurations
             builder.HasOne(ucs => ucs.User)
                    .WithMany(c => c.UserConversationStatuses)
                    .HasForeignKey(ucs => ucs.UserId)
-                   .OnDelete(DeleteBehavior.Restrict);
+                   .OnDelete(DeleteBehavior.Cascade);
             #endregion
 
             #region Index

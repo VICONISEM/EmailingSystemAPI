@@ -32,7 +32,8 @@ namespace EmailingSystem.Repository.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -46,7 +47,8 @@ namespace EmailingSystem.Repository.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     FileName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FilePath = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    FilePath = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -81,7 +83,8 @@ namespace EmailingSystem.Repository.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CollegeId = table.Column<int>(type: "int", nullable: false)
+                    CollegeId = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -105,6 +108,7 @@ namespace EmailingSystem.Repository.Migrations
                     NationalId = table.Column<string>(type: "nvarchar(14)", maxLength: 14, nullable: false),
                     PicturePath = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DepartmentId = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     SignatureId = table.Column<int>(type: "int", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -129,13 +133,13 @@ namespace EmailingSystem.Repository.Migrations
                         column: x => x.DepartmentId,
                         principalTable: "Departments",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_AspNetUsers_Signatures_SignatureId",
                         column: x => x.SignatureId,
                         principalTable: "Signatures",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateTable(
@@ -243,13 +247,12 @@ namespace EmailingSystem.Repository.Migrations
                         column: x => x.ReceiverId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
                         name: "FK_Drafts_AspNetUsers_SenderId",
                         column: x => x.SenderId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -260,7 +263,8 @@ namespace EmailingSystem.Repository.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     FileName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FilePath = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    MessageId = table.Column<long>(type: "bigint", nullable: false)
+                    MessageId = table.Column<long>(type: "bigint", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -286,14 +290,12 @@ namespace EmailingSystem.Repository.Migrations
                         name: "FK_Conversations_AspNetUsers_ReceiverId",
                         column: x => x.ReceiverId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Conversations_AspNetUsers_SenderId",
                         column: x => x.SenderId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -309,7 +311,6 @@ namespace EmailingSystem.Repository.Migrations
                     IsRead = table.Column<bool>(type: "bit", nullable: false),
                     SendAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ReceivedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsRepliedId = table.Column<long>(type: "bigint", nullable: true),
                     ParentMessageId = table.Column<long>(type: "bigint", nullable: true),
                     SenderIsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     ReceiverIsDeleted = table.Column<bool>(type: "bit", nullable: false)
@@ -321,14 +322,12 @@ namespace EmailingSystem.Repository.Migrations
                         name: "FK_Messages_AspNetUsers_ReceiverId",
                         column: x => x.ReceiverId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Messages_AspNetUsers_SenderId",
                         column: x => x.SenderId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Messages_Conversations_ConversationId",
                         column: x => x.ConversationId,
@@ -358,7 +357,7 @@ namespace EmailingSystem.Repository.Migrations
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_UserConversationStatuses_Conversations_ConversationId",
                         column: x => x.ConversationId,
@@ -382,7 +381,7 @@ namespace EmailingSystem.Repository.Migrations
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_UserInboxes_Conversations_ConversationId",
                         column: x => x.ConversationId,
@@ -406,7 +405,7 @@ namespace EmailingSystem.Repository.Migrations
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_UserSents_Conversations_ConversationId",
                         column: x => x.ConversationId,

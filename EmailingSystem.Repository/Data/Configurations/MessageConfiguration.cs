@@ -16,10 +16,10 @@ namespace EmailingSystem.Repository.Data.Configurations
             #region Relation 1-M With User
             builder.HasOne(M => M.Sender)
            .WithMany(U => U.MessagesSender)
-           .HasForeignKey(M => M.SenderId).OnDelete(DeleteBehavior.Restrict);
+           .HasForeignKey(M => M.SenderId).OnDelete(DeleteBehavior.NoAction);
             builder.HasOne(M => M.Receiver)
                    .WithMany(U => U.MessagesReceiver)
-                   .HasForeignKey(M => M.ReceiverId).OnDelete(DeleteBehavior.Restrict);
+                   .HasForeignKey(M => M.ReceiverId).OnDelete(DeleteBehavior.NoAction);
             #endregion
 
             #region Index

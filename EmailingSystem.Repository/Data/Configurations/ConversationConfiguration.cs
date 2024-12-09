@@ -1,12 +1,6 @@
 ﻿using EmailingSystem.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EmailingSystem.Repository.Data.Configurations
 {
@@ -26,11 +20,11 @@ namespace EmailingSystem.Repository.Data.Configurations
             #region Relations 1-M With User
             builder.HasOne(C => C.Sender)
                    .WithMany(U => U.ConversationsSender)
-                   .HasForeignKey(C => C.SenderId).OnDelete(DeleteBehavior.Restrict);
+                   .HasForeignKey(C => C.SenderId).OnDelete(DeleteBehavior.NoAction);
 
             builder.HasOne(C => C.Receiver)
                    .WithMany(U => U.ConversationsReceiver)
-                   .HasForeignKey(C => C.ReceiverId).OnDelete(DeleteBehavior.Restrict);
+                   .HasForeignKey(C => C.ReceiverId).OnDelete(DeleteBehavior.NoAction);
             #endregion
 
             #region Relation 1-1 With LastMessage

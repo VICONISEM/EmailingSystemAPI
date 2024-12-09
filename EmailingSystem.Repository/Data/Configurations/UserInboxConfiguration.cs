@@ -27,7 +27,7 @@ namespace EmailingSystem.Repository.Data.Configurations
             builder.HasOne(ucs => ucs.User)
                    .WithMany(c => c.UserInboxes)
                    .HasForeignKey(ucs => ucs.UserId)
-                   .OnDelete(DeleteBehavior.Restrict);
+                   .OnDelete(DeleteBehavior.Cascade);
             #endregion
 
         }

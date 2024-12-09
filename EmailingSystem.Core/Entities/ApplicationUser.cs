@@ -24,6 +24,7 @@ namespace EmailingSystem.Core.Entities
         public string NationalId { get; set; } = null!;
         public string? PicturePath { get; set; } = null!;
         public int DepartmentId { get; set; }
+        public bool IsDeleted { get; set; } = false;
         public Department Department { get; set; } = null!;
         public int? SignatureId { get; set; }
         public Signature? Signature { get; set; }

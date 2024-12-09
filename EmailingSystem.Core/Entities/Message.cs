@@ -19,7 +19,7 @@ namespace EmailingSystem.Core.Entities
         public bool IsRead { get; set; } = false;
         public DateTime SendAt { get; set; } = DateTime.Now;
         public DateTime ReceivedAt { get; set; }
-        public long? IsRepliedId { get; set; }
+        public long? ParentMessageId { get; set; }
         public Message? ParentMessage { get; set; } = null!;
         public ICollection<Attachment>? Attachments { get; set; }
         public bool SenderIsDeleted { get; set; }
