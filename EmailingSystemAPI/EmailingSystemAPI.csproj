@@ -15,4 +15,13 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\EmailingSystem.Repository\EmailingSystem.Repository.csproj" />
+    <ProjectReference Include="..\EmailingSystem.Services\EmailingSystem.Services.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Controllers\" />
+  </ItemGroup>
+
 </Project>

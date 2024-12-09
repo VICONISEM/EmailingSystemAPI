@@ -1,4 +1,7 @@
 
+using EmailingSystem.Repository.Data.Contexts;
+using Microsoft.EntityFrameworkCore;
+
 namespace EmailingSystemAPI
 {
     public class Program
@@ -14,6 +17,11 @@ namespace EmailingSystemAPI
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            builder.Services.AddDbContext<EmailDbContext>( options =>
+            {
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+            });
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -25,8 +33,8 @@ namespace EmailingSystemAPI
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
-
 
             app.MapControllers();
 
