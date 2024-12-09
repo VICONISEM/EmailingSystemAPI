@@ -11,7 +11,7 @@ namespace EmailingSystem.Core.Entities
         public long Id { get; set; }
         public string? Subject { get; set; } = null!;
         public int SenderId { get; set; }
-        public ApplicationUser  Sender { get; set; } = null!;
+        public ApplicationUser Sender { get; set; } = null!;
         public int? ReceiverId { get; set; }
         public ApplicationUser? Receiver { get; set; } = null!;
         public string? Body { get; set; }

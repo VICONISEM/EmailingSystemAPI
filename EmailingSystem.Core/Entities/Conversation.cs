@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace EmailingSystem.Core.Entities
+﻿namespace EmailingSystem.Core.Entities
 {
     public class Conversation
     {
@@ -17,7 +11,9 @@ namespace EmailingSystem.Core.Entities
         public DateTime SendAt { get; set; } = DateTime.Now;
         public long? LastMessageId { get; set; }
         public Message? LastMessage { get; set; } = null!;
-
-
+        public ICollection<Message> Messages { get; set; } = null!;
+        public ICollection<UserConversationStatus> UserConversationStatuses { get; set; } = null!;
+        public ICollection<UserInbox> UserInboxes { get; set; } = null!;
+        public ICollection<UserSent> UserSents { get; set; } = null!;
     }
 }
