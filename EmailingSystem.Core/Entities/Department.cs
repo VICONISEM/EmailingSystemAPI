@@ -11,6 +11,7 @@ namespace EmailingSystem.Core.Entities
 
         public string Name { get; set; } =  null! ;
         public int CollegeId { get; set; }
-        public College College { get; set; } = null!; 
+        public College College { get; set; } = null!;
+        public ApplicationUser User { get; set; } = null!;
     }
 }
