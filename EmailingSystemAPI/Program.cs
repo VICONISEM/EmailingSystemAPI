@@ -1,5 +1,7 @@
 
 using EmailingSystem.Repository.Data.Contexts;
+using EmailingSystemAPI.Extensions;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace EmailingSystemAPI
@@ -20,6 +22,20 @@ namespace EmailingSystemAPI
             builder.Services.AddDbContext<EmailDbContext>( options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+            });
+
+            builder.Services.ApplicationServices();
+            builder.Services.AddIdentityServices(builder.Configuration);
+
+
+            builder.Services.Configure<IdentityOptions>(options =>
+            {
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequiredLength = 8; // or any other minimum length
+
             });
 
             var app = builder.Build();
