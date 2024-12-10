@@ -1,17 +1,10 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿using EmailingSystem.Core.Entities.Token;
+using Microsoft.AspNetCore.Identity;
 namespace EmailingSystem.Core.Entities
 {
     public class ApplicationUser : IdentityUser<int>
     {
         public string Name { get; set; } = null!;
-
 
         private string NormalizedNameAttribute = null!;
 
@@ -37,7 +30,7 @@ namespace EmailingSystem.Core.Entities
         public ICollection<UserConversationStatus> UserConversationStatuses { get; set; } = null!;
         public ICollection<UserInbox> UserInboxes { get; set; } = null!;
         public ICollection<UserSent> UserSents { get; set; } = null!;
-
+        public HashSet<RefreshToken>? RefreshTokens { get; set; } = new HashSet<RefreshToken>();
 
     }
 }
