@@ -1,7 +1,9 @@
 ﻿using EmailingSystem.Core.Contracts.Repository.Contracts;
+using EmailingSystem.Core.Contracts.Specification.Contract;
 using EmailingSystem.Core.Entities;
 using EmailingSystem.Core.SpecsParams;
 using Microsoft.AspNetCore.Identity;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -19,6 +21,7 @@ namespace EmailingSystemAPI.Controllers
         {
             this.conversationRepository = conversationRepository;
             this.userManager = userManager;
+      
         }
 
 
@@ -39,6 +42,16 @@ namespace EmailingSystemAPI.Controllers
 
             var Query = conversationRepository.GetInboxOrSentAsync(user.Id, Specs.Type);
             var Conversations = await InboxAndSentQueryBuilder.Build(Query,Specs,user.Id).ToListAsync(); 
+
+            return Conversations;
+        }
+
+        [HttpGet("{AllConversationsWithSpecs}")]
+        public async Task<ActionResult<IEnumerable<Conversation>>> AllConversationsWithSpecs(string Type)
+        {
+            var BaseSpec = new BaseSpecification<UserInbox>(x => x.UserId == UserId) {};
+            BaseSpec.Includes.Add(u => u.Conversation);
+            var Conversations = await SpecificationEvalutor<UserInbox>.GetQuery(context.Set<UserInbox>(),BaseSpec).Select(x=>x.Conversation).ToListAsync();
 
             return Conversations;
         }
