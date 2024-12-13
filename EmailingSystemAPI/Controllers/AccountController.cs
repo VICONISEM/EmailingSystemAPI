@@ -1,13 +1,11 @@
 ﻿using AutoMapper;
-using EmailingSystem.Core.Contracts;
 using EmailingSystem.Core.Entities;
-using EmailingSystem.Core.Entities.Token;
-using EmailingSystem.Repository;
 using EmailingSystemAPI.DTOs;
+using EmailingSystemAPI.Errors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Cryptography;
+using System.Security.Claims;
 
 namespace EmailingSystemAPI.Controllers
 {
@@ -17,63 +15,40 @@ namespace EmailingSystemAPI.Controllers
     {
         private readonly UserManager<ApplicationUser> userManager;
         private readonly IMapper mapper;
-        private readonly IUnitOfWork unitOfWork;
-        private readonly IConfiguration configuration;
 
-        public AccountController(UserManager<ApplicationUser> userManager, IMapper mapper, IUnitOfWork unitOfWork, IConfiguration configuration)
+        public AccountController(UserManager<ApplicationUser> userManager, IMapper mapper)
         {
             this.userManager = userManager;
             this.mapper = mapper;
-            this.unitOfWork = unitOfWork;
-            this.configuration = configuration;
         }
 
-        [HttpPost("Register")]
-        public async Task<ActionResult<UserDto>> RegisterAsync([FromBody] RegisterDto registerDto)
+        [HttpPost("ChangePassword")]
+        public async Task<ActionResult> ChangePassword(ChangePasswordDto ChangePasswordDto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if(!ModelState.IsValid) return BadRequest(ModelState);
 
-            var email = await userManager.FindByEmailAsync(registerDto.Email);
+            var Email = User.FindFirstValue(ClaimTypes.Email);
 
-            if (email is not null) return BadRequest();
+            var user = await userManager.FindByEmailAsync(Email);
 
-            var AppUser = mapper.Map<ApplicationUser>(registerDto);
+            var Result = await userManager.ChangePasswordAsync(user, ChangePasswordDto.OldPassword, ChangePasswordDto.NewPassword);
 
-            await unitOfWork.Repository<ApplicationUser>().AddAsync(AppUser);
+            if(!Result.Succeeded) return BadRequest(new APIErrorResponse(400,"Invalid Password"));
 
-            var refreshToken = GenerateRefreshToken();
+            return Ok(Result);
+        }
 
-            var user = await userManager.FindByEmailAsync(registerDto.Email);
+        [HttpGet("GetCurrentUser")]
+        public async Task<ActionResult<UserDto>> GetCurrentUser()
+        {
+            var Email = User.FindFirstValue(ClaimTypes.Email);
 
-            user.RefreshTokens.Add(refreshToken);
-
-            SetRefreshTokenInCookie(refreshToken.Token, DateTime.UtcNow.AddDays(double.Parse(configuration["JWT:DurationInDays"] ?? "30")));
+            var user = await userManager.FindByEmailAsync(Email);
 
             var userDto = mapper.Map<UserDto>(user);
 
             return Ok(userDto);
         }
-
-        private RefreshToken GenerateRefreshToken()
-        {
-            var token = new Guid().ToString();
-            return new RefreshToken
-            {
-                Token = token,
-                ExpiresOn = DateTime.UtcNow.AddDays(double.Parse(configuration["JWT:DurationInDays"] ?? "30")),
-                CreatedOn = DateTime.UtcNow
-            };
-        }
-
-        private void SetRefreshTokenInCookie(string refreshToken, DateTime expires)
-        {
-            var cookiewOptions = new CookieOptions()
-            {
-                HttpOnly = true,
-                Expires = expires.ToLocalTime()
-            };
-
-            Response.Cookies.Append("refreshToken", refreshToken, cookiewOptions);
-        }
+     
     }
 }

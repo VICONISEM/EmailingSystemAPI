@@ -35,6 +35,8 @@ namespace EmailingSystem.Repository.Data.Configurations
             builder.HasOne(U => U.Department)
                     .WithOne(D => D.User)
                     .HasForeignKey<ApplicationUser>(U => U.DepartmentId).OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasIndex(U => U.DepartmentId).IsUnique();
             #endregion
 
             #region Relation 1-1 With Signature
