@@ -1,5 +1,6 @@
 ﻿using EmailingSystem.Core.Contracts.Repository.Contracts;
 using EmailingSystem.Core.Entities;
+using EmailingSystem.Core.Enums;
 using EmailingSystem.Repository.Data.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualBasic;
@@ -20,19 +21,17 @@ namespace EmailingSystem.Repository
             this.dbContext = dbContext;
         }
 
-        public IQueryable<Conversation> GetConversationsByTypeAsync(int UserId, string Type = "inbox")
+        public IQueryable<Conversation> GetInboxOrSentAsync(int UserId, string Type = "inbox")
         {
 
-            //return Type.ToLower() switch
-            //{
-            //    //"inbox" => dbContext.Conversations.Where(C => C.UserInboxes.Select(C => C.UserId).Contains(C.ReceiverId) && C.ReceiverId == UserId),
-            //    "inbox" => await dbContext.UserInboxes.Where(U => U.UserId == UserId).Include(U => U.Conversation).Select(C => C.Conversation).ToListAsync(),
-            //    "sent" =>  await dbContext.UserSents.Where(U => U.UserId == UserId).Include(U => U.Conversation).Select(C => C.Conversation).ToListAsync(),
-            //    //"trash" => await dbContext.UserConversationStatuses.Where(U => U.UserId == UserId)
-            //    _ => throw new ArgumentException("Invalid mail type")
-            //};
-            return dbContext.Set<Conversation>();
-        }
+            return Type.ToLower() switch
+            {
+                //"sent" =>  dbContext.UserSents.Where(U => U.UserId == UserId).Include(U => U.Conversation).Select(C => C.Conversation).Where(c=>c.UserConversationStatuses.Any(S => S.Status == ConversationStatus.Active)).Include(C => C.LastMessage),
+                //_ => dbContext.UserInboxes.Where(U => U.UserId == UserId).Include(U => U.Conversation).Select(C => C.Conversation).Where(c => c.UserConversationStatuses.Any(S => S.Status == ConversationStatus.Active)).Include(C => C.LastMessage),
 
+                "sent" => dbContext.UserSents.Where(U => U.UserId == UserId).Include(U => U.Conversation).ThenInclude(C => C.LastMessage).Select(C => C.Conversation).Where(c => c.UserConversationStatuses.Any(S => S.Status == ConversationStatus.Active || S.Status == ConversationStatus.Starred)),
+                _ => dbContext.UserInboxes.Where(U => U.UserId == UserId).Include(U => U.Conversation).ThenInclude(C => C.LastMessage).Select(C => C.Conversation).Where(c => c.UserConversationStatuses.Any(S => S.Status == ConversationStatus.Active || S.Status == ConversationStatus.Starred)),
+            };
+        }
     }
 }

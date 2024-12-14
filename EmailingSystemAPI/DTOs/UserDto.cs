@@ -8,6 +8,8 @@
         public int? SignatureId { get; set; }
         public string DepartmentName { get; set; } = null!;
         public string NationalId { get; set; } = null!;
+        public string? AccessToken { get; set; }
+        public DateTime? RefreshTokenExpirationTime  { get; set; }
 
     }
 }

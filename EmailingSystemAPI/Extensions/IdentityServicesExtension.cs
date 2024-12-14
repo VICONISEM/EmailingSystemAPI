@@ -4,6 +4,7 @@ using EmailingSystem.Repository.Data.Contexts;
 using EmailingSystem.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -13,9 +14,8 @@ namespace EmailingSystemAPI.Extensions
     {
         public static IServiceCollection AddIdentityServices(this IServiceCollection Services, IConfiguration configuration)
         {
-            Services.AddScoped<ITokenService, TokenService>();
 
-            Services.AddScoped<ApplicationUser>();
+            Services.AddScoped<ITokenService, TokenService>();
 
             Services.AddIdentity<ApplicationUser, IdentityRole<int>>()
                 .AddEntityFrameworkStores<EmailDbContext>();
@@ -40,6 +40,15 @@ namespace EmailingSystemAPI.Extensions
                         };
                     }
                 );
+
+            Services.Configure<IdentityOptions>(options =>
+            {
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequiredLength = 8;
+            });
 
             return Services;
         }

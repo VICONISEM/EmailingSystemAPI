@@ -1,4 +1,5 @@
 ﻿using EmailingSystem.Core.Contracts.Repository.Contracts;
+using EmailingSystem.Core.Contracts.Specifications.Contracts;
 using EmailingSystem.Repository.Data.Contexts;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -18,9 +19,11 @@ namespace EmailingSystem.Repository
             _dbContext = dbContext;
         }
 
-        public IQueryable<T> GetAllAsync()
+        public IQueryable<T> GetAllQueryableWithSpecs(ISpecification<T> Specs)
         {
-            return _dbContext.Set<T>();
+            //return _dbContext.Set<T>();
+            return SpecificationEvaluator<T>.GetQuery(_dbContext.Set<T>(), Specs).AsNoTracking();
+
         }
 
         public async Task<T?> GetByIdAsync(int Id)
