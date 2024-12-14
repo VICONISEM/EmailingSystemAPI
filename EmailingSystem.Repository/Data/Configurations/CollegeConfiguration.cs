@@ -16,7 +16,7 @@ namespace EmailingSystem.Repository.Data.Configurations
             #region Relation 1-M With Department
             builder.HasMany(C => C.Departments)
                        .WithOne(D => D.College)
-                       .HasForeignKey(D => D.CollegeId); 
+                       .HasForeignKey(D => D.CollegeId).OnDelete(DeleteBehavior.Cascade); 
             #endregion
 
         }

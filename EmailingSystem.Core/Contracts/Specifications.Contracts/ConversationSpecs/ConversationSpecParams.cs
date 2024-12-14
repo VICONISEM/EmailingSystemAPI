@@ -1,4 +1,4 @@
-﻿namespace EmailingSystem.Core.SpecsParams
+﻿namespace EmailingSystem.Core.Contracts.Specifications.Contracts.SpecsParams
 {
     public class ConversationSpecParams
     {
@@ -18,7 +18,7 @@
         public int PageSize
         {
             get { return pageSize; }
-            set { pageSize = (value > 50 || value <= 0) ? 50 : value; }
+            set { pageSize = value > 50 || value <= 0 ? 50 : value; }
         }
 
         private string? search;

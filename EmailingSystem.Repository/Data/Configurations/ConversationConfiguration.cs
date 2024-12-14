@@ -36,7 +36,7 @@ namespace EmailingSystem.Repository.Data.Configurations
             #region Relation 1-M With Messages
             builder.HasMany(C => C.Messages)
            .WithOne(C => C.Conversation)
-           .HasForeignKey(M => M.ConversationId);
+           .HasForeignKey(M => M.ConversationId).OnDelete(DeleteBehavior.Cascade);
             #endregion
 
             #region Index

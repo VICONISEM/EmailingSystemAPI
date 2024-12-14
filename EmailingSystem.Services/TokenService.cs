@@ -26,7 +26,7 @@ namespace EmailingSystem.Services
         {
             var AuthClaims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, User.NormalizedEmail ?? "Empty Email")
+                new Claim(ClaimTypes.Email, User.NormalizedEmail ?? "Empty Email")
             };
 
             var Roles = await userManager.GetRolesAsync(User);
