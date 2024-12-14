@@ -1,8 +1,12 @@
-﻿using EmailingSystem.Core.Contracts;
+﻿using AutoMapper;
+using EmailingSystem.Core.Contracts;
 using EmailingSystem.Core.Contracts.Repository.Contracts;
+using EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpecs;
 using EmailingSystem.Core.Contracts.Specifications.Contracts.SpecsParams;
 using EmailingSystem.Core.Entities;
+using EmailingSystem.Core.Enums;
 using EmailingSystem.Repository;
+using EmailingSystemAPI.DTOs;
 using Microsoft.AspNetCore.Identity;
 
 using Microsoft.AspNetCore.Mvc;
@@ -17,37 +21,47 @@ namespace EmailingSystemAPI.Controllers
     {
         private readonly IUnitOfWork unitOfWork;
         private readonly UserManager<ApplicationUser> userManager;
+        private readonly IMapper mapper;
 
-        public ConversationsController(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager)
+        public ConversationsController(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IMapper mapper)
         {
             this.unitOfWork = unitOfWork;
             this.userManager = userManager;
-      
+            this.mapper = mapper;
         }
 
 
 
         [HttpGet("AllConversations")]
-        public async Task<ActionResult<IEnumerable<UserInbox>>> AllConversations([FromQuery] ConversationSpecParams Specs)
+        public async Task<ActionResult<IEnumerable<ConversationDto>>> AllConversations([FromQuery] ConversationSpecParams Specs)
         {
             var Email = User.FindFirstValue(ClaimTypes.Email);
             var user = await userManager.FindByIdAsync(Email);
 
+            IQueryable<Conversation> Query;
+
             if (Specs.Type == "inbox")
             {
-                var specs = new InboxSpecifications<UserInbox>(Specs, user.Id);
-                var conversations = unitOfWork.Repository<UserInbox>().GetAllQueryableWithSpecs(specs);
+                var specs = new InboxSentSpecifications<UserInbox>(Specs, user.Id);
+                Query = unitOfWork.Repository<UserInbox>().GetAllQueryableWithSpecs(specs).Select(C => C.Conversation).Where(C => C.UserConversationStatuses.All(C => C.Status == ConversationStatus.Starred || C.Status == ConversationStatus.Active));
             }
             else if (Specs.Type == "sent")
             {
-                var specs = new InboxSpecifications<UserSent>(Specs, user.Id);
-                var conversations = unitOfWork.Repository<UserSent>().GetAllQueryableWithSpecs(specs);
+                var specs = new InboxSentSpecifications<UserSent>(Specs, user.Id);
+                Query = unitOfWork.Repository<UserSent>().GetAllQueryableWithSpecs(specs).Select(C => C.Conversation).Where(C => C.UserConversationStatuses.All(C => C.Status == ConversationStatus.Starred || C.Status == ConversationStatus.Active));
             }
             else
+            {
+                var specs = new ConversationSpecifications(Specs,user.Id);
+                Query = unitOfWork.Repository<Conversation>().GetAllQueryableWithSpecs(specs).Where(C => C.UserConversationStatuses.All(C => C.Status == (ConversationStatus)Enum.Parse(typeof(ConversationStatus),Specs.Type)));
+            }
+
+            var convarsations = await Query.ToListAsync();
+
+            var ConversationDto = mapper.Map<ConversationDto>(convarsations);
 
 
-
-            return await conversations.ToListAsync();
+            return Ok(ConversationDto);
         }
 
         [HttpGet("DraftConversations")]
