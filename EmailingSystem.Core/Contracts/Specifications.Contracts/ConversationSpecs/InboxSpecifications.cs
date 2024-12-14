@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EmailingSystem.Core.Contracts.Specifications.Contracts.SpecsParams
 {
-    public class InboxSpecifications : BaseSpecification<UserInbox>
+    public class InboxSpecifications<T> : BaseSpecification<T> where T : BaseInboxSent
     {
         //public static IQueryable<Conversation> Build(IQueryable<Conversation> Query, ConversationSpecParams Specs, int UserId)
         //{
