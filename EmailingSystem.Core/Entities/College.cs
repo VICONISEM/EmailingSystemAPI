@@ -10,6 +10,5 @@ namespace EmailingSystem.Core.Entities
     {
         public string Name { get; set; } = null!;
         public ICollection<Department> Departments { get; set; } = null!;
-
     }
 }

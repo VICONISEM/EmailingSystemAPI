@@ -35,12 +35,14 @@ namespace EmailingSystem.Repository.Data.Configurations
             builder.HasOne(U => U.Department)
                     .WithOne(D => D.User)
                     .HasForeignKey<ApplicationUser>(U => U.DepartmentId).OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasIndex(U => U.DepartmentId).IsUnique();
             #endregion
 
             #region Relation 1-1 With Signature
             builder.HasOne(U => U.Signature)
                    .WithOne(D => D.User)
-                   .HasForeignKey<ApplicationUser>(U => U.SignatureId).OnDelete(DeleteBehavior.SetNull).IsRequired(false);
+                   .HasForeignKey<ApplicationUser>(U => U.SignatureId).OnDelete(DeleteBehavior.Cascade).IsRequired(false);
 
             builder.Property(U => U.SignatureId).IsRequired(false);
             #endregion

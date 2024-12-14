@@ -11,7 +11,7 @@ namespace EmailingSystem.Repository.Data.Configurations
             #region Relation 1-M With Messages
             builder.HasOne(A => A.Message)
                        .WithMany(M => M.Attachments)
-                       .HasForeignKey(A => A.MessageId); 
+                       .HasForeignKey(A => A.MessageId).OnDelete(DeleteBehavior.Cascade); 
             #endregion
         }
     }

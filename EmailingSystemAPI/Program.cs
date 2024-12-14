@@ -1,5 +1,8 @@
 
 using EmailingSystem.Repository.Data.Contexts;
+using EmailingSystemAPI.Extensions;
+using EmailingSystemAPI.Middlewares;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace EmailingSystemAPI
@@ -22,7 +25,12 @@ namespace EmailingSystemAPI
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
 
+            builder.Services.ApplicationServices();
+            builder.Services.AddIdentityServices(builder.Configuration);
+
             var app = builder.Build();
+
+            app.UseMiddleware<ExceptionMiddleware>();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
