@@ -1,10 +1,9 @@
 ﻿using EmailingSystem.Core.Contracts;
 using EmailingSystem.Core.Contracts.Repository.Contracts;
-using EmailingSystem.Core.Contracts.Specification.Contract;
-using EmailingSystem.Core.Contracts.Specifications.Contracts.SpecsParams;
 using EmailingSystem.Core.Entities;
 using EmailingSystem.Repository;
 using Microsoft.AspNetCore.Identity;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -22,6 +21,7 @@ namespace EmailingSystemAPI.Controllers
         {
             this.unitOfWork = unitOfWork;
             this.userManager = userManager;
+      
         }
 
 
@@ -40,7 +40,5 @@ namespace EmailingSystemAPI.Controllers
 
             return await conversations.ToListAsync();
         }
-
-
     }
 }
