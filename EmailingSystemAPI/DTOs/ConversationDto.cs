@@ -11,7 +11,8 @@ namespace EmailingSystemAPI.DTOs
         public string ReceiverEmail { get; set; }
         public string ReceiverName { get; set; }
         public DateTime LastMessageTime { get; set; }
-        public Message LastMessage { get; set; }
+        public LastMessageDto LastMessage { get; set; }
+        public bool IsOpened { get; set; }
 
     }
 }

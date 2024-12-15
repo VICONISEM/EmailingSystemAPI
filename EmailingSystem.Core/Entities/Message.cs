@@ -25,7 +25,5 @@ namespace EmailingSystem.Core.Entities
         public bool SenderIsDeleted { get; set; }
         public bool ReceiverIsDeleted { get; set; }
         public bool IsDraft { get; set; } = false;
-
-
     }
 }

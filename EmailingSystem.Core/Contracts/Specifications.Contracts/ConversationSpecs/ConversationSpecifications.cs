@@ -22,12 +22,13 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpe
             |
             (C.ReceiverId == UserId || C.Sender.NormalizedName.ToLower().Contains(Specs.Search));
 
-            AddInclude(C => C.Include(C => C.LastMessage).Include(C => C.UserConversationStatuses));
+            AddInclude(C => C.Include(C => C.UserConversationStatuses.Where(C => C.UserId == UserId)));
 
             if (Specs.Sort == "dsec")
-                OrderByDesc = (C => C.LastMessage.SendAt);
+                OrderByDesc = (C => C.Messages.Where(C => C.SenderId == UserId && !C.SenderIsDeleted || C.ReceiverId == UserId && !C.ReceiverIsDeleted).Max(M => M.SendAt));
+                
             else
-                OrderBy = (C => C.LastMessage.SendAt);
+                OrderBy = (C => C.Messages.Where(C => C.SenderId == UserId && !C.SenderIsDeleted || C.ReceiverId == UserId && !C.ReceiverIsDeleted).Max(M => M.SendAt));
 
 
             ApplyPagination(Specs.PageSize * (Specs.PageNumber - 1), Specs.PageSize);
