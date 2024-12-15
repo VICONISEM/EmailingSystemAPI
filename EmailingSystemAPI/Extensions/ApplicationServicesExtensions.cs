@@ -12,7 +12,6 @@ namespace EmailingSystemAPI.Extensions
         {
 
             Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-            Services.AddScoped(typeof(IConversationRepository), typeof(ConversationRepository));
             Services.AddAutoMapper(typeof(MappingProfiles));
             Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
