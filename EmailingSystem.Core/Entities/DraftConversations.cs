@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace EmailingSystem.Core.Entities
 {
-    public class Draft
+    public class DraftConversations
     {
         public long Id { get; set; }
         public string? Subject { get; set; } = null!;
@@ -16,6 +16,5 @@ namespace EmailingSystem.Core.Entities
         public ApplicationUser? Receiver { get; set; } = null!;
         public string? Body { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
-
     }
 }

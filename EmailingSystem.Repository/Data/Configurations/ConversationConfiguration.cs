@@ -39,9 +39,6 @@ namespace EmailingSystem.Repository.Data.Configurations
            .HasForeignKey(M => M.ConversationId).OnDelete(DeleteBehavior.Cascade);
             #endregion
 
-            #region Index
-            builder.HasIndex(C => C.SendAt);
-            #endregion
         }
     }
 }

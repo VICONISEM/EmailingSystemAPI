@@ -22,22 +22,22 @@ namespace EmailingSystemAPI.Controllers
             this.unitOfWork = unitOfWork;
         }
 
-        [HttpGet]
-        public async Task<ActionResult> GetAllUsers()
-        {
-            var Email = User.FindFirstValue(ClaimTypes.Email);
-            var admin = await userManager.FindByNameAsync(Email);
-            var role = (await userManager.GetRolesAsync(admin)).ToString();
+        //[HttpGet]
+        //public async Task<ActionResult> GetAllUsers()
+        //{
+        //    var Email = User.FindFirstValue(ClaimTypes.Email);
+        //    var admin = await userManager.FindByNameAsync(Email);
+        //    var role = (await userManager.GetRolesAsync(admin)).ToString();
 
 
-            if (role == UserRoles.CollegeAdmin.ToString())
-            {
-                var users = await unitOfWork.Repository<ApplicationUser>().GetAllQueryable().Where(U => U.CollegeId == admin.CollegeId).ToListAsync();
-            }
-            else
+        //    if (role == UserRoles.CollegeAdmin.ToString())
+        //    {
+        //        var users = await unitOfWork.Repository<ApplicationUser>().GetAllQueryable().Where(U => U.CollegeId == admin.CollegeId).ToListAsync();
+        //    }
+        //    else
 
                 
-        }
+        //}
 
         //change Password
         //Edit Account

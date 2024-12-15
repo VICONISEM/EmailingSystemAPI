@@ -30,7 +30,7 @@ namespace EmailingSystem.Repository.Data.Contexts
         public DbSet<College> Colleges { get; set; }
         public DbSet<Conversation> Conversations { get; set; }
         public DbSet<Department> Departments { get; set; }
-        public DbSet<Draft> Drafts { get; set; }
+        public DbSet<DraftConversations> DraftConversations { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<Signature> Signatures { get; set; }
         public DbSet<UserConversationStatus> UserConversationStatuses { get; set; }
