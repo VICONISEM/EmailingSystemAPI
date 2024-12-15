@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpecs
 {
-    public class DraftSpecification :BaseSpecification<Draft>
+    public class DraftSpecification :BaseSpecification<DraftConversations>
     {
         public DraftSpecification(ConversationSpecParams specs, int UserId):base ()
         {
