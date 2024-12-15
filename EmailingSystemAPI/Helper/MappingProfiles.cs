@@ -22,7 +22,9 @@ namespace EmailingSystemAPI.Helper
                    .ForMember(C => C.SenderEmail, O => O.MapFrom(C => C.Sender.Email))
                    .ForMember(C => C.ReceiverEmail, O => O.MapFrom(C => C.Receiver.Email))
 
-                   .ForMember(C => C.LastMessageTime, O => O.MapFrom(C => C.LastMessage.SendAt))
+                   .ForMember(C => C.LastMessageTime, O => O.MapFrom(C => C.Messages.Max(M => M.SendAt)))
+                   .ForMember(C => C.IsOpened, O => O.MapFrom(C => C.Messages.MaxBy(M => M.SendAt).IsRead))
+                   .ForMember(C => C.LastMessage.IsDraft, O => O.MapFrom(C => C.Messages.MaxBy(M => M.SendAt).IsDraft))
                    .ReverseMap(); 
             #endregion
 
