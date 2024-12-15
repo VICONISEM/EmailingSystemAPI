@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace EmailingSystem.Repository.Data.Configurations
 {
-    public class DraftConfiguration : IEntityTypeConfiguration<Draft>
+    public class DraftConfiguration : IEntityTypeConfiguration<DraftConversations>
     {
-        public void Configure(EntityTypeBuilder<Draft> builder)
+        public void Configure(EntityTypeBuilder<DraftConversations> builder)
         {
             #region Id
             builder.HasKey(D => D.Id);
