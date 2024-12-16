@@ -51,6 +51,19 @@ namespace EmailingSystem.Repository.Data.Configurations
             builder.HasIndex(U => U.NormalizedName);
             #endregion
 
+            #region Relation 1-M With DraftConversationSender
+            builder.HasMany(U => U.DraftsSender)
+                .WithOne(D => D.Sender)
+                .HasForeignKey(D => D.SenderId).OnDelete(DeleteBehavior.Cascade);
+            #endregion
+
+            #region Relation 1-M With DraftConversationRecever 
+            builder.HasMany(U => U.DraftsReceiver)
+                .WithOne(D => D.Receiver)
+                .HasForeignKey(D => D.ReceiverId).OnDelete(DeleteBehavior.NoAction);
+
+            #endregion
+
         }
     }
 }
