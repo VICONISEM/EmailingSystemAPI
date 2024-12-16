@@ -10,11 +10,11 @@ public class ConversationSpecifications : BaseSpecification<Conversation>
         Criteria = C => ((C.ReceiverId == UserId || C.SenderId == UserId))
                &&
                (string.IsNullOrEmpty(Specs.Search) ||
-               (C.Subject.ToLower().Contains(Specs.Search)
+               (C.Subject.ToUpper().Contains(Specs.Search)
                ||
-               C.SenderId == UserId || C.Sender.NormalizedName.ToLower().Contains(Specs.Search)
+               C.SenderId == UserId || C.Sender.NormalizedName.Contains(Specs.Search)
                ||
-               C.ReceiverId == UserId || C.Receiver.NormalizedName.ToLower().Contains(Specs.Search)));
+               C.ReceiverId == UserId || C.Receiver.NormalizedName.Contains(Specs.Search)));
 
              AddInclude(C => C.Include(C => C.UserConversationStatuses.Where(C => C.UserId == UserId)));
 
