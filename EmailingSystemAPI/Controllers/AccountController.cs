@@ -39,13 +39,13 @@ namespace EmailingSystemAPI.Controllers
         }
 
         [HttpGet("GetCurrentUser")]
-        public async Task<ActionResult<AuthDto>> GetCurrentUser()
+        public async Task<ActionResult<UserDto>> GetCurrentUser()
         {
             var Email = User.FindFirstValue(ClaimTypes.Email);
 
             var user = await userManager.FindByEmailAsync(Email);
 
-            var userDto = mapper.Map<AuthDto>(user);
+            var userDto = mapper.Map<UserDto>(user);
 
             return Ok(userDto);
         }
