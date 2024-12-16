@@ -42,8 +42,7 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.SpecsParams
             |
             (C.Conversation.ReceiverId == UserId || C.Conversation.Sender.NormalizedName.ToLower().Contains(Specs.Search));
 
-            AddInclude(Ui => Ui.Include(C => C.Conversation).ThenInclude(C => C.LastMessage).Include(C => C.Conversation).ThenInclude(C => C.UserConversationStatuses));
-
+            AddInclude(Ui => Ui.Include(C => C.Conversation).ThenInclude(C => C.UserConversationStatuses));
 
 
 
@@ -51,10 +50,10 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.SpecsParams
 
 
             if (Specs.Sort == "dsec")
-                OrderByDesc = (C => C.Conversation.LastMessage.SendAt);
+                OrderByDesc = C => C.Conversation.Messages.Where(C => C.SenderId == UserId && !C.SenderIsDeleted || C.ReceiverId == UserId && !C.ReceiverIsDeleted).Max(M => M.SendAt);
             else
-                OrderBy = (C => C.Conversation.LastMessage.SendAt);
-            
+                OrderBy = C => C.Conversation.Messages.Where(C => C.SenderId == UserId && !C.SenderIsDeleted || C.ReceiverId == UserId && !C.ReceiverIsDeleted).Max(M => M.SendAt);
+
 
             ApplyPagination(Specs.PageSize * (Specs.PageNumber - 1), Specs.PageSize);
         }

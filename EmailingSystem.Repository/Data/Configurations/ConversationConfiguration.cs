@@ -27,21 +27,12 @@ namespace EmailingSystem.Repository.Data.Configurations
                    .HasForeignKey(C => C.ReceiverId).OnDelete(DeleteBehavior.NoAction);
             #endregion
 
-            #region Relation 1-1 With LastMessage
-            builder.HasOne(C => C.LastMessage)
-                   .WithOne()
-                   .HasForeignKey<Conversation>(C => C.LastMessageId);
-            #endregion
-
             #region Relation 1-M With Messages
             builder.HasMany(C => C.Messages)
            .WithOne(C => C.Conversation)
            .HasForeignKey(M => M.ConversationId).OnDelete(DeleteBehavior.Cascade);
             #endregion
 
-            #region Index
-            builder.HasIndex(C => C.SendAt);
-            #endregion
         }
     }
 }
