@@ -21,9 +21,12 @@ namespace EmailingSystem.Repository
 
         public IQueryable<T> GetAllQueryableWithSpecs(ISpecification<T> Specs)
         {
-            //return _dbContext.Set<T>();
             return SpecificationEvaluator<T>.GetQuery(_dbContext.Set<T>(), Specs).AsNoTracking();
+        }
 
+        public async Task<int> GetCountWithSpecs(ISpecification<T> Specs)
+        {
+            return await SpecificationEvaluator<T>.GetQuery(_dbContext.Set<T>(), Specs).CountAsync();
         }
 
         public async Task<T?> GetByIdAsync(int Id)

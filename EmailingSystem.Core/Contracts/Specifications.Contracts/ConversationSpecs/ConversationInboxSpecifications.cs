@@ -1,6 +1,7 @@
 ﻿using EmailingSystem.Core.Contracts.Specification.Contract;
 using EmailingSystem.Core.Contracts.Specifications.Contracts.SpecsParams;
 using EmailingSystem.Core.Entities;
+using EmailingSystem.Core.Enums;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,9 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpe
         public ConversationInboxSpecifications(ConversationSpecParams Specs, int UserId)
         {
             Criteria = C => ((C.ReceiverId == UserId ||C.SenderId==UserId) && C.Messages.Any(M=>M.ReceiverId==UserId)) 
+            &&
+            (C.UserConversationStatuses
+                    .Any(C => C.Status == ConversationStatus.Starred || C.Status == ConversationStatus.Active))
             &&
             (string.IsNullOrEmpty(Specs.Search) || 
             (C.Subject.ToUpper().Contains(Specs.Search)

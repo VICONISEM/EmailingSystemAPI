@@ -10,6 +10,7 @@ namespace EmailingSystem.Core.Contracts.Repository.Contracts
     public interface IGenericRepository<T> where T : class
     {
         public IQueryable<T> GetAllQueryableWithSpecs(ISpecification<T> Specs);
+        public Task<int> GetCountWithSpecs(ISpecification<T> Specs);
         public Task<T?> GetByIdAsync(int Id);
         public Task AddAsync(T Entity);
         public void UpdateAsync(T Entity);

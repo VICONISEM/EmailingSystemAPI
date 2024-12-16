@@ -2,11 +2,13 @@
 using EmailingSystem.Core.Contracts;
 using EmailingSystem.Core.Contracts.Repository.Contracts;
 using EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpecs;
+using EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpecs.PaginatedConversation;
 using EmailingSystem.Core.Contracts.Specifications.Contracts.SpecsParams;
 using EmailingSystem.Core.Entities;
 using EmailingSystem.Core.Enums;
 using EmailingSystem.Repository;
 using EmailingSystemAPI.DTOs;
+using EmailingSystemAPI.Helper;
 using Microsoft.AspNetCore.Identity;
 
 using Microsoft.AspNetCore.Mvc;
@@ -33,43 +35,44 @@ namespace EmailingSystemAPI.Controllers
 
 
         [HttpGet("AllConversations")]
-        public async Task<ActionResult<IEnumerable<ConversationDto>>> AllConversations([FromQuery] ConversationSpecParams Specs)
+        public async Task<ActionResult<Pagination<ConversationDto>>> AllConversations([FromQuery] ConversationSpecParams Specs)
         {
             var Email = User.FindFirstValue(ClaimTypes.Email);
             var user = await userManager.FindByIdAsync(Email);
 
             IQueryable<Conversation> Query;
+            int Count = 0;
 
             if (Specs.Type == "inbox")
             {
                 var specs = new ConversationInboxSpecifications(Specs, user.Id);
-                Query = unitOfWork.Repository<Conversation>()
-                    .GetAllQueryableWithSpecs(specs)
-                    .Where(C => C.UserConversationStatuses
-                    .Any(C => C.Status == ConversationStatus.Starred || C.Status == ConversationStatus.Active));
+                Query = unitOfWork.Repository<Conversation>().GetAllQueryableWithSpecs(specs);
+
+                var CountSpecs = new ConversationInboxSpecificationsForCountPagination(Specs, user.Id);
+                Count = await unitOfWork.Repository<Conversation>().GetCountWithSpecs(CountSpecs);
             }
             else if (Specs.Type == "sent")
             {
-                var specs = new ConversationSentSpecification(Specs, user.Id);
-                Query = unitOfWork.Repository<Conversation>()
-                    .GetAllQueryableWithSpecs(specs)
-                    .Where(C => C.UserConversationStatuses
-                    .Any(C => C.Status == ConversationStatus.Starred || C.Status == ConversationStatus.Active));
+                var specs = new ConversationSentSpecifications(Specs, user.Id);
+                Query = unitOfWork.Repository<Conversation>().GetAllQueryableWithSpecs(specs);
+
+                var CountSpecs = new ConversationSentSpecificationsForCountPagination(Specs, user.Id);
+                Count = await unitOfWork.Repository<Conversation>().GetCountWithSpecs(CountSpecs);
             }
             else
             {
                 var specs = new ConversationSpecifications(Specs, user.Id);
-                Query = unitOfWork.Repository<Conversation>()
-                    .GetAllQueryableWithSpecs(specs)
-                    .Where(C => C.UserConversationStatuses
-                    .Any(C => C.Status == (ConversationStatus)Enum.Parse(typeof(ConversationStatus), Specs.Type)));
+                Query = unitOfWork.Repository<Conversation>().GetAllQueryableWithSpecs(specs);
+
+                var CountSpecs = new ConversationSpecificationsForCountPagination(Specs, user.Id);
+                Count = await unitOfWork.Repository<Conversation>().GetCountWithSpecs(CountSpecs);
             }
 
             var conversations = await Query.ToListAsync();
 
-            var ConversationDto = mapper.Map<IEnumerable<ConversationDto>>(conversations);
+            var ConversationDtoList = mapper.Map<IReadOnlyList<ConversationDto>>(conversations);
 
-            return Ok(ConversationDto);
+            return Ok(new Pagination<ConversationDto>(Specs.PageNumber,Specs.PageSize,Count,ConversationDtoList));
         }
 
         [HttpGet("DraftConversations")]
