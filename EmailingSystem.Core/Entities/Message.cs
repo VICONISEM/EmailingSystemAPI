@@ -24,7 +24,6 @@ namespace EmailingSystem.Core.Entities
         public ICollection<Attachment>? Attachments { get; set; }
         public bool SenderIsDeleted { get; set; }
         public bool ReceiverIsDeleted { get; set; }
-
-
+        public bool IsDraft { get; set; } = false;
     }
 }

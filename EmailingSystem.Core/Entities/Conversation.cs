@@ -8,9 +8,6 @@
         public ApplicationUser Sender { get; set; } = null!;
         public int ReceiverId { get; set; }
         public ApplicationUser Receiver { get; set; } = null!;
-        public DateTime SendAt { get; set; } = DateTime.Now;
-        public long? LastMessageId { get; set; }
-        public Message? LastMessage { get; set; } = null!;
         public ICollection<Message> Messages { get; set; } = null!;
         public ICollection<UserConversationStatus> UserConversationStatuses { get; set; } = null!;
         public ICollection<UserInbox> UserInboxes { get; set; } = null!;

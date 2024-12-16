@@ -9,22 +9,33 @@ namespace EmailingSystemAPI.Helper
 
         public MappingProfiles()
         {
+            #region MappingApplicationUser
             CreateMap<ApplicationUser, RegisterDto>().ReverseMap();
             CreateMap<ApplicationUser, UserDto>().ForMember(U => U.DepartmentName, O => O.MapFrom(U => U.Department.Name)).ReverseMap();
+            #endregion
 
-            CreateMap<Conversation,ConversationDto>()
-                .ForMember(C => C.SenderName, O => O.MapFrom(C => C.Sender.Name))
-                .ForMember(C => C.ReceiverName, O => O.MapFrom(C => C.Receiver.Name))
+            #region MappingConversation
+            CreateMap<Conversation, ConversationDto>()
+                   .ForMember(C => C.SenderName, O => O.MapFrom(C => C.Sender.Name))
+                   .ForMember(C => C.ReceiverName, O => O.MapFrom(C => C.Receiver.Name))
 
-                .ForMember(C => C.SenderEmail, O => O.MapFrom(C => C.Sender.Email))
-                .ForMember(C => C.ReceiverEmail, O => O.MapFrom(C => C.Receiver.Email))
+                   .ForMember(C => C.SenderEmail, O => O.MapFrom(C => C.Sender.Email))
+                   .ForMember(C => C.ReceiverEmail, O => O.MapFrom(C => C.Receiver.Email))
 
-                .ForMember(C => C.LastMessageTime, O => O.MapFrom(C => C.LastMessage.SendAt))
-                .ReverseMap();
+                   .ForMember(C => C.LastMessageTime, O => O.MapFrom(C => C.Messages.Max(M => M.SendAt)))
+                   .ForMember(C => C.IsOpened, O => O.MapFrom(C => C.Messages.MaxBy(M => M.SendAt).IsRead))
+                   .ForMember(C => C.LastMessage.IsDraft, O => O.MapFrom(C => C.Messages.MaxBy(M => M.SendAt).IsDraft))
+                   .ReverseMap(); 
+            #endregion
 
 
 
-    }
+
+
+
+
+
+        }
 
 
     }

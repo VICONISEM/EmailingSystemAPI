@@ -27,8 +27,8 @@ namespace EmailingSystem.Core.Entities
         public ICollection<Conversation> ConversationsReceiver { get; set; } = null!;
         public ICollection<Message> MessagesSender { get; set; } = null!;
         public ICollection<Message> MessagesReceiver { get; set; } = null!;
-        public ICollection<Draft> DraftsSender { get; set; } = null!;
-        public ICollection<Draft> DraftsReceiver { get; set; } = null!;
+        public ICollection<DraftConversations> DraftsSender { get; set; } = null!;
+        public ICollection<DraftConversations> DraftsReceiver { get; set; } = null!;
         public ICollection<UserConversationStatus> UserConversationStatuses { get; set; } = null!;
         public ICollection<UserInbox> UserInboxes { get; set; } = null!;
         public ICollection<UserSent> UserSents { get; set; } = null!;
