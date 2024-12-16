@@ -16,6 +16,13 @@ namespace EmailingSystem.Core.Entities
         public ApplicationUser? Receiver { get; set; } = null!;
         public string? Body { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public List<DraftAttachments>? DraftAttachments  { get; set; }
+
+
+
+
+
+
         
     }
 }
