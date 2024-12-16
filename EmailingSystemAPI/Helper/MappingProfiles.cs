@@ -11,7 +11,11 @@ namespace EmailingSystemAPI.Helper
         {
             #region MappingApplicationUser
             CreateMap<ApplicationUser, RegisterDto>().ReverseMap();
-            CreateMap<ApplicationUser, UserDto>().ForMember(U => U.DepartmentName, O => O.MapFrom(U => U.Department.Name)).ReverseMap();
+            CreateMap<ApplicationUser, AuthDto>().ForMember(U => U.DepartmentName, O => O.MapFrom(U => U.Department.Name)).ReverseMap();
+            CreateMap<ApplicationUser, UserDto>()
+                .ForMember(U => U.CollegeName, O => O.MapFrom(O => O.College.Name))
+                .ForMember(U => U.DepartmentName, O => O.MapFrom(O => O.Department.Name));
+
             #endregion
 
             #region MappingConversation
@@ -22,12 +26,9 @@ namespace EmailingSystemAPI.Helper
                    .ForMember(C => C.SenderEmail, O => O.MapFrom(C => C.Sender.Email))
                    .ForMember(C => C.ReceiverEmail, O => O.MapFrom(C => C.Receiver.Email))
 
-                   .ForMember(C => C.LastMessageTime, O => O.MapFrom(C => C.Messages.Max(M => M.SendAt)))
-                   .ForMember(C => C.IsOpened, O => O.MapFrom(C => C.Messages.MaxBy(M => M.SendAt).IsRead))
-                   .ForMember(C => C.LastMessage.IsDraft, O => O.MapFrom(C => C.Messages.MaxBy(M => M.SendAt).IsDraft))
-                   .ReverseMap(); 
-            #endregion
 
+                   .ReverseMap();
+            #endregion
 
 
 
