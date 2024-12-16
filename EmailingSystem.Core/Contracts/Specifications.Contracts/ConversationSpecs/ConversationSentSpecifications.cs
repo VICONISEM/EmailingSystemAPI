@@ -1,6 +1,7 @@
 ﻿using EmailingSystem.Core.Contracts.Specification.Contract;
 using EmailingSystem.Core.Contracts.Specifications.Contracts.SpecsParams;
 using EmailingSystem.Core.Entities;
+using EmailingSystem.Core.Enums;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -10,12 +11,15 @@ using System.Threading.Tasks;
 
 namespace EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpecs
 {
-    public class ConversationSentSpecification : BaseSpecification<Conversation>
+    public class ConversationSentSpecifications : BaseSpecification<Conversation>
     {
 
-        public ConversationSentSpecification(ConversationSpecParams Specs, int UserId)
+        public ConversationSentSpecifications(ConversationSpecParams Specs, int UserId)
         {
             Criteria = C => ((C.ReceiverId == UserId || C.SenderId == UserId) && C.Messages.Any(M => M.SenderId == UserId))
+               &&
+               (C.UserConversationStatuses
+               .Any(C => C.Status == ConversationStatus.Starred || C.Status == ConversationStatus.Active))
                &&
                (string.IsNullOrEmpty(Specs.Search) ||
                (C.Subject.ToUpper().Contains(Specs.Search)
@@ -36,9 +40,6 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpe
 
 
             ApplyPagination(Specs.PageSize * (Specs.PageNumber - 1), Specs.PageSize);
-
-
-
 
         }  
     }
