@@ -26,7 +26,7 @@
         public string? Search
         {
             get { return search; }
-            set { search = value?.Trim().ToLower(); }
+            set { search = value?.Trim().ToUpper(); }
         }
     }
 }

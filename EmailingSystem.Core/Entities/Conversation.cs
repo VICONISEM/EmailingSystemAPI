@@ -10,7 +10,6 @@
         public ApplicationUser Receiver { get; set; } = null!;
         public ICollection<Message> Messages { get; set; } = null!;
         public ICollection<UserConversationStatus> UserConversationStatuses { get; set; } = null!;
-        public ICollection<UserInbox> UserInboxes { get; set; } = null!;
-        public ICollection<UserSent> UserSents { get; set; } = null!;
+      
     }
 }
