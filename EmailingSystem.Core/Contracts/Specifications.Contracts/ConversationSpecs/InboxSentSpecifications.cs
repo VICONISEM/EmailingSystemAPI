@@ -37,9 +37,9 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.SpecsParams
 
             Criteria = C => C.UserId == UserId && 
             string.IsNullOrEmpty(Specs.Search) || C.Conversation.Subject.ToLower().Contains(Specs.Search)
-            |
+            ||
             (C.Conversation.SenderId == UserId || C.Conversation.Sender.NormalizedName.ToLower().Contains(Specs.Search))
-            |
+            ||
             (C.Conversation.ReceiverId == UserId || C.Conversation.Sender.NormalizedName.ToLower().Contains(Specs.Search));
 
             AddInclude(Ui => Ui.Include(C => C.Conversation).ThenInclude(C => C.UserConversationStatuses));
@@ -50,7 +50,7 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.SpecsParams
 
 
             if (Specs.Sort == "dsec")
-                OrderByDesc = C => C.Conversation.Messages.Where(C => C.SenderId == UserId && !C.SenderIsDeleted || C.ReceiverId == UserId && !C.ReceiverIsDeleted).Max(M => M.SendAt);
+                OrderByDesc = C => C.Conversation.Messages.Where(C => C.ReceiverId == UserId && !C.ReceiverIsDeleted).Max(M => M.SendAt);
             else
                 OrderBy = C => C.Conversation.Messages.Where(C => C.SenderId == UserId && !C.SenderIsDeleted || C.ReceiverId == UserId && !C.ReceiverIsDeleted).Max(M => M.SendAt);
 

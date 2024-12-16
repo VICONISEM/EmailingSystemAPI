@@ -32,7 +32,7 @@ namespace EmailingSystemAPI.Controllers
         }
 
         [HttpPost("Register")]
-        public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
+        public async Task<ActionResult<AuthDto>> Register(RegisterDto registerDto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
@@ -52,7 +52,7 @@ namespace EmailingSystemAPI.Controllers
 
             SetRefreshTokenInCookie(refreshToken.Token, refreshToken.ExpiresOn);
 
-            var userDto = mapper.Map<UserDto>(AppUser);
+            var userDto = mapper.Map<AuthDto>(AppUser);
 
             userDto.AccessToken = await tokenService.CreateTokenAsync(AppUser,userManager);
             userDto.RefreshTokenExpirationTime = refreshToken.ExpiresOn;
@@ -61,7 +61,7 @@ namespace EmailingSystemAPI.Controllers
         }
 
         [HttpGet("LogIn")]
-        public async Task<ActionResult<UserDto>> Login(LogInDto loginDto)
+        public async Task<ActionResult<AuthDto>> Login(LogInDto loginDto)
         {
             if (!ModelState.IsValid) return BadRequest();
 
@@ -80,7 +80,7 @@ namespace EmailingSystemAPI.Controllers
                 SetRefreshTokenInCookie(refreshToken.Token, refreshToken.ExpiresOn);
             }
 
-            var userDto = mapper.Map<UserDto>(user);
+            var userDto = mapper.Map<AuthDto>(user);
             userDto.AccessToken = await tokenService.CreateTokenAsync(user,userManager);
             userDto.RefreshTokenExpirationTime = user.RefreshTokens.FirstOrDefault(T => T.IsActive).ExpiresOn;
 

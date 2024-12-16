@@ -56,7 +56,7 @@ namespace EmailingSystemAPI.Controllers
                     .GetAllQueryableWithSpecs(specs)
                     .Select(C => C.Conversation)
                     .Where(C => C.UserConversationStatuses
-                    .All(C => C.Status == ConversationStatus.Starred || C.Status == ConversationStatus.Active));
+                    .Any(C => C.Status == ConversationStatus.Starred || C.Status == ConversationStatus.Active));
             }
             else
             {
