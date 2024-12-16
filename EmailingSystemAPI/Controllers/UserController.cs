@@ -3,6 +3,7 @@ using EmailingSystem.Core.Contracts;
 using EmailingSystem.Core.Contracts.Specifications.Contracts.UserSpecs;
 using EmailingSystem.Core.Entities;
 using EmailingSystem.Core.Enums;
+using EmailingSystem.Repository.Data.Contexts;
 using EmailingSystemAPI.DTOs;
 using EmailingSystemAPI.Errors;
 using EmailingSystemAPI.Helper;
@@ -21,38 +22,28 @@ namespace EmailingSystemAPI.Controllers
         private readonly UserManager<ApplicationUser> userManager;
         private readonly IUnitOfWork unitOfWork;
         private readonly IMapper mapper;
+        private readonly EmailDbContext dbContext;
 
-        public UserController(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork, IMapper mapper)
+        public UserController(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork, IMapper mapper, EmailDbContext dbContext)
         {
             this.userManager = userManager;
             this.unitOfWork = unitOfWork;
             this.mapper = mapper;
+            this.dbContext = dbContext;
         }
 
-        [HttpGet]
+        [HttpGet("AllUsers")]
         public async Task<ActionResult<Pagination<UserDto>>> GetAllUsers(UserSpecsParams Specs)
         {
             var Email = User.FindFirstValue(ClaimTypes.Email);
             var admin = await userManager.FindByNameAsync(Email);
             var role = (await userManager.GetRolesAsync(admin)).ToString();
 
-            var specs = new UserSpecifications(Specs, admin.Id);
+            var specs = new UserSpecifications(Specs, admin);
+            var CountSpecs = new UserSpecificationsForCountPagination(Specs, admin);
 
-            List<ApplicationUser> users = new List<ApplicationUser>();
-            int Count = 0;
-
-            if (role == UserRole.CollegeAdmin.ToString())
-            {
-                users = await unitOfWork.Repository<ApplicationUser>().GetAllQueryableWithSpecs(specs).Where(U => U.CollegeId == admin.CollegeId).ToListAsync();
-                //count = await unitOfWork.Repository<ApplicationUser>.GetCountWithSpecs(specs);
-                Count = users.Count;
-            }
-            else if (role == UserRole.Admin.ToString())
-            {
-                users = await unitOfWork.Repository<ApplicationUser>().GetAllQueryableWithSpecs(specs).ToListAsync();
-                //Count = await unitOfWork.Repository<ApplicationUser>.GetCountWithSpecs(specs);
-                Count = users.Count;
-            }
+            List<ApplicationUser> users = await unitOfWork.Repository<ApplicationUser>().GetAllQueryableWithSpecs(specs).ToListAsync();
+            int Count = await unitOfWork.Repository<ApplicationUser>().GetCountWithSpecs(CountSpecs);
 
             var userDtoList = mapper.Map<List<UserDto>>(users);
 
@@ -81,7 +72,6 @@ namespace EmailingSystemAPI.Controllers
                 { return Unauthorized(new APIErrorResponse(401, "You aren't authorized to perform this action for this user.")); }
             }
 
-
             await userManager.RemovePasswordAsync(user);
             var Result = await userManager.AddPasswordAsync(user,user.NationalId);
 
@@ -107,9 +97,57 @@ namespace EmailingSystemAPI.Controllers
                 { return Unauthorized(new APIErrorResponse(401, "You aren't authorized to perform this action for this user.")); }
             }
 
-            //var appUser = mapper.Map<ApplicationUser>(userDto);
+            //Updating User
+            var userRole = (await userManager.GetRolesAsync(user)).ToString();
 
-            var Result = userManager.UpdateAsync(/*appUser*/ user);
+            if (userRole != userDto.Role)
+            {
+
+                using (var transaction = await dbContext.Database.BeginTransactionAsync())
+                {
+                    try
+                    {
+                        var removeResult = await userManager.RemoveFromRoleAsync(user, userRole);
+
+                        if (!removeResult.Succeeded)
+                        {
+                            throw new Exception($"Failed to remove user from role: {string.Join(", ", removeResult.Errors.Select(e => e.Description))}");
+                        }
+
+        
+                        var newRole = Enum.Parse<UserRole>(userDto.Role, true).ToString();
+
+                        var addResult = await userManager.AddToRoleAsync(user, newRole);
+
+                        if (!addResult.Succeeded)
+                        {
+                            throw new Exception($"Failed to add user to role: {string.Join(", ", addResult.Errors.Select(e => e.Description))}");
+                        }
+
+                        // Commit transaction if everything succeeds
+                        await transaction.CommitAsync();
+                    }
+                    catch (Exception)
+                    {
+                        // Rollback transaction if any operation fails
+                        await transaction.RollbackAsync();
+                        throw; // Re-throw the exception to handle it at a higher level if needed
+                    }
+                }
+
+            }
+
+            user.Name = userDto.Name;
+            user.NationalId = userDto.NationalId;
+            user.CollegeId = userDto.CollegeId;
+            user.DepartmentId = userDto.DepartmentId;
+
+            //if(userDto.Picture != null)
+            //{
+
+            //}
+
+            var Result = userManager.UpdateAsync(user);
 
             if (!Result.IsCompletedSuccessfully) return BadRequest(new APIErrorResponse(401, "An error ocurred, Please try again later."));
 
@@ -117,6 +155,5 @@ namespace EmailingSystemAPI.Controllers
             
         }
 
-
-        }
     }
+}
