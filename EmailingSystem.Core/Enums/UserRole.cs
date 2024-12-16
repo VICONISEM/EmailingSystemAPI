@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace EmailingSystem.Core.Enums
 {
-    public enum UserRoles
+    public enum UserRole
     {
         NormalUser,
         Secretary,
