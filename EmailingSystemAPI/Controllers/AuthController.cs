@@ -52,7 +52,7 @@ namespace EmailingSystemAPI.Controllers
 
             SetRefreshTokenInCookie(refreshToken.Token, refreshToken.ExpiresOn);
 
-            var userDto = mapper.Map<UserDto>(AppUser);
+            var userDto = mapper.Map<AuthDto>(AppUser);
 
             userDto.AccessToken = await tokenService.CreateTokenAsync(AppUser,userManager);
             userDto.RefreshTokenExpirationTime = refreshToken.ExpiresOn;
@@ -80,7 +80,7 @@ namespace EmailingSystemAPI.Controllers
                 SetRefreshTokenInCookie(refreshToken.Token, refreshToken.ExpiresOn);
             }
 
-            var userDto = mapper.Map<UserDto>(user);
+            var userDto = mapper.Map<AuthDto>(user);
             userDto.AccessToken = await tokenService.CreateTokenAsync(user,userManager);
             userDto.RefreshTokenExpirationTime = user.RefreshTokens.FirstOrDefault(T => T.IsActive).ExpiresOn;
 
