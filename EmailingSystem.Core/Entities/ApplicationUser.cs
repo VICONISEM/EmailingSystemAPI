@@ -30,8 +30,7 @@ namespace EmailingSystem.Core.Entities
         public ICollection<DraftConversations> DraftsSender { get; set; } = null!;
         public ICollection<DraftConversations> DraftsReceiver { get; set; } = null!;
         public ICollection<UserConversationStatus> UserConversationStatuses { get; set; } = null!;
-        public ICollection<UserInbox> UserInboxes { get; set; } = null!;
-        public ICollection<UserSent> UserSents { get; set; } = null!;
+       
         public HashSet<RefreshToken>? RefreshTokens { get; set; } = new HashSet<RefreshToken>();
 
     }
