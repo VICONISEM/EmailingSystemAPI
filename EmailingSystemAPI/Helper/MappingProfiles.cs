@@ -9,7 +9,7 @@ namespace EmailingSystemAPI.Helper
 
         public MappingProfiles()
         {
-            #region MappingApplicationUser
+            #region ApplicationUser
             CreateMap<ApplicationUser, RegisterDto>().ReverseMap();
             CreateMap<ApplicationUser, AuthDto>().ForMember(U => U.DepartmentName, O => O.MapFrom(U => U.Department.Name)).ReverseMap();
             CreateMap<ApplicationUser, UserDto>()
@@ -18,7 +18,7 @@ namespace EmailingSystemAPI.Helper
 
             #endregion
 
-            #region MappingConversation
+            #region Conversation
             CreateMap<Conversation, ConversationDto>()
                    .ForMember(C => C.SenderName, O => O.MapFrom(C => C.Sender.Name))
                    .ForMember(C => C.ReceiverName, O => O.MapFrom(C => C.Receiver.Name))
@@ -48,7 +48,7 @@ namespace EmailingSystemAPI.Helper
 
 
 
-            #region MappingMessages
+            #region Messages
             CreateMap<Message, MessageDto>()
                 .ForMember(C => C.SenderEmail, O => O.MapFrom(C => C.Sender.Email))
                 .ForMember(C => C.ReceiverEmail, O => O.MapFrom(C => C.Receiver.Email))
@@ -57,10 +57,17 @@ namespace EmailingSystemAPI.Helper
             #endregion
 
 
+            #region Department
+            CreateMap<Department, DepartmentDto>();
+            CreateMap<Department, DepartmentWithUserDto>()
+                .ForMember(D => D.CollegeName, O => O.MapFrom(O => O.College.Name))
+                .ForMember(D => D.userId, O => O.MapFrom(O => O.User.Id));
+            #endregion
 
 
 
-    }
+
+        }
 
 
     }

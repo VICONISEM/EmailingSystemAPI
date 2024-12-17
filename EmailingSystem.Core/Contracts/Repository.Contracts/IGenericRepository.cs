@@ -13,8 +13,8 @@ namespace EmailingSystem.Core.Contracts.Repository.Contracts
         public Task<int> GetCountWithSpecs(ISpecification<T> Specs);
         public Task<T?> GetByIdAsync(int Id);
         public Task AddAsync(T Entity);
-        public void UpdateAsync(T Entity);
-        public void DeleteAsync(T Entity);
+        public void Update(T Entity);
+        public void Delete(T Entity);
 
     }
 }
