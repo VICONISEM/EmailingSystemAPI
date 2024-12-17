@@ -77,15 +77,18 @@ namespace EmailingSystemAPI.Controllers
         }
 
         [HttpGet("DraftConversations")]
-        public async Task<ActionResult<IEnumerable<DraftConversations>>> DraftConversations([FromQuery] ConversationSpecParams Specs)
+        public async Task<ActionResult<Pagination<DraftConversations>>> DraftConversations([FromQuery] ConversationSpecParams Specs)
         {
             var Email = User.FindFirstValue(ClaimTypes.Email);
             var user = await userManager.FindByIdAsync(Email);
 
             var specs = new DraftSpecification(Specs, user.Id);
-            var conversations = unitOfWork.Repository<DraftConversations>().GetAllQueryableWithSpecs(specs);
+            var conversations = await unitOfWork.Repository<DraftConversations>().GetAllQueryableWithSpecs(specs).ToListAsync();
 
-            return await conversations.ToListAsync();
+            var SpecsCount = new ConversationDraftSpecificationForCountPagination(Specs, user.Id);
+            var ConversationCount = await unitOfWork.Repository<DraftConversations>().GetCountWithSpecs(SpecsCount);
+
+            return Ok(new Pagination<DraftConversations>(Specs.PageNumber,Specs.PageSize,ConversationCount,conversations));
         }
 
         [HttpGet("GetConversationById")]
