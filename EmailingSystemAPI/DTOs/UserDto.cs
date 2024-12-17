@@ -8,6 +8,8 @@
         public string? PicturePath { get; set; } = null!;
         public string? CollegeName { get; set; } = null!;
         public string? DepartmentName { get; set; } = null!;
+        public string NationalId { get; set; } = null!;
+
 
     }
 }

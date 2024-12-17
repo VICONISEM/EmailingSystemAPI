@@ -8,6 +8,7 @@ using EmailingSystem.Core.Entities;
 using EmailingSystem.Core.Enums;
 using EmailingSystem.Repository;
 using EmailingSystemAPI.DTOs;
+using EmailingSystemAPI.Errors;
 using EmailingSystemAPI.Helper;
 using Microsoft.AspNetCore.Identity;
 
@@ -87,8 +88,31 @@ namespace EmailingSystemAPI.Controllers
             return await conversations.ToListAsync();
         }
 
-       
+        [HttpGet("GetConversationById")]
+        public async Task<ActionResult<ConversationToReturnDto>> GetConversationById(int ConversationId)
+        {
+            var Conversation = await unitOfWork.Repository<Conversation>().GetByIdAsync(ConversationId);
+            if(Conversation == null) return NotFound(new APIErrorResponse(400,"Not Found"));
 
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            var user = userManager.FindByIdAsync(userEmail);
+
+            if (user.Id != Conversation.SenderId && user.Id != Conversation.ReceiverId)
+                return Unauthorized(new APIErrorResponse(401, "You aren't authorized"));
+
+            var ConversationWithMessages = mapper.Map<ConversationToReturnDto>(Conversation);
+
+            var MessagesSpecs = new MessagesInConversationSpecifications();
+            var Messages = await unitOfWork.Repository<Message>().GetAllQueryableWithSpecs(MessagesSpecs);
+
+            for(int i = 0; i < Messages.Count; i++)
+            {
+
+            }
+
+
+            return Ok(ConversationWithMessages);
+        }
 
 
     }
