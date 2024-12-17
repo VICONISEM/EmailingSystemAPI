@@ -39,12 +39,12 @@ namespace EmailingSystem.Repository
             await _dbContext.Set<T>().AddAsync(Entity);
         }
 
-        public void UpdateAsync(T Entity)
+        public void Update(T Entity)
         {
             _dbContext.Set<T>().Update(Entity);
         }
 
-        public void DeleteAsync(T Entity)
+        public void Delete(T Entity)
         {
             _dbContext.Set<T>().Remove(Entity);
         }
