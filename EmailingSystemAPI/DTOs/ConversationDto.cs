@@ -13,6 +13,5 @@ namespace EmailingSystemAPI.DTOs
         public DateTime LastMessageTime { get; set; }
         public LastMessageDto LastMessage { get; set; }
         public bool IsOpened { get; set; }
-
     }
 }

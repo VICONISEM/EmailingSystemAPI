@@ -17,14 +17,14 @@ namespace EmailingSystemAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class AdminController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> userManager;
         private readonly IUnitOfWork unitOfWork;
         private readonly IMapper mapper;
         private readonly EmailDbContext dbContext;
 
-        public UserController(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork, IMapper mapper, EmailDbContext dbContext)
+        public AdminController(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork, IMapper mapper, EmailDbContext dbContext)
         {
             this.userManager = userManager;
             this.unitOfWork = unitOfWork;
@@ -155,5 +155,49 @@ namespace EmailingSystemAPI.Controllers
             
         }
 
+        //Get Account By Email
+        [HttpGet("GetAccountByEmail")]
+        public async Task<ActionResult> GetAccountByEmail(string Email)
+        {
+            var adminEmail = User.FindFirstValue(ClaimTypes.Email);
+            var admin = await userManager.FindByEmailAsync(adminEmail);
+            var adminRole = (await userManager.GetRolesAsync(admin)).ToString();
+
+            var user = await userManager.FindByEmailAsync(Email);
+            if (user is null) { return NotFound(new APIErrorResponse(401, "User Not Found.")); }
+
+            if (adminRole == UserRole.CollegeAdmin.ToString())
+            {
+                if (user.CollegeId != admin.CollegeId)
+                { return Unauthorized(new APIErrorResponse(401, "You aren't authorized to perform this action for this user.")); }
+            }
+
+            var userDto = mapper.Map<UserDto>(user);
+
+            return Ok(userDto);
+        }
+
+        //Soft Delete
+        [HttpDelete]
+        public async Task<ActionResult> DeleteAccount(string Email)
+        {
+            var adminEmail = User.FindFirstValue(ClaimTypes.Email);
+            var admin = await userManager.FindByEmailAsync(adminEmail);
+            var adminRole = (await userManager.GetRolesAsync(admin)).ToString();
+
+            var user = await userManager.FindByEmailAsync(Email);
+            if (user is null) { return NotFound(new APIErrorResponse(401, "User Not Found.")); }
+
+            if (adminRole == UserRole.CollegeAdmin.ToString())
+            {
+                if (user.CollegeId != admin.CollegeId)
+                { return Unauthorized(new APIErrorResponse(401, "You aren't authorized to perform this action for this user.")); }
+            }
+
+            user.IsDeleted = true;
+            await userManager.UpdateAsync(user);
+
+            return Ok(user);
+        }
     }
 }

@@ -28,15 +28,39 @@ namespace EmailingSystemAPI.Helper
 
 
                    .ReverseMap();
+
+
+            CreateMap<Conversation, ConversationToReturnDto>()
+                   .ForMember(C => C.SenderName, O => O.MapFrom(C => C.Sender.Name))
+                   .ForMember(C => C.ReceiverName, O => O.MapFrom(C => C.Receiver.Name))
+
+                   .ForMember(C => C.SenderEmail, O => O.MapFrom(C => C.Sender.Email))
+                   .ForMember(C => C.ReceiverEmail, O => O.MapFrom(C => C.Receiver.Email))
+
+                    //********************** Start Edits ***************************//
+                   .ForMember(C => C.SenderPictureURL, O => O.MapFrom(C => C.Sender.PicturePath))
+                   .ForMember(C => C.ReceiverPictureURL, O => O.MapFrom(C => C.Receiver.PicturePath))
+                    //********************** End Edits ***************************//
+
+                .ReverseMap();
+            #endregion
+
+
+
+
+            #region MappingMessages
+            CreateMap<Message, MessageDto>()
+                .ForMember(C => C.SenderEmail, O => O.MapFrom(C => C.Sender.Email))
+                .ForMember(C => C.ReceiverEmail, O => O.MapFrom(C => C.Receiver.Email))
+                .ReverseMap();
+
             #endregion
 
 
 
 
 
-
-
-        }
+    }
 
 
     }
