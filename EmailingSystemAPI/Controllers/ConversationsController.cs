@@ -1,20 +1,17 @@
 ﻿using AutoMapper;
 using EmailingSystem.Core.Contracts;
-using EmailingSystem.Core.Contracts.Repository.Contracts;
 using EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpecs;
+using EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpecs.MessagesInConversation;
 using EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpecs.PaginatedConversation;
 using EmailingSystem.Core.Contracts.Specifications.Contracts.SpecsParams;
 using EmailingSystem.Core.Entities;
 using EmailingSystem.Core.Enums;
-using EmailingSystem.Repository;
 using EmailingSystemAPI.DTOs;
 using EmailingSystemAPI.Errors;
 using EmailingSystemAPI.Helper;
 using Microsoft.AspNetCore.Identity;
-
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualBasic;
 using System.Security.Claims;
 
 namespace EmailingSystemAPI.Controllers
@@ -92,12 +89,13 @@ namespace EmailingSystemAPI.Controllers
         }
 
         [HttpGet("GetConversationById")]
-        public async Task<ActionResult<ConversationToReturnDto>> GetConversationById(int ConversationId)
+        public async Task<ActionResult<ConversationToReturnDto>> GetConversationById([FromQuery] ConversationWithMessagesSpecsParams SpecsParams)
         {
-            var Conversation = await unitOfWork.Repository<Conversation>().GetByIdAsync(ConversationId);
+            var Conversation = await unitOfWork.Repository<Conversation>().GetByIdAsync<long>(SpecsParams.ConversationId);
             if(Conversation == null) return NotFound(new APIErrorResponse(400,"Not Found"));
 
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
+
             var user = userManager.FindByIdAsync(userEmail);
 
             if (user.Id != Conversation.SenderId && user.Id != Conversation.ReceiverId)
@@ -105,18 +103,49 @@ namespace EmailingSystemAPI.Controllers
 
             var ConversationWithMessages = mapper.Map<ConversationToReturnDto>(Conversation);
 
-            var MessagesSpecs = new MessagesInConversationSpecifications();
-            var Messages = await unitOfWork.Repository<Message>().GetAllQueryableWithSpecs(MessagesSpecs);
+            var MessagesSpecs = new MessagesInConversationSpecifications(SpecsParams, user.Id);
+            var messages = (await unitOfWork.Repository<Conversation>().GetAllQueryableWithSpecs(MessagesSpecs).FirstOrDefaultAsync()).Messages;
+            ConversationWithMessages.Messages=mapper.Map<List<MessageDto>>(messages);
 
-            for(int i = 0; i < Messages.Count; i++)
-            {
-
-            }
-
-
+            var DraftMessageSpecs = new GetDraftMessageSpecification( user.Id , SpecsParams.ConversationId);
+            var DraftMessage = (await unitOfWork.Repository<Conversation>().GetAllQueryableWithSpecs(DraftMessageSpecs).FirstOrDefaultAsync()).Messages;
+            ConversationWithMessages.DraftMessage = mapper.Map<MessageDto>(DraftMessage);
             return Ok(ConversationWithMessages);
         }
 
+        [HttpPost("ChangeState/{Id}")]
+        public async Task<ActionResult> ChangeConversationStatus(long Id, string Status)
+        {
+            var Conversation = await unitOfWork.Repository<Conversation>().GetByIdAsync<long>(Id);
+            if (Conversation is null) return NotFound(new APIErrorResponse(404, "Not Found."));
 
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+
+            var user = userManager.FindByIdAsync(userEmail);
+
+            if (user.Id != Conversation.SenderId && user.Id != Conversation.ReceiverId)
+                return Unauthorized(new APIErrorResponse(401, "You aren't authorized"));
+
+            var UserConversationStatus = Conversation.UserConversationStatuses.Where(S => S.UserId == user.Id).FirstOrDefault();
+            if (UserConversationStatus.Status == ConversationStatus.Deleted)
+                return NotFound(new APIErrorResponse(404, "Not Found."));
+
+
+
+            if (Enum.TryParse(typeof(ConversationStatus), Status, true, out object result))
+            {
+                UserConversationStatus.Status = (ConversationStatus)result;
+                unitOfWork.Repository<UserConversationStatus>().Update(UserConversationStatus);
+
+            }
+            else
+              return BadRequest(new APIErrorResponse(400, "Not Found"));
+
+
+            return Ok();
+
+
+
+        }
     }
 }

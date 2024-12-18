@@ -15,25 +15,25 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpe
     {
         public ConversationInboxSpecifications(ConversationSpecParams Specs, int UserId)
         {
-            Criteria = C => ((C.ReceiverId == UserId ||C.SenderId==UserId) && C.Messages.Any(M=>M.ReceiverId==UserId)) 
+            Criteria = C => ((C.ReceiverId == UserId || C.SenderId==UserId) && C.Messages.Any(M => M.ReceiverId==UserId)) 
             &&
             (C.UserConversationStatuses
                     .Any(C => C.Status == ConversationStatus.Starred || C.Status == ConversationStatus.Active))
             &&
             (string.IsNullOrEmpty(Specs.Search) || 
-            (C.Subject.ToUpper().Contains(Specs.Search)
+            (C.Subject.Contains(Specs.Search, StringComparison.OrdinalIgnoreCase)
             ||
-            C.SenderId == UserId || C.Sender.NormalizedName.Contains(Specs.Search)
+            C.SenderId == UserId || C.Sender.NormalizedName.Contains(Specs.Search,StringComparison.OrdinalIgnoreCase)
             ||
-            C.ReceiverId == UserId || C.Receiver.NormalizedName.Contains(Specs.Search)));
+            C.ReceiverId == UserId || C.Receiver.NormalizedName.Contains(Specs.Search, StringComparison.OrdinalIgnoreCase)));
 
             AddInclude(C => C.Include(C => C.UserConversationStatuses.Where(C => C.UserId == UserId)));
 
             if (Specs.Sort == "dsec")
-                OrderByDesc = (C => C.Messages.Where(M=>M.ReceiverId == UserId && !M.ReceiverIsDeleted).Max(M => M.SendAt));
+                OrderByDesc = (C => C.Messages.Where(M=>M.ReceiverId == UserId && !M.ReceiverIsDeleted && !M.IsDraft).Max(M => M.SendAt));
                 
             else
-                OrderBy = (C => C.Messages.Where(M => M.ReceiverId == UserId && !M.ReceiverIsDeleted).Max(M => M.SendAt));
+                OrderBy = (C => C.Messages.Where(M => M.ReceiverId == UserId && !M.ReceiverIsDeleted && !M.IsDraft).Max(M => M.SendAt));
 
 
             ApplyPagination(Specs.PageSize * (Specs.PageNumber - 1), Specs.PageSize);
