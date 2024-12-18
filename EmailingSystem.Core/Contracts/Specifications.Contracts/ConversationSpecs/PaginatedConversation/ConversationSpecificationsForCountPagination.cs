@@ -21,11 +21,11 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpe
                    .Any(C => C.Status == (ConversationStatus)Enum.Parse(typeof(ConversationStatus), Specs.Type))
                    &&
                    (string.IsNullOrEmpty(Specs.Search) ||
-                   (C.Subject.ToUpper().Contains(Specs.Search)
+                   (C.Subject.Contains(Specs.Search,StringComparison.OrdinalIgnoreCase)
                    ||
-                   C.SenderId == UserId || C.Sender.NormalizedName.Contains(Specs.Search)
+                   C.SenderId == UserId || C.Sender.NormalizedName.Contains(Specs.Search,StringComparison.OrdinalIgnoreCase)
                    ||
-                   C.ReceiverId == UserId || C.Receiver.NormalizedName.Contains(Specs.Search)));
+                   C.ReceiverId == UserId || C.Receiver.NormalizedName.Contains(Specs.Search,StringComparison.OrdinalIgnoreCase)));
         }
     }
 }
