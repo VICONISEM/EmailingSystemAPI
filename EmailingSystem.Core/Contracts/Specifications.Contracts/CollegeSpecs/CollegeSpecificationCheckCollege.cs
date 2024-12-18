@@ -12,7 +12,7 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.CollegeSpecs
     {
         public CollegeSpecificationCheckCollege(string Name)
         {
-            Criteria= Q=>Q.Name.Trim().ToUpper()==Name.Trim().ToUpper();
+            Criteria = Q=>Q.Name.Trim().ToUpper()==Name.Trim().ToUpper();
         }
     }
 }
