@@ -104,16 +104,17 @@ namespace EmailingSystemAPI.Controllers
             var ConversationWithMessages = mapper.Map<ConversationToReturnDto>(Conversation);
 
             var MessagesSpecs = new MessagesInConversationSpecifications(SpecsParams, user.Id);
-            var messages = (await unitOfWork.Repository<Conversation>().GetAllQueryableWithSpecs(MessagesSpecs).FirstOrDefaultAsync()).Messages;
+            var messages = (await unitOfWork.Repository<Conversation>().GetAllQueryableWithSpecs(MessagesSpecs).FirstOrDefaultAsync())?.Messages;
             ConversationWithMessages.Messages=mapper.Map<List<MessageDto>>(messages);
 
             var DraftMessageSpecs = new GetDraftMessageSpecification( user.Id , SpecsParams.ConversationId);
-            var DraftMessage = (await unitOfWork.Repository<Conversation>().GetAllQueryableWithSpecs(DraftMessageSpecs).FirstOrDefaultAsync()).Messages;
+            var DraftMessage = (await unitOfWork.Repository<Conversation>().GetAllQueryableWithSpecs(DraftMessageSpecs).FirstOrDefaultAsync())?.Messages;
             ConversationWithMessages.DraftMessage = mapper.Map<MessageDto>(DraftMessage);
             return Ok(ConversationWithMessages);
         }
 
-        [HttpPost("ChangeState/{Id}")]
+
+        [HttpPost("ChangeState/{Id}/{Status}")]
         public async Task<ActionResult> ChangeConversationStatus(long Id, string Status)
         {
             var Conversation = await unitOfWork.Repository<Conversation>().GetByIdAsync<long>(Id);
@@ -127,12 +128,13 @@ namespace EmailingSystemAPI.Controllers
                 return Unauthorized(new APIErrorResponse(401, "You aren't authorized"));
 
             var UserConversationStatus = Conversation.UserConversationStatuses.Where(S => S.UserId == user.Id).FirstOrDefault();
-            if (UserConversationStatus.Status == ConversationStatus.Deleted)
+            
+            if (UserConversationStatus?.Status == ConversationStatus.Deleted)
                 return NotFound(new APIErrorResponse(404, "Not Found."));
 
 
 
-            if (Enum.TryParse(typeof(ConversationStatus), Status, true, out object result))
+            if (Enum.TryParse(typeof(ConversationStatus), Status, true, out object? result))
             {
                 UserConversationStatus.Status = (ConversationStatus)result;
                 unitOfWork.Repository<UserConversationStatus>().Update(UserConversationStatus);
@@ -141,10 +143,7 @@ namespace EmailingSystemAPI.Controllers
             else
               return BadRequest(new APIErrorResponse(400, "Not Found"));
 
-
             return Ok();
-
-
 
         }
     }

@@ -30,7 +30,7 @@ namespace EmailingSystemAPI.Controllers
             this.dbContext = dbContext;
         }
 
-        [HttpPost()]
+        [HttpPost]
         public async Task<ActionResult> AddDepartment(DepartmentDto departmentDto)
         {
             var adminEmail = User.FindFirstValue(ClaimTypes.Email);
