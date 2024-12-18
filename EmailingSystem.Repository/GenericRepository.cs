@@ -29,7 +29,7 @@ namespace EmailingSystem.Repository
             return await SpecificationEvaluator<T>.GetQuery(_dbContext.Set<T>(), Specs).CountAsync();
         }
 
-        public async Task<T?> GetByIdAsync(int ?Id)
+        public async Task<T?> GetByIdAsync<TId>(TId ?Id) where TId : struct
         {
             return await _dbContext.Set<T>().FindAsync(Id);
         }
