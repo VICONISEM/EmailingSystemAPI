@@ -1,12 +1,10 @@
 ﻿using AutoMapper;
 using EmailingSystem.Core.Contracts;
-using EmailingSystem.Core.Contracts.Specifications.Contracts;
 using EmailingSystem.Core.Contracts.Specifications.Contracts.CollegeSpecs;
 using EmailingSystem.Core.Entities;
 using EmailingSystemAPI.DTOs;
+using EmailingSystemAPI.Errors;
 using EmailingSystemAPI.Helper;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -50,6 +48,7 @@ namespace EmailingSystemAPI.Controllers
              unitOfWork.Repository<College>().Delete(College);
             return Ok($"College Deleted Successfully");
         }
+
         [HttpPost("UpdateCollege")]
         public async Task<ActionResult>UpdateCollege(CollegesDto college , int ?Id)
         {
@@ -74,16 +73,13 @@ namespace EmailingSystemAPI.Controllers
         public async Task<ActionResult<CollegeAddDto>>AddCollege(CollegeAddDto college) 
         {
             var Specs = new CollegeSpecificationCheckCollege(college.Name);
-            var IfExite = await unitOfWork.Repository<College>().GetAllQueryableWithSpecs(Specs).ToListAsync();
-            if(IfExite is null)
+            var IfExist = await unitOfWork.Repository<College>().GetAllQueryableWithSpecs(Specs).ToListAsync();
+            if(IfExist is null)
             {
                 await unitOfWork.Repository<College>().AddAsync(mapper.Map<College>(college));
                 return Ok("College Added Successfully");
             }
-            return BadRequest("The College Is Exsite already");
+            return BadRequest(new APIErrorResponse(400,"The College Exists already"));
         } 
-
-
-
     }
 }
