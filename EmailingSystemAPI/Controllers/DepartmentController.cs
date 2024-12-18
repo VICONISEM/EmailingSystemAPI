@@ -59,7 +59,7 @@ namespace EmailingSystemAPI.Controllers
         public async Task<ActionResult> EditDepartment(int Id, DepartmentDto departmentDto)
         {
             // Check if Department with Id Exists
-            var Department = await unitOfWork.Repository<Department>().GetByIdAsync(Id);
+            var Department = await unitOfWork.Repository<Department>().GetByIdAsync<int>(Id);
             if (Department == null) return NotFound(new APIErrorResponse(404,"Department Not Found."));
 
             // Check if Department with the same NAME & College Exists
@@ -90,7 +90,7 @@ namespace EmailingSystemAPI.Controllers
         public async Task<ActionResult<DepartmentWithUserDto>> GetDepartmentById(int Id)
         {
             // Check if Department with Id Exists
-            var Department = await unitOfWork.Repository<Department>().GetByIdAsync(Id);
+            var Department = await unitOfWork.Repository<Department>().GetByIdAsync<int>(Id);
             if (Department == null) return NotFound(new APIErrorResponse(404, "Department Not Found."));
 
             var adminEmail = User.FindFirstValue(ClaimTypes.Email);
