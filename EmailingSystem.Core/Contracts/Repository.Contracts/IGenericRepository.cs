@@ -11,7 +11,7 @@ namespace EmailingSystem.Core.Contracts.Repository.Contracts
     {
         public IQueryable<T> GetAllQueryableWithSpecs(ISpecification<T> Specs);
         public Task<int> GetCountWithSpecs(ISpecification<T> Specs);
-        public Task<T?> GetByIdAsync(int ?Id);
+        public Task<T?> GetByIdAsync<TId>(TId? Id) where TId : struct;
         public Task AddAsync(T Entity);
         public void Update(T Entity);
         public void Delete(T Entity);
