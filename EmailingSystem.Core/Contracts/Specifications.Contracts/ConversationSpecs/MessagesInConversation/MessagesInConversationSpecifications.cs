@@ -13,7 +13,7 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpe
     {
         public MessagesInConversationSpecifications(MessagesInConversationSpecParams Specs)
         {
-            ApplyPagination()
+            //ApplyPagination()
         }
     }
 }

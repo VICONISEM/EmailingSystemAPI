@@ -105,13 +105,13 @@ namespace EmailingSystemAPI.Controllers
 
             var ConversationWithMessages = mapper.Map<ConversationToReturnDto>(Conversation);
 
-            var MessagesSpecs = new MessagesInConversationSpecifications();
-            var Messages = await unitOfWork.Repository<Message>().GetAllQueryableWithSpecs(MessagesSpecs);
+            //var MessagesSpecs = new MessagesInConversationSpecifications();
+            //var Messages = await unitOfWork.Repository<Message>().GetAllQueryableWithSpecs(MessagesSpecs);
 
-            for(int i = 0; i < Messages.Count; i++)
-            {
+            //for(int i = 0; i < Messages.Count; i++)
+            //{
 
-            }
+            //}
 
 
             return Ok(ConversationWithMessages);
