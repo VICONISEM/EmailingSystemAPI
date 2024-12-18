@@ -18,7 +18,7 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpe
             Criteria = C => ((C.ReceiverId == UserId || C.SenderId == UserId))
                    &&
                    C.UserConversationStatuses
-                   .Any(C => C.Status == (ConversationStatus)Enum.Parse(typeof(ConversationStatus), Specs.Type))
+                   .Any(C => C.UserId == UserId && C.Status == (ConversationStatus)Enum.Parse(typeof(ConversationStatus), Specs.Type))
                    &&
                    (string.IsNullOrEmpty(Specs.Search) ||
                    (C.Subject.Contains(Specs.Search,StringComparison.OrdinalIgnoreCase)
