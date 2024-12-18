@@ -25,9 +25,9 @@ namespace EmailingSystemAPI.Helper
 
                    .ForMember(C => C.SenderEmail, O => O.MapFrom(C => C.Sender.Email))
                    .ForMember(C => C.ReceiverEmail, O => O.MapFrom(C => C.Receiver.Email))
+                   .ForMember(C => C.LastMessageTime, O => O.MapFrom(C => C.Messages.Max(M => M.SendAt)))
+                   .ForMember(C => C.LastMessage, O => O.MapFrom(C => C.Messages.MaxBy(M => M.SendAt)));
 
-
-                   .ReverseMap();
 
 
             CreateMap<Conversation, ConversationToReturnDto>()
@@ -37,12 +37,12 @@ namespace EmailingSystemAPI.Helper
                    .ForMember(C => C.SenderEmail, O => O.MapFrom(C => C.Sender.Email))
                    .ForMember(C => C.ReceiverEmail, O => O.MapFrom(C => C.Receiver.Email))
 
-                    //********************** Start Edits ***************************//
+                   //********************** Start Edits ***************************//
                    .ForMember(C => C.SenderPictureURL, O => O.MapFrom(C => C.Sender.PicturePath))
-                   .ForMember(C => C.ReceiverPictureURL, O => O.MapFrom(C => C.Receiver.PicturePath))
-                    //********************** End Edits ***************************//
+                   .ForMember(C => C.ReceiverPictureURL, O => O.MapFrom(C => C.Receiver.PicturePath));
+            //********************** End Edits ***************************//
 
-                .ReverseMap();
+
             #endregion
 
             #region Messages
@@ -50,6 +50,8 @@ namespace EmailingSystemAPI.Helper
                 .ForMember(C => C.SenderEmail, O => O.MapFrom(C => C.Sender.Email))
                 .ForMember(C => C.ReceiverEmail, O => O.MapFrom(C => C.Receiver.Email))
                 .ReverseMap();
+
+            CreateMap<Message, LastMessageDto>();
 
             #endregion
 
@@ -74,11 +76,12 @@ namespace EmailingSystemAPI.Helper
 
             #endregion
 
-
+            #region Attachment
+            CreateMap<Attachment, AttachementDto>()
+                .ForMember(A => A.Name, M => M.MapFrom(O => O.FileName));
+            #endregion
 
 
         }
-
-
     }
 }
