@@ -45,9 +45,6 @@ namespace EmailingSystemAPI.Helper
                 .ReverseMap();
             #endregion
 
-
-
-
             #region Messages
             CreateMap<Message, MessageDto>()
                 .ForMember(C => C.SenderEmail, O => O.MapFrom(C => C.Sender.Email))
@@ -56,12 +53,25 @@ namespace EmailingSystemAPI.Helper
 
             #endregion
 
-
             #region Department
             CreateMap<Department, DepartmentDto>();
+
             CreateMap<Department, DepartmentWithUserDto>()
                 .ForMember(D => D.CollegeName, O => O.MapFrom(O => O.College.Name))
                 .ForMember(D => D.userId, O => O.MapFrom(O => O.User.Id));
+            #endregion
+
+            #region College
+            CreateMap<College, CollegesDto>()
+                .ForMember(C => C.Name, M => M.MapFrom(C => C.Name))
+                .ForMember(C => C.Abbreviation, M => M.MapFrom(C => C.Abbreviation))
+                .ForMember(C => C.Id, M => M.MapFrom(C => C.Id))
+                .ForMember(C => C.Departments, M => M.MapFrom(C => C.Departments)).ReverseMap();
+
+            CreateMap<College, CollegeAddDto>()
+                .ForMember(C => C.Name, M => M.MapFrom(C => C.Name))
+                .ForMember(C => C.Abbreviation, M => M.MapFrom(C => C.Abbreviation)).ReverseMap();
+
             #endregion
 
 
