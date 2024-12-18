@@ -11,6 +11,8 @@
         public string ReceiverName { get; set; } = null!;
         public string ReceiverPictureURL { get; set; } = null!;
 
+        public MessageDto DraftMessage { get; set; }
+
         public IEnumerable<MessageDto> Messages { get; set; } = new List<MessageDto>();
 
     }

@@ -25,9 +25,9 @@ namespace EmailingSystemAPI.Helper
 
                    .ForMember(C => C.SenderEmail, O => O.MapFrom(C => C.Sender.Email))
                    .ForMember(C => C.ReceiverEmail, O => O.MapFrom(C => C.Receiver.Email))
+                   .ForMember(C => C.LastMessageTime, O => O.MapFrom(C => C.Messages.Max(M => M.SendAt)))
+                   .ForMember(C => C.LastMessage, O => O.MapFrom(C => C.Messages.MaxBy(M => M.SendAt)));
 
-
-                   .ReverseMap();
 
 
             CreateMap<Conversation, ConversationToReturnDto>()
@@ -37,16 +37,13 @@ namespace EmailingSystemAPI.Helper
                    .ForMember(C => C.SenderEmail, O => O.MapFrom(C => C.Sender.Email))
                    .ForMember(C => C.ReceiverEmail, O => O.MapFrom(C => C.Receiver.Email))
 
-                    //********************** Start Edits ***************************//
+                   //********************** Start Edits ***************************//
                    .ForMember(C => C.SenderPictureURL, O => O.MapFrom(C => C.Sender.PicturePath))
-                   .ForMember(C => C.ReceiverPictureURL, O => O.MapFrom(C => C.Receiver.PicturePath))
-                    //********************** End Edits ***************************//
+                   .ForMember(C => C.ReceiverPictureURL, O => O.MapFrom(C => C.Receiver.PicturePath));
+            //********************** End Edits ***************************//
 
-                .ReverseMap();
+
             #endregion
-
-
-
 
             #region Messages
             CreateMap<Message, MessageDto>()
@@ -54,21 +51,37 @@ namespace EmailingSystemAPI.Helper
                 .ForMember(C => C.ReceiverEmail, O => O.MapFrom(C => C.Receiver.Email))
                 .ReverseMap();
 
-            #endregion
+            CreateMap<Message, LastMessageDto>();
 
+            #endregion
 
             #region Department
             CreateMap<Department, DepartmentDto>();
+
             CreateMap<Department, DepartmentWithUserDto>()
                 .ForMember(D => D.CollegeName, O => O.MapFrom(O => O.College.Name))
                 .ForMember(D => D.userId, O => O.MapFrom(O => O.User.Id));
             #endregion
 
+            #region College
+            CreateMap<College, CollegesDto>()
+                .ForMember(C => C.Name, M => M.MapFrom(C => C.Name))
+                .ForMember(C => C.Abbreviation, M => M.MapFrom(C => C.Abbreviation))
+                .ForMember(C => C.Id, M => M.MapFrom(C => C.Id))
+                .ForMember(C => C.Departments, M => M.MapFrom(C => C.Departments)).ReverseMap();
 
+            CreateMap<College, CollegeAddDto>()
+                .ForMember(C => C.Name, M => M.MapFrom(C => C.Name))
+                .ForMember(C => C.Abbreviation, M => M.MapFrom(C => C.Abbreviation)).ReverseMap();
+
+            #endregion
+
+            #region Attachment
+            CreateMap<Attachment, AttachementDto>()
+                .ForMember(A => A.Name, M => M.MapFrom(O => O.FileName));
+            #endregion
 
 
         }
-
-
     }
 }

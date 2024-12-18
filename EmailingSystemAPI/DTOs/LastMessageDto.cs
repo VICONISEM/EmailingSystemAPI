@@ -6,5 +6,6 @@ namespace EmailingSystemAPI.DTOs
     {
         public string? Content { get; set; }
         public bool IsDraft { get; set; } = false;
+        public bool IsRead { get; set; } = false;
     }
 }
