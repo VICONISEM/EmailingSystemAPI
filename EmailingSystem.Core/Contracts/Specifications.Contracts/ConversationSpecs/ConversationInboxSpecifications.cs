@@ -15,10 +15,13 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpe
     {
         public ConversationInboxSpecifications(ConversationSpecParams Specs, int UserId)
         {
-            Criteria = C => ((C.ReceiverId == UserId || C.SenderId==UserId) && C.Messages.Any(M => M.ReceiverId==UserId)) 
+            Criteria = C => ((C.ReceiverId == UserId || C.SenderId==UserId) && C.Messages.Any(M => M.ReceiverId==UserId))
             &&
+            //(C.UserConversationStatuses
+            //        .Any(C => C.Status == ConversationStatus.Starred || C.Status == ConversationStatus.Active))
+
             (C.UserConversationStatuses
-                    .Any(C => C.Status == ConversationStatus.Starred || C.Status == ConversationStatus.Active))
+                    .Any(C => C.UserId == UserId && (C.Status == ConversationStatus.Starred || C.Status == ConversationStatus.Active)))
             &&
             (string.IsNullOrEmpty(Specs.Search) || 
             (C.Subject.Contains(Specs.Search, StringComparison.OrdinalIgnoreCase)
