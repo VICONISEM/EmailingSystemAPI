@@ -24,8 +24,9 @@ namespace EmailingSystemAPI.Helper
 
                    .ForMember(C => C.SenderEmail, O => O.MapFrom(C => C.Sender.Email))
                    .ForMember(C => C.ReceiverEmail, O => O.MapFrom(C => C.Receiver.Email))
-                   .ForMember(C => C.LastMessageTime, O => O.MapFrom(C => C.Messages.Max(M => M.SendAt)))
-                   .ForMember(C => C.LastMessage, O => O.MapFrom(C => C.Messages.MaxBy(M => M.SendAt)));
+                   //.ForMember(C => C.LastMessageTime, O => O.MapFrom(C => C.Messages.Max(M => M.SendAt)))
+                   .ForMember(C => C.HasDraftMessage, O => O.MapFrom(C => C.Messages.Any(M => M.Sender ==  && M.IsDraft))
+                   .ForMember(C => C.LastMessage, O => O.MapFrom(C => C.Messages.Where(M => !M.IsDraft).MaxBy(M => M.SendAt)));
 
 
 
@@ -39,9 +40,7 @@ namespace EmailingSystemAPI.Helper
                    //********************** Start Edits ***************************//
                    .ForMember(C => C.SenderPictureURL, O => O.MapFrom(C => C.Sender.PicturePath))
                    .ForMember(C => C.ReceiverPictureURL, O => O.MapFrom(C => C.Receiver.PicturePath));
-            //********************** End Edits ***************************//
-
-
+                   //********************** End Edits ***************************//
             #endregion
 
             #region Messages
@@ -79,7 +78,6 @@ namespace EmailingSystemAPI.Helper
             CreateMap<Attachment, AttachementDto>()
                 .ForMember(A => A.Name, M => M.MapFrom(O => O.FileName));
             #endregion
-
 
         }
     }

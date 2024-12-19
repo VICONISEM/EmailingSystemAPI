@@ -36,19 +36,6 @@ namespace EmailingSystemAPI.Controllers
             return Ok(new Pagination<CollegesDto>(SpecsParams.PageIndex,SpecsParams.PageSize,CollegesCount,Colleges));
         }
 
-        [HttpPost("DeleteCollegeById")]
-        public async Task<ActionResult> DeleteCollegeById(int ?Id)
-        {
-            if (Id is null)
-            return BadRequest("there Is No Id");
-
-            var College = await unitOfWork.Repository<College>().GetByIdAsync(Id);
-            if (College is null)
-                return BadRequest(new { error = "there Is No College With This Id" });
-             unitOfWork.Repository<College>().Delete(College);
-            return Ok($"College Deleted Successfully");
-        }
-
         [HttpPost("UpdateCollege")]
         public async Task<ActionResult>UpdateCollege(CollegesDto college , int ?Id)
         {
@@ -80,6 +67,19 @@ namespace EmailingSystemAPI.Controllers
                 return Ok("College Added Successfully");
             }
             return BadRequest(new APIErrorResponse(400,"The College Exists already"));
-        } 
+        }
+
+        //[HttpPost("DeleteCollegeById")]
+        //public async Task<ActionResult> DeleteCollegeById(int? Id)
+        //{
+        //    if (Id is null)
+        //        return BadRequest("there Is No Id");
+
+        //    var College = await unitOfWork.Repository<College>().GetByIdAsync(Id);
+        //    if (College is null)
+        //        return BadRequest(new { error = "there Is No College With This Id" });
+        //    unitOfWork.Repository<College>().Delete(College);
+        //    return Ok($"College Deleted Successfully");
+        //}
     }
 }
