@@ -36,7 +36,8 @@ namespace EmailingSystemAPI.Extensions
                             ValidAudience = configuration["JWT:ValidAudience"],
                             ValidateLifetime = true,
                             ValidateIssuerSigningKey = true,
-                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Key"] ?? string.Empty))
+                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Key"] ?? string.Empty)),
+                            ClockSkew = TimeSpan.Zero
                         };
                     }
                 );
