@@ -177,27 +177,27 @@ namespace EmailingSystemAPI.Controllers
             return Ok(userDto);
         }
 
-        //Soft Delete
-        [HttpDelete]
-        public async Task<ActionResult> DeleteAccount(string Email)
-        {
-            var adminEmail = User.FindFirstValue(ClaimTypes.Email);
-            var admin = await userManager.FindByEmailAsync(adminEmail);
-            var adminRole = (await userManager.GetRolesAsync(admin)).ToString();
+        ////Soft Delete
+        //[HttpDelete]
+        //public async Task<ActionResult> DeleteAccount(string Email)
+        //{
+        //    var adminEmail = User.FindFirstValue(ClaimTypes.Email);
+        //    var admin = await userManager.FindByEmailAsync(adminEmail);
+        //    var adminRole = (await userManager.GetRolesAsync(admin)).ToString();
 
-            var user = await userManager.FindByEmailAsync(Email);
-            if (user is null) { return NotFound(new APIErrorResponse(401, "User Not Found.")); }
+        //    var user = await userManager.FindByEmailAsync(Email);
+        //    if (user is null) { return NotFound(new APIErrorResponse(401, "User Not Found.")); }
 
-            if (adminRole == UserRole.CollegeAdmin.ToString())
-            {
-                if (user.CollegeId != admin.CollegeId)
-                { return Unauthorized(new APIErrorResponse(401, "You aren't authorized to perform this action for this user.")); }
-            }
+        //    if (adminRole == UserRole.CollegeAdmin.ToString())
+        //    {
+        //        if (user.CollegeId != admin.CollegeId)
+        //        { return Unauthorized(new APIErrorResponse(401, "You aren't authorized to perform this action for this user.")); }
+        //    }
 
-            user.IsDeleted = true;
-            await userManager.UpdateAsync(user);
+        //    user.IsDeleted = true;
+        //    await userManager.UpdateAsync(user);
 
-            return Ok(user);
-        }
+        //    return Ok(user);
+        //}
     }
 }

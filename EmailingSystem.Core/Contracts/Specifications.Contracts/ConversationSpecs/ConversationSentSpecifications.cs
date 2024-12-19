@@ -17,9 +17,6 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpe
         {
             Criteria = C => ((C.ReceiverId == UserId || C.SenderId == UserId) && C.Messages.Any(M => M.SenderId == UserId))
                &&
-               //(C.UserConversationStatuses
-               //        .Any(C => C.Status == ConversationStatus.Starred || C.Status == ConversationStatus.Active))
-
                (C.UserConversationStatuses
                     .Any(C => C.UserId == UserId && (C.Status == ConversationStatus.Starred || C.Status == ConversationStatus.Active)))
                &&
