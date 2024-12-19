@@ -32,7 +32,7 @@ namespace EmailingSystemAPI.Controllers
         }
 
         [HttpPost("Register")]
-        public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
+        public async Task<ActionResult<AuthDto>> Register(RegisterDto registerDto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
@@ -61,7 +61,7 @@ namespace EmailingSystemAPI.Controllers
         }
 
         [HttpGet("LogIn")]
-        public async Task<ActionResult<UserDto>> Login(LogInDto loginDto)
+        public async Task<ActionResult<AuthDto>> Login(LogInDto loginDto)
         {
             if (!ModelState.IsValid) return BadRequest();
 

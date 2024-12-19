@@ -113,8 +113,7 @@ namespace EmailingSystemAPI.Controllers
             return Ok(ConversationWithMessages);
         }
 
-
-        [HttpPost("ChangeState/{Id}/{Status}")]
+        [HttpPost("ChangeConversationStatus/{Id}/{Status}")]
         public async Task<ActionResult> ChangeConversationStatus(long Id, string Status)
         {
             var Conversation = await unitOfWork.Repository<Conversation>().GetByIdAsync<long>(Id);
@@ -132,19 +131,19 @@ namespace EmailingSystemAPI.Controllers
             if (UserConversationStatus?.Status == ConversationStatus.Deleted)
                 return NotFound(new APIErrorResponse(404, "Not Found."));
 
-
-
             if (Enum.TryParse(typeof(ConversationStatus), Status, true, out object? result))
             {
                 UserConversationStatus.Status = (ConversationStatus)result;
                 unitOfWork.Repository<UserConversationStatus>().Update(UserConversationStatus);
-
             }
             else
-              return BadRequest(new APIErrorResponse(400, "Not Found"));
+              return BadRequest(new APIErrorResponse(400));
 
             return Ok();
 
         }
+    
+        
+    
     }
 }
