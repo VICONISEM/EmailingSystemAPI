@@ -11,11 +11,10 @@ namespace EmailingSystemAPI.Helper
         {
             #region ApplicationUser
             CreateMap<ApplicationUser, RegisterDto>().ReverseMap();
-            CreateMap<ApplicationUser, AuthDto>().ForMember(U => U.DepartmentName, O => O.MapFrom(U => U.Department.Name)).ReverseMap();
+            CreateMap<ApplicationUser, AuthDto>().ForMember(U => U.DepartmentName, O => O.MapFrom(U => U.Department != null ? U.Department.Name : null)).ReverseMap();
             CreateMap<ApplicationUser, UserDto>()
-                .ForMember(U => U.CollegeName, O => O.MapFrom(O => O.College.Name))
-                .ForMember(U => U.DepartmentName, O => O.MapFrom(O => O.Department.Name));
-
+                .ForMember(U => U.CollegeName, O => O.MapFrom(O => O.College != null ? O.College.Name : null))
+                .ForMember(U => U.DepartmentName, O => O.MapFrom(O => O.Department != null ? O.Department.Name : null));
             #endregion
 
             #region Conversation
