@@ -12,7 +12,7 @@ namespace EmailingSystem.Core.Entities
         public string Name { get; set; } =  null! ;
         public string Abbreviation { get; set; } = null!;
         public int CollegeId { get; set; }
-        public College College { get; set; } = null!;
-        public ApplicationUser User { get; set; } = null!;
+        public virtual College College { get; set; } = null!;
+        public virtual ApplicationUser User { get; set; } = null!;
     }
 }

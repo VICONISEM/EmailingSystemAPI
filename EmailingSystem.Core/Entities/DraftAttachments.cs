@@ -10,7 +10,7 @@ namespace EmailingSystem.Core.Entities
     {
         public int Id { get; set; }
         public long DraftConversationId { get; set; }
-        public DraftConversations draftConversations { get; set; }
+        public virtual DraftConversations draftConversations { get; set; }
         public string AttachmentPath { get; set; }
 
     }

@@ -17,21 +17,21 @@ namespace EmailingSystem.Core.Entities
         public string NationalId { get; set; } = null!;
         public string? PicturePath { get; set; } = null!;
         public int? DepartmentId { get; set; }
-        public Department? Department { get; set; } = null!;
+        public virtual Department? Department { get; set; } = null!;
         public int? CollegeId { get; set; }
-        public College? College { get; set; } = null!;
+        public virtual College? College { get; set; } = null!;
         public int? SignatureId { get; set; }
-        public Signature? Signature { get; set; }
+        public virtual Signature? Signature { get; set; }
         public bool IsDeleted { get; set; } = false;
-        public ICollection<Conversation> ConversationsSender { get; set; } = null!;
-        public ICollection<Conversation> ConversationsReceiver { get; set; } = null!;
-        public ICollection<Message> MessagesSender { get; set; } = null!;
-        public ICollection<Message> MessagesReceiver { get; set; } = null!;
-        public ICollection<DraftConversations> DraftsSender { get; set; } = null!;
-        public ICollection<DraftConversations> DraftsReceiver { get; set; } = null!;
-        public ICollection<UserConversationStatus> UserConversationStatuses { get; set; } = null!;
+        public virtual ICollection<Conversation> ConversationsSender { get; set; } = null!;
+        public virtual ICollection<Conversation> ConversationsReceiver { get; set; } = null!;
+        public virtual ICollection<Message> MessagesSender { get; set; } = null!;
+        public virtual ICollection<Message> MessagesReceiver { get; set; } = null!;
+        public virtual ICollection<DraftConversations> DraftsSender { get; set; } = null!;
+        public virtual ICollection<DraftConversations> DraftsReceiver { get; set; } = null!;
+        public virtual ICollection<UserConversationStatus> UserConversationStatuses { get; set; } = null!;
        
-        public HashSet<RefreshToken>? RefreshTokens { get; set; } = new HashSet<RefreshToken>();
+        public virtual HashSet<RefreshToken>? RefreshTokens { get; set; } = new HashSet<RefreshToken>();
 
     }
 }
