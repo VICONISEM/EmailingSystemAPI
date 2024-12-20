@@ -14,6 +14,7 @@ namespace EmailingSystemAPI.Extensions
             Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             Services.AddAutoMapper(typeof(MappingProfiles));
             Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            Services.AddHttpContextAccessor();
 
 
             return Services;

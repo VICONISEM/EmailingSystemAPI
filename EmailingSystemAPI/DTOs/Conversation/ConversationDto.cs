@@ -1,6 +1,7 @@
 ﻿using EmailingSystem.Core.Entities;
+using EmailingSystemAPI.DTOs.Message;
 
-namespace EmailingSystemAPI.DTOs
+namespace EmailingSystemAPI.DTOs.Conversation
 {
     public class ConversationDto
     {

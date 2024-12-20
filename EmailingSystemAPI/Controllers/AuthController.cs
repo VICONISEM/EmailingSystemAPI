@@ -3,7 +3,9 @@ using EmailingSystem.Core.Contracts;
 using EmailingSystem.Core.Contracts.Services.Contracts;
 using EmailingSystem.Core.Entities;
 using EmailingSystem.Core.Entities.Token;
-using EmailingSystemAPI.DTOs;
+using EmailingSystem.Services;
+using EmailingSystemAPI.DTOs.User;
+using EmailingSystemAPI.Errors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -20,8 +22,9 @@ namespace EmailingSystemAPI.Controllers
         private readonly IConfiguration configuration;
         private readonly ITokenService tokenService;
         private readonly SignInManager<ApplicationUser> signInManager;
+        private readonly RoleManager<IdentityRole<int>> roleManager;
 
-        public AuthController(UserManager<ApplicationUser> userManager, IMapper mapper, IUnitOfWork unitOfWork, IConfiguration configuration, ITokenService tokenService, SignInManager<ApplicationUser> signInManager)
+        public AuthController(UserManager<ApplicationUser> userManager, IMapper mapper, IUnitOfWork unitOfWork, IConfiguration configuration, ITokenService tokenService, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole<int>> roleManager)
         {
             this.userManager = userManager;
             this.mapper = mapper;
@@ -29,35 +32,99 @@ namespace EmailingSystemAPI.Controllers
             this.configuration = configuration;
             this.tokenService = tokenService;
             this.signInManager = signInManager;
+            this.roleManager = roleManager;
         }
 
         [HttpPost("Register")]
         public async Task<ActionResult<AuthDto>> Register(RegisterDto registerDto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var email = await userManager.FindByEmailAsync(registerDto.Email);
+            #region Some Validations
 
-            if (email is not null) return BadRequest();
+            if (registerDto.DepartmentId is not null && registerDto.CollegeId is null)
+                return BadRequest(new APIErrorResponse(400, "User can't have a department without college"));
 
-            var AppUser = mapper.Map<ApplicationUser>(registerDto);
+            if (registerDto.DepartmentId is not null && registerDto.CollegeId is not null)
+            {
+                var College = await unitOfWork.Repository<College>().GetByIdAsync<int>(registerDto.CollegeId);
+                var Department = await unitOfWork.Repository<Department>().GetByIdAsync<int>(registerDto.DepartmentId);
 
-            var Result = await userManager.CreateAsync(AppUser,registerDto.Password);
+                if (Department is null) return NotFound(new APIErrorResponse(404, "Department Not Found."));
+                if (College is null) return NotFound(new APIErrorResponse(404, "College Not Found."));
 
-            if (!Result.Succeeded) return BadRequest();
+                if (!College.Departments.Any(D => D.Id == registerDto.DepartmentId))
+                    return BadRequest("This College doesn't contain such a department");
+            }
 
-            var refreshToken = GenerateRefreshToken();
 
-            AppUser.RefreshTokens.Add(refreshToken);
 
-            SetRefreshTokenInCookie(refreshToken.Token, refreshToken.ExpiresOn);
+            var EmailExists = await userManager.FindByEmailAsync(registerDto.Email);
+            if (EmailExists is not null) return BadRequest(new APIErrorResponse(400, "Email Already Exists."));
+            #endregion
 
-            var userDto = mapper.Map<AuthDto>(AppUser);
+            using var transaction = await unitOfWork.BeginTransactionAsync();
 
-            userDto.AccessToken = await tokenService.CreateTokenAsync(AppUser,userManager);
-            userDto.RefreshTokenExpirationTime = refreshToken.ExpiresOn;
+            try
+            {
+                
+                var AppUser = mapper.Map<ApplicationUser>(registerDto);
+                AppUser.UserName = registerDto.Email.Substring(0, registerDto.Email.IndexOf("@"));
+                AppUser.NormalizedName = AppUser.Name.Trim().ToUpper();
+                    
 
-            return Ok(userDto);
+                if (registerDto.Picture is not null)
+                {
+                    AppUser.PicturePath = await FileHandler.SaveFile(registerDto.Picture.FileName, "ProfileImages", registerDto.Picture);
+                }
+
+                if (registerDto.SignatureFile is not null)
+                {
+                    var Signature = new Signature()
+                    {
+                        FileName = registerDto.SignatureFile.FileName,
+                        FilePath = await FileHandler.SaveFile(registerDto.SignatureFile.FileName, "Signatures", registerDto.SignatureFile)
+                    };
+
+                    await unitOfWork.Repository<Signature>().AddAsync(Signature);
+                    await unitOfWork.CompleteAsync();
+
+                    AppUser.SignatureId = Signature.Id;
+                }
+
+                var Result = await userManager.CreateAsync(AppUser, registerDto.Password);
+                
+                if (!Result.Succeeded) throw new Exception();
+
+
+                var role = await roleManager.FindByNameAsync(registerDto.Role.ToString());
+
+                if (role is null)
+                {
+                    await roleManager.CreateAsync(new IdentityRole<int>() { Name = registerDto.Role.ToString() });
+                }
+
+                await userManager.AddToRoleAsync(AppUser,registerDto.Role.ToString());
+
+
+                var refreshToken = GenerateRefreshToken();
+                AppUser?.RefreshTokens?.Add(refreshToken);
+
+                SetRefreshTokenInCookie(refreshToken.Token, refreshToken.ExpiresOn);
+
+                await unitOfWork.CompleteAsync();
+                await transaction.CommitAsync();
+
+                var userDto = mapper.Map<AuthDto>(AppUser);
+                userDto.AccessToken = await tokenService.CreateTokenAsync(AppUser, userManager);
+                userDto.RefreshTokenExpirationTime = refreshToken.ExpiresOn;
+
+                return Ok(userDto);
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return BadRequest(new APIErrorResponse(500, "An error occurred. Please try again later."));
+            }
         }
 
         [HttpGet("LogIn")]

@@ -11,7 +11,7 @@ namespace EmailingSystem.Core.Entities
         public string FileName { get; set; } = null!;
         public string FilePath { get; set; } = null!;
         public long MessageId { get; set; }
-        public Message Message { get; set; } = null!;
+        public virtual Message Message { get; set; } = null!;
 
     }
 }

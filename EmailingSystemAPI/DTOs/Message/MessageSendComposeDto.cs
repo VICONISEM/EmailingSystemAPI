@@ -1,6 +1,7 @@
 ﻿using EmailingSystem.Core.Entities;
+using EmailingSystemAPI.DTOs.Attachement;
 
-namespace EmailingSystemAPI.DTOs
+namespace EmailingSystemAPI.DTOs.Message
 {
     public class MessageSendComposeDto
     {
@@ -9,6 +10,6 @@ namespace EmailingSystemAPI.DTOs
         public int SenderId { get; set; }
         public int ReceiverId { get; set; }
         public ICollection<AttachmentToSentDto>? Attachments { get; set; }
-       
+
     }
 }

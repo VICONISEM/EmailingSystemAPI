@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using EmailingSystem.Core.Entities;
-using EmailingSystemAPI.DTOs;
+using EmailingSystemAPI.DTOs.User;
 using EmailingSystemAPI.Errors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
