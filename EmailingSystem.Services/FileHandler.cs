@@ -9,20 +9,21 @@ namespace EmailingSystem.Services
 {
     public static class FileHandler
     {
-        public static async Task<string> SaveFile(string FileKey,string FileFolder,IFormFile File)
+        public static async Task<string> SaveFile(string FileKey,string FolderName,IFormFile File)
         {
             string FileName = await FileNameConstructor(FileKey);
-            string FilePath=Path.Combine(Directory.GetCurrentDirectory(),"wwwroot",FileFolder,FileName);
+            string FilePath=Path.Combine(Directory.GetCurrentDirectory(),"wwwroot", "Attachments", FolderName, FileName);
 
             using (var Fs=new FileStream(FilePath,FileMode.Create))
             {
                 await File.CopyToAsync(Fs);
             }
-            return Path.Combine(FileFolder, FileName);
+            //return Path.Combine(FolderName, FileName);
+            return $"Attachments/{FolderName}/{FileName}";
         }
         public static async Task<bool> DeleteFile(string filePath)
         {
-            string FilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", filePath);
+            string FilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Attachments", filePath);
             if (File.Exists(FilePath))
             {
                 try
@@ -42,6 +43,6 @@ namespace EmailingSystem.Services
             else { return false; }
         }
         private static async Task<string> FileNameConstructor(string FileKey)
-        => $"{FileKey}-{DateTime.Now.ToString("yyyyMMdd")}-{Guid.NewGuid()}";
+        => $"{DateTime.Now.ToString("yyyyMMdd")}-{Guid.NewGuid()}-{FileKey}";
     }
 }

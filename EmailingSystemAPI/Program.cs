@@ -25,7 +25,8 @@ namespace EmailingSystemAPI
 
             builder.Services.AddDbContext<EmailDbContext>( options =>
             {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+                       .UseLazyLoadingProxies();
             });
 
             builder.Services.ApplicationServices();
@@ -62,6 +63,8 @@ namespace EmailingSystemAPI
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            app.UseStaticFiles();
 
             app.UseHttpsRedirection();
 
