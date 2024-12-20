@@ -1,4 +1,4 @@
-﻿namespace EmailingSystemAPI.DTOs
+﻿namespace EmailingSystemAPI.DTOs.College
 {
     public class CollegeAddDto
     {

@@ -1,6 +1,11 @@
 ﻿using AutoMapper;
 using EmailingSystem.Core.Entities;
-using EmailingSystemAPI.DTOs;
+using EmailingSystemAPI.DTOs.Attachement;
+using EmailingSystemAPI.DTOs.College;
+using EmailingSystemAPI.DTOs.Conversation;
+using EmailingSystemAPI.DTOs.Department;
+using EmailingSystemAPI.DTOs.Message;
+using EmailingSystemAPI.DTOs.User;
 
 namespace EmailingSystemAPI.Helper
 {

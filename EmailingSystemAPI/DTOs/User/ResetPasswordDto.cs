@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace EmailingSystemAPI.DTOs
+namespace EmailingSystemAPI.DTOs.User
 {
     public class ChangePasswordDto
     {

@@ -1,6 +1,7 @@
 ﻿using EmailingSystem.Core.Entities;
+using EmailingSystemAPI.DTOs.Attachement;
 
-namespace EmailingSystemAPI.DTOs
+namespace EmailingSystemAPI.DTOs.DraftConversation
 {
     public class DraftComposeDto
     {

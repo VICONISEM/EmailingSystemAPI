@@ -4,7 +4,7 @@ using EmailingSystem.Core.Contracts.Specifications.Contracts.UserSpecs;
 using EmailingSystem.Core.Entities;
 using EmailingSystem.Core.Enums;
 using EmailingSystem.Repository.Data.Contexts;
-using EmailingSystemAPI.DTOs;
+using EmailingSystemAPI.DTOs.User;
 using EmailingSystemAPI.Errors;
 using EmailingSystemAPI.Helper;
 using Microsoft.AspNetCore.Http;

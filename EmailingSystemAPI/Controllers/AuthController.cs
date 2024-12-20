@@ -3,7 +3,7 @@ using EmailingSystem.Core.Contracts;
 using EmailingSystem.Core.Contracts.Services.Contracts;
 using EmailingSystem.Core.Entities;
 using EmailingSystem.Core.Entities.Token;
-using EmailingSystemAPI.DTOs;
+using EmailingSystemAPI.DTOs.User;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;

@@ -20,13 +20,11 @@ namespace EmailingSystem.Services
             }
             return Path.Combine(FileFolder, FileName);
         }
-
         public static async Task<bool> DeleteFile(string filePath)
         {
             string FilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", filePath);
             if (File.Exists(FilePath))
             {
-
                 try
                 {
                     string tempFilePath = Path.Combine(Path.GetDirectoryName(FilePath),$"{Guid.NewGuid()}_{Path.GetFileName(FilePath)}");
@@ -39,9 +37,7 @@ namespace EmailingSystem.Services
                 {
                     Console.WriteLine($"Error deleting File: {ex.Message}");
                     return false;
-                }
-
-               
+                } 
             }
             else { return false; }
         }

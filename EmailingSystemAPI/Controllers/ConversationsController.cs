@@ -6,7 +6,9 @@ using EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpecs.P
 using EmailingSystem.Core.Contracts.Specifications.Contracts.SpecsParams;
 using EmailingSystem.Core.Entities;
 using EmailingSystem.Core.Enums;
-using EmailingSystemAPI.DTOs;
+using EmailingSystemAPI.DTOs.Conversation;
+using EmailingSystemAPI.DTOs.DraftConversation;
+using EmailingSystemAPI.DTOs.Message;
 using EmailingSystemAPI.Errors;
 using EmailingSystemAPI.Helper;
 using Microsoft.AspNetCore.Identity;
@@ -32,7 +34,6 @@ namespace EmailingSystemAPI.Controllers
             this.userManager = userManager;
             this.mapper = mapper;
         }
-
 
         [HttpGet("AllConversations")]
         public async Task<ActionResult<Pagination<ConversationDto>>> AllConversations([FromQuery] ConversationSpecParams Specs)
@@ -241,9 +242,7 @@ namespace EmailingSystemAPI.Controllers
 
             return Ok(DraftConversation);
 
-
-
-
         }
+    
     }
 }

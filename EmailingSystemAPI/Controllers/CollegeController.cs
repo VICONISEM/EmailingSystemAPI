@@ -2,7 +2,7 @@
 using EmailingSystem.Core.Contracts;
 using EmailingSystem.Core.Contracts.Specifications.Contracts.CollegeSpecs;
 using EmailingSystem.Core.Entities;
-using EmailingSystemAPI.DTOs;
+using EmailingSystemAPI.DTOs.College;
 using EmailingSystemAPI.Errors;
 using EmailingSystemAPI.Helper;
 using Microsoft.AspNetCore.Mvc;
