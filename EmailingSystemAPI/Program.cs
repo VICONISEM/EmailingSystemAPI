@@ -1,8 +1,11 @@
 
 using EmailingSystem.Repository.Data.Contexts;
+using EmailingSystemAPI.Errors;
 using EmailingSystemAPI.Extensions;
 using EmailingSystemAPI.Middlewares;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace EmailingSystemAPI
@@ -22,11 +25,33 @@ namespace EmailingSystemAPI
 
             builder.Services.AddDbContext<EmailDbContext>( options =>
             {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+                       .UseLazyLoadingProxies();
             });
 
             builder.Services.ApplicationServices();
             builder.Services.AddIdentityServices(builder.Configuration);
+
+            //Overriding Validation Error
+            builder.Services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.InvalidModelStateResponseFactory = (actionContext =>
+                {
+                    var response = new APIValidationErrorResponse()
+                    {
+                        Errors = actionContext.ModelState.Where(P => P.Value.Errors.Count() > 0)
+                                                         .SelectMany(P => P.Value.Errors)
+                                                         .Select(E => E.ErrorMessage)
+                                                         .ToList()
+                    };
+                    return new BadRequestObjectResult(response);
+                });
+            });
+
+
+
+
+
 
             var app = builder.Build();
 
@@ -38,6 +63,8 @@ namespace EmailingSystemAPI
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            app.UseStaticFiles();
 
             app.UseHttpsRedirection();
 

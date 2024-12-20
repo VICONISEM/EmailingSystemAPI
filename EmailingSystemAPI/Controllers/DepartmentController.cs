@@ -3,7 +3,7 @@ using EmailingSystem.Core.Contracts;
 using EmailingSystem.Core.Entities;
 using EmailingSystem.Core.Enums;
 using EmailingSystem.Repository.Data.Contexts;
-using EmailingSystemAPI.DTOs;
+using EmailingSystemAPI.DTOs.Department;
 using EmailingSystemAPI.Errors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;

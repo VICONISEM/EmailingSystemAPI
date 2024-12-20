@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using EmailingSystem.Core.Contracts;
 using EmailingSystem.Core.Entities;
-using EmailingSystemAPI.DTOs;
+using EmailingSystemAPI.DTOs.Message;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

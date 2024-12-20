@@ -1,4 +1,4 @@
-﻿namespace EmailingSystemAPI.DTOs
+﻿namespace EmailingSystemAPI.DTOs.User
 {
     public class UserToUpdateDto
     {

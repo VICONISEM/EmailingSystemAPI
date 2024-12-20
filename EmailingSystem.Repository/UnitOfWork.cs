@@ -2,6 +2,7 @@
 using EmailingSystem.Core.Contracts.Repository.Contracts;
 using EmailingSystem.Core.Entities;
 using EmailingSystem.Repository.Data.Contexts;
+using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -21,16 +22,19 @@ namespace EmailingSystem.Repository
             Repositories = new Hashtable();
             this.DbContext = DbContext;
         }
+        
+        public async Task<IDbContextTransaction> BeginTransactionAsync()
+        {
+            return await DbContext.Database.BeginTransactionAsync();
+        }
         public async Task<int> CompleteAsync()
         {
             return await DbContext.SaveChangesAsync();
         }
-
         public async ValueTask DisposeAsync()
         {
             await DbContext.DisposeAsync();
         }
-
         public IGenericRepository<T> Repository<T>() where T : class
         {
             var type = typeof(T).Name;

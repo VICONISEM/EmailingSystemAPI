@@ -1,6 +1,11 @@
 ﻿using AutoMapper;
 using EmailingSystem.Core.Entities;
-using EmailingSystemAPI.DTOs;
+using EmailingSystemAPI.DTOs.Attachement;
+using EmailingSystemAPI.DTOs.College;
+using EmailingSystemAPI.DTOs.Conversation;
+using EmailingSystemAPI.DTOs.Department;
+using EmailingSystemAPI.DTOs.Message;
+using EmailingSystemAPI.DTOs.User;
 
 namespace EmailingSystemAPI.Helper
 {
@@ -10,8 +15,16 @@ namespace EmailingSystemAPI.Helper
         public MappingProfiles()
         {
             #region ApplicationUser
-            CreateMap<ApplicationUser, RegisterDto>().ReverseMap();
-            CreateMap<ApplicationUser, AuthDto>().ForMember(U => U.DepartmentName, O => O.MapFrom(U => U.Department != null ? U.Department.Name : null)).ReverseMap();
+            CreateMap<RegisterDto, ApplicationUser>();
+                
+
+            CreateMap<ApplicationUser, AuthDto>()
+                .ForMember(U => U.UserId, O => O.MapFrom(U => U.Id))
+                .ForMember(U => U.DepartmentName, O => O.MapFrom(U => U.Department != null ? U.Department.Name : null))
+                .ForMember(U => U.CollegeName, O => O.MapFrom(U => U.College != null ? U.College.Name : null))
+                .ForMember(U => U.PictureURL, O => O.MapFrom<ProfileImageResolver>())
+                .ForMember(U => U.SignatureURL, O => O.MapFrom<SignatureResolver>()).ReverseMap(); 
+            
             CreateMap<ApplicationUser, UserDto>()
                 .ForMember(U => U.CollegeName, O => O.MapFrom(O => O.College != null ? O.College.Name : null))
                 .ForMember(U => U.DepartmentName, O => O.MapFrom(O => O.Department != null ? O.Department.Name : null));

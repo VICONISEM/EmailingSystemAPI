@@ -1,4 +1,4 @@
-﻿namespace EmailingSystemAPI.DTOs
+﻿namespace EmailingSystemAPI.DTOs.Department
 {
     public class DepartmentWithUserDto
     {

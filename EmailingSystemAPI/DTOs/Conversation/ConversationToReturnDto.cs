@@ -1,4 +1,6 @@
-﻿namespace EmailingSystemAPI.DTOs
+﻿using EmailingSystemAPI.DTOs.Message;
+
+namespace EmailingSystemAPI.DTOs.Conversation
 {
     public class ConversationToReturnDto
     {

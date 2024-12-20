@@ -1,6 +1,6 @@
 ﻿using EmailingSystem.Core.Entities;
 
-namespace EmailingSystemAPI.DTOs
+namespace EmailingSystemAPI.DTOs.Attachement
 {
     public class AttachmentToSentDto
     {

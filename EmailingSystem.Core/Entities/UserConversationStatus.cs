@@ -13,8 +13,8 @@ namespace EmailingSystem.Core.Entities
         public long ConversationId { get; set; }
         public ConversationStatus Status { get; set; } = ConversationStatus.Active;
         public DateTime LastUpdated { get; set; } = DateTime.Now;
-        public Conversation Conversation { get; set; } = null!;
-        public ApplicationUser User { get; set; } = null!;
+        public virtual Conversation Conversation { get; set; } = null!;
+        public virtual ApplicationUser User { get; set; } = null!;
 
     }
 }
