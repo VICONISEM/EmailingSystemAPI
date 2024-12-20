@@ -11,6 +11,7 @@ namespace EmailingSystemAPI.DTOs
         public string ReceiverEmail { get; set; } = null!;
         public string ReceiverName { get; set; } = null!;
         public LastMessageDto LastMessage { get; set; } = null!;
+        public bool HasDraftMessage { get; set; } = false;
 
     }
 }

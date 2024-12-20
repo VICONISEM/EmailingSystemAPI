@@ -21,6 +21,8 @@ public class ConversationSpecifications : BaseSpecification<Conversation>
                C.ReceiverId == UserId || C.Receiver.NormalizedName.Contains(Specs.Search,StringComparison.OrdinalIgnoreCase))));
 
              AddInclude(C => C.Include(C => C.UserConversationStatuses.Where(C => C.UserId == UserId)));
+             AddInclude(C => C.Include(C => C.Messages.Where(M => M.IsDraft && M.SenderId == UserId).FirstOrDefault()));
+
 
         if (Specs.Sort == "dsec")
             OrderByDesc = (C => C.Messages.Where(C => ((C.SenderId == UserId && !C.SenderIsDeleted) || (C.ReceiverId == UserId && !C.ReceiverIsDeleted))&& !C.IsDraft).Max(M => M.SendAt));
