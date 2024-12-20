@@ -49,21 +49,50 @@ namespace EmailingSystemAPI
             });
 
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAllOrigins", policy =>
+                {
+                    policy.AllowAnyOrigin()  // Allow any origin
+                          .AllowAnyHeader()   // Allow any header
+                          .AllowAnyMethod();  // Allow any HTTP method (GET, POST, PUT, DELETE)
+                });
+            });
+
+
 
 
 
 
             var app = builder.Build();
+            app.UseRouting();
+            app.UseCors("AllowAllOrigins");
 
-            app.UseMiddleware<ExceptionMiddleware>();
 
-            // Configure the HTTP request pipeline.
+
+            if (app.Environment.IsDevelopment() || app.Environment.IsStaging() || app.Environment.IsProduction())
+            {
+                app.UseDeveloperExceptionPage();
+
+
+                app.UseSwagger();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Scoreboard API v1");
+                    c.RoutePrefix = string.Empty;
+                });
+            }
+
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
 
+            app.UseMiddleware<ExceptionMiddleware>();
+
+            // Configure the HTTP request pipeline.
+            
             app.UseStaticFiles();
 
             app.UseHttpsRedirection();
@@ -72,6 +101,7 @@ namespace EmailingSystemAPI
             app.UseAuthorization();
 
             app.MapControllers();
+            
 
             app.Run();
         }
