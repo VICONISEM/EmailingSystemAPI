@@ -29,6 +29,8 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpe
 
 
             AddInclude(C => C.Include(C => C.UserConversationStatuses.Where(C => C.UserId == UserId)));
+            AddInclude(C => C.Include(C => C.Messages.Where(M => M.IsDraft && M.SenderId == UserId).FirstOrDefault()));
+
 
 
             if (Specs.Sort == "dsec")

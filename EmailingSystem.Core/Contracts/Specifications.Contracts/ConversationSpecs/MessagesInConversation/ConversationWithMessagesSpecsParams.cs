@@ -8,7 +8,7 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpe
 {
     public class ConversationWithMessagesSpecsParams
     {
-        public long ConversationId;
+        public long ConversationId { get; set; }
 
         private int pageNumber = 1;
 

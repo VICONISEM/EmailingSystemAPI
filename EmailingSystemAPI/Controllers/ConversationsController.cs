@@ -12,6 +12,8 @@ using EmailingSystemAPI.Helper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Runtime.CompilerServices;
 using System.Security.Claims;
 
 namespace EmailingSystemAPI.Controllers
@@ -142,8 +144,106 @@ namespace EmailingSystemAPI.Controllers
             return Ok();
 
         }
-    
-        
-    
+
+        [HttpPost("Compose")]
+        public async Task<ActionResult> ComposeConversation(ConversationComposeDto conversationDto)
+        {
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+
+            var user = userManager.FindByIdAsync(userEmail);
+
+            var Conversation = new Conversation()
+            {
+                SenderId = user.Id,
+                ReceiverId = conversationDto.ReceiverId,
+                Subject = conversationDto.Subject,
+                UserConversationStatuses = new List<UserConversationStatus>() {
+                    new UserConversationStatus()
+                    { 
+                        UserId=user.Id
+                        ,Status=ConversationStatus.Active,LastUpdated=DateTime.Now
+                    }
+                ,   
+                    new UserConversationStatus()
+                    { 
+                    UserId = conversationDto.ReceiverId
+                    ,Status = ConversationStatus.Active, LastUpdated = DateTime.Now 
+                    }
+                }
+                ,
+                Messages = new List<Message>() { } 
+                
+            };
+
+
+
+
+            var Message = new Message()
+            {
+                Attachments= new List<Attachment>(),
+                Content= conversationDto.Message.Content,
+                ReceiverId= conversationDto.ReceiverId,
+                SenderId=user.Id,
+            };
+
+            var Attachments = new List<Attachment>() { };
+
+            if(!conversationDto.Message.Attachments.IsNullOrEmpty())
+            {
+                foreach (var Attachment in conversationDto.Message.Attachments)
+                {
+                    Attachments.Add(new Attachment()
+                    {
+                        FileName=Attachment.FileName,
+                        FilePath="To Be Edite Later",
+                        
+                    });
+
+
+                }
+            }
+            Message.Attachments = Attachments;
+            Conversation.Messages.Add(Message);
+
+
+            await unitOfWork.Repository<Conversation>().AddAsync(Conversation);
+
+            return Ok("Conversation Added Successfully");
+
+        }
+
+        [HttpPost("ComposeDraft")]
+        public async Task<ActionResult<DraftConversations>> ComposeDraft(DraftComposeDto draftComposeDto)
+        {
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+
+            var user = userManager.FindByIdAsync(userEmail);
+
+            var DraftConversation = new DraftConversations()
+            {
+                Body = draftComposeDto?.Body,
+                DraftAttachments = new List<DraftAttachments>(),
+                SenderId = user.Id,
+                ReceiverId = draftComposeDto?.ReceiverId,
+                Subject=draftComposeDto?.Subject,
+            };
+            if(!draftComposeDto.DraftAttachments.IsNullOrEmpty())
+            foreach(var Attachment in draftComposeDto.DraftAttachments)
+            {
+                    DraftConversation.DraftAttachments.Add(new DraftAttachments()
+                    {
+                        AttachmentPath = "Attachment.File"
+
+                    });
+
+            }
+            await unitOfWork.Repository<DraftConversations>().AddAsync(DraftConversation);
+
+            return Ok(DraftConversation);
+
+
+
+
+        }
     }
 }
