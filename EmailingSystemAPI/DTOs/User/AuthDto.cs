@@ -5,6 +5,7 @@
         public int UserId { get; set; }
         public string Email { get; set; } = null!;
         public string Name { get; set; } = null!;
+        public string Role { get; set; } = null!;
         public string? PictureURL { get; set; }
         public string? SignatureURL { get; set; }
         public string? DepartmentName { get; set; } = null!;

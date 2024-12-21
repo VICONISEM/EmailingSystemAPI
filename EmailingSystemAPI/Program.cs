@@ -95,16 +95,9 @@ namespace EmailingSystemAPI
                 });
             });
 
-
-
-
-
-
             var app = builder.Build();
             app.UseRouting();
             app.UseCors("AllowAllOrigins");
-
-
 
             if (app.Environment.IsDevelopment() || app.Environment.IsStaging() || app.Environment.IsProduction())
             {
@@ -138,7 +131,6 @@ namespace EmailingSystemAPI
 
             app.MapControllers();
             
-
             app.Run();
         }
     }
