@@ -12,8 +12,8 @@ namespace EmailingSystemAPI.DTOs.User
         [MinLength(8)]
         public string Password { get; set; } = null!;
         public string Name { get; set; } = null!;
-        public int? DepartmentId { get; set; }
-        public int? CollegeId { get; set; }
+        public int? DepartmentId { get; set; } = 0;
+        public int? CollegeId { get; set; } = 0;
         public UserRole Role { get; set; } = UserRole.NormalUser;
 
         [MinLength(14)]
@@ -23,11 +23,9 @@ namespace EmailingSystemAPI.DTOs.User
 
         //[FileExtensions(Extensions = "jpg,jpeg,png", ErrorMessage = "Only image files (.jpg, .jpeg, .png) are allowed.")]
         public IFormFile? Picture { get; set; }
-        public string? PictureURL { get; set; }
 
         //[FileExtensions(Extensions = "jpg,jpeg,png", ErrorMessage = "Only image files (.jpg, .jpeg, .png) are allowed.")]
         public IFormFile? SignatureFile { get; set; }
-        public string? SignatureURL { get; set; }
 
 
     }
