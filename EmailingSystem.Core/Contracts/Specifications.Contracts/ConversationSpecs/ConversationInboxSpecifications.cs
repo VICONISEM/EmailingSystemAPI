@@ -33,10 +33,10 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpe
 
 
             if (Specs.Sort == "dsec")
-                OrderByDesc = (C => C.Messages.Where(M=>M.ReceiverId == UserId && !M.ReceiverIsDeleted && !M.IsDraft).Max(M => M.SendAt));
+                OrderByDesc = (C => C.Messages.Where(M=>M.ReceiverId == UserId && !M.ReceiverIsDeleted && !M.IsDraft).MaxBy(M => M.SendAt).SendAt);
                 
             else
-                OrderBy = (C => C.Messages.Where(M => M.ReceiverId == UserId && !M.ReceiverIsDeleted && !M.IsDraft).Max(M => M.SendAt));
+                OrderBy = (C => C.Messages.Where(M => M.ReceiverId == UserId && !M.ReceiverIsDeleted && !M.IsDraft).MaxBy(M => M.SendAt).SendAt);
 
             IsPaginated = true;
 
