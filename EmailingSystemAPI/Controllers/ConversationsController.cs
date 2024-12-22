@@ -38,8 +38,21 @@ namespace EmailingSystemAPI.Controllers
         [HttpGet("AllConversations")]
         public async Task<ActionResult<Pagination<ConversationDto>>> AllConversations([FromQuery] ConversationSpecParams Specs)
         {
-            var userEmail = User.FindFirstValue(ClaimTypes.Email);
-            var user = await userManager.FindByEmailAsync(userEmail);
+           
+                var userEmail = User.FindFirstValue(ClaimTypes.Email);
+
+                if(userEmail is null)
+                {
+                    return NotFound();
+                }
+
+                var user = await userManager.FindByEmailAsync(userEmail);
+
+                if(user is null)
+                {
+                    return NotFound();
+                }
+            
 
             IQueryable<Conversation> Query;
             int Count = 0;
@@ -77,16 +90,28 @@ namespace EmailingSystemAPI.Controllers
             return Ok(new Pagination<ConversationDto>(Specs.PageNumber,Specs.PageSize,Count,ConversationDtoList));
         }
 
+
         [HttpGet("DraftConversations")]
         public async Task<ActionResult<Pagination<DraftConversations>>> DraftConversations([FromQuery] ConversationSpecParams Specs)
         {
             var Email = User.FindFirstValue(ClaimTypes.Email);
+
+            if(Email is null)
+            {
+                return NotFound();
+            }
+
             var user = await userManager.FindByIdAsync(Email);
 
+            if(user is null)
+            {
+                return NotFound();
+            }
             var specs = new DraftSpecification(Specs, user.Id);
             var conversations = await unitOfWork.Repository<DraftConversations>().GetAllQueryableWithSpecs(specs).ToListAsync();
 
             var SpecsCount = new ConversationDraftSpecificationForCountPagination(Specs, user.Id);
+
             var ConversationCount = await unitOfWork.Repository<DraftConversations>().GetCountWithSpecs(SpecsCount);
 
             return Ok(new Pagination<DraftConversations>(Specs.PageNumber,Specs.PageSize,ConversationCount,conversations));
@@ -96,11 +121,12 @@ namespace EmailingSystemAPI.Controllers
         public async Task<ActionResult<ConversationToReturnDto>> GetConversationById([FromQuery] ConversationWithMessagesSpecsParams SpecsParams)
         {
             var Conversation = await unitOfWork.Repository<Conversation>().GetByIdAsync<long>(SpecsParams.ConversationId);
+
             if(Conversation == null) return NotFound(new APIErrorResponse(400,"Not Found"));
 
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
 
-            var user = userManager.FindByIdAsync(userEmail);
+            var user = await userManager.FindByEmailAsync(userEmail);
 
             if (user.Id != Conversation.SenderId && user.Id != Conversation.ReceiverId)
                 return Unauthorized(new APIErrorResponse(401, "You aren't authorized"));
@@ -112,8 +138,8 @@ namespace EmailingSystemAPI.Controllers
             ConversationWithMessages.Messages=mapper.Map<List<MessageDto>>(messages);
 
             var DraftMessageSpecs = new GetDraftMessageSpecification( user.Id , SpecsParams.ConversationId);
-            var DraftMessage = (await unitOfWork.Repository<Conversation>().GetAllQueryableWithSpecs(DraftMessageSpecs).FirstOrDefaultAsync())?.Messages;
-            ConversationWithMessages.DraftMessage = mapper.Map<MessageDto>(DraftMessage);
+            var DraftMessage = await unitOfWork.Repository<Conversation>().GetAllQueryableWithSpecs(DraftMessageSpecs).FirstOrDefaultAsync();
+            ConversationWithMessages.DraftMessage = mapper.Map<MessageDto>(DraftMessage.Messages.FirstOrDefault());
             return Ok(ConversationWithMessages);
         }
 
@@ -216,11 +242,11 @@ namespace EmailingSystemAPI.Controllers
         }
 
         [HttpPost("ComposeDraft")]
-        public async Task<ActionResult<DraftConversations>> ComposeDraft(DraftComposeDto draftComposeDto)
+        public async Task<ActionResult<DraftConversations>> ComposeDraft([FromForm] DraftComposeDto draftComposeDto)
         {
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
 
-            var user = userManager.FindByIdAsync(userEmail);
+            var user = await userManager.FindByEmailAsync(userEmail);
 
             var DraftConversation = new DraftConversations()
             {
