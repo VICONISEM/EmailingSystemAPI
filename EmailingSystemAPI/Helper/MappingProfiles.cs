@@ -101,12 +101,14 @@ namespace EmailingSystemAPI.Helper
                 .ForMember(D => D.Subject, M => M.MapFrom(D => D.Subject))
                 .ForMember(D => D.CreatedAt, M => M.MapFrom(D => D.CreatedAt))
                 .ForMember(D => D.SenderEmail, M => M.MapFrom(D => D.Sender.Email))
-                .ForMember(D => D.ReceiverEmail, M => M.MapFrom(D => D.Receiver.Email != null ? D.Receiver.Email : null))
+                .ForMember(D => D.ReceiverEmail, M => M.MapFrom(D => (D.Receiver!= null) ? D.Receiver.Email :null ))
                 .ForMember(D => D.Body, M => M.MapFrom(D => D.Body))
                 .ForMember(D => D.Subject, M => M.MapFrom(D => D.Subject));
 
 
-            CreateMap<DraftAttachments,>
+            CreateMap<DraftAttachments, AttachementDto>()
+                .ForMember(C => C.FileURL, M => M.MapFrom<FileResolver>());
+                
                
             #endregion
 
