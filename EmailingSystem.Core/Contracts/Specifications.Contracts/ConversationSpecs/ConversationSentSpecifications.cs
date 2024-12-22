@@ -29,16 +29,17 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpe
 
 
             AddInclude(C => C.Include(C => C.UserConversationStatuses.Where(C => C.UserId == UserId)));
-            AddInclude(C => C.Include(C => C.Messages.Where(M => M.IsDraft && M.SenderId == UserId).FirstOrDefault()));
+            AddInclude(C => C.Include(C => C.Messages.Where(M => !M.IsDraft ||(M.IsDraft && M.SenderId == UserId))));
 
 
 
-            if (Specs.Sort == "dsec")
+            if (Specs.Sort == "desc")
                 OrderByDesc = (C => C.Messages.Where(M => M.SenderId == UserId && !M.SenderIsDeleted && !M.IsDraft).Max(M => M.SendAt));
 
             else
                 OrderBy = (C => C.Messages.Where(M => M.SenderId == UserId && !M.SenderIsDeleted && !M.IsDraft).Max(M => M.SendAt));
-
+            
+            IsPaginated = true;
 
             ApplyPagination(Specs.PageSize * (Specs.PageNumber - 1), Specs.PageSize);
 

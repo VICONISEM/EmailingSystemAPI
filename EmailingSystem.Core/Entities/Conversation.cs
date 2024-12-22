@@ -8,7 +8,7 @@
         public virtual ApplicationUser Sender { get; set; } = null!;
         public int ReceiverId { get; set; }
         public virtual ApplicationUser Receiver { get; set; } = null!;
-        public virtual ICollection<Message> Messages { get; set; } = null!;
+        public virtual ICollection<Message>? Messages { get; set; } = null!;
         public virtual ICollection<UserConversationStatus> UserConversationStatuses { get; set; } = null!;
       
     }

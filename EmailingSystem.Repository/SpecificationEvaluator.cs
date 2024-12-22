@@ -25,10 +25,13 @@ namespace EmailingSystem.Repository
             }
             else if (spec.OrderByDesc is not null)
             {
-                query = query.OrderBy(spec.OrderByDesc);
+                query = query.OrderByDescending(spec.OrderByDesc);
             }
 
-            query = query.Skip(spec.Skip).Take(spec.Take);
+            if (spec.IsPaginated)
+            {
+                query = query.Skip(spec.Skip).Take(spec.Take);
+            }
 
             return query;
         }
