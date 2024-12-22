@@ -30,6 +30,7 @@ public class ConversationSpecifications : BaseSpecification<Conversation>
         else
             OrderBy = (C => C.Messages.Where(C => ((C.SenderId == UserId && !C.SenderIsDeleted) || (C.ReceiverId == UserId && !C.ReceiverIsDeleted)) && !C.IsDraft).Max(M => M.SendAt));
 
+        IsPaginated = true;
 
         ApplyPagination(Specs.PageSize * (Specs.PageNumber - 1), Specs.PageSize);
     }

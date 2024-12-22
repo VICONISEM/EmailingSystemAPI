@@ -38,7 +38,8 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpe
 
             else
                 OrderBy = (C => C.Messages.Where(M => M.SenderId == UserId && !M.SenderIsDeleted && !M.IsDraft).Max(M => M.SendAt));
-
+            
+            IsPaginated = true;
 
             ApplyPagination(Specs.PageSize * (Specs.PageNumber - 1), Specs.PageSize);
 

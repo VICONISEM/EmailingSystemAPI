@@ -69,7 +69,6 @@ namespace EmailingSystemAPI.Controllers
                 Count = await unitOfWork.Repository<Conversation>().GetCountWithSpecs(CountSpecs);
             }
 
-
             var conversations = await Query.ToListAsync();
 
             var ConversationDtoList = mapper.Map<IReadOnlyList<ConversationDto>>(conversations);
