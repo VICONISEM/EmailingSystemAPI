@@ -61,10 +61,10 @@ namespace EmailingSystemAPI.Controllers
                 if (registerDto.CollegeId.HasValue || registerDto.DepartmentId.HasValue)
                     return BadRequest(new APIErrorResponse(400, "Can't create user with Role Presedient with department and college."));
             }
-            else if(registerDto.Role == UserRole.VicePresedient)
-            {
-                //Some Code
-            }
+            //else if(registerDto.Role == UserRole.VicePresedient)
+            //{
+            //    //Some Code
+            //}
             else if (registerDto.Role == UserRole.Dean)
             {
                 if (registerDto.CollegeId is null || registerDto.DepartmentId.HasValue)
