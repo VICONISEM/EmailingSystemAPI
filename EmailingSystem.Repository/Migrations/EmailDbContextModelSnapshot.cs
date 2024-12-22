@@ -161,7 +161,7 @@ namespace EmailingSystem.Repository.Migrations
 
                     b.HasIndex("MessageId");
 
-                    b.ToTable("Attachments");
+                    b.ToTable("Attachments", (string)null);
                 });
 
             modelBuilder.Entity("EmailingSystem.Core.Entities.College", b =>
@@ -189,7 +189,7 @@ namespace EmailingSystem.Repository.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Colleges");
+                    b.ToTable("Colleges", (string)null);
                 });
 
             modelBuilder.Entity("EmailingSystem.Core.Entities.Conversation", b =>
@@ -216,7 +216,7 @@ namespace EmailingSystem.Repository.Migrations
 
                     b.HasIndex("SenderId");
 
-                    b.ToTable("Conversations");
+                    b.ToTable("Conversations", (string)null);
                 });
 
             modelBuilder.Entity("EmailingSystem.Core.Entities.Department", b =>
@@ -246,7 +246,7 @@ namespace EmailingSystem.Repository.Migrations
                     b.HasIndex("CollegeId", "Name")
                         .IsUnique();
 
-                    b.ToTable("Departments");
+                    b.ToTable("Departments", (string)null);
                 });
 
             modelBuilder.Entity("EmailingSystem.Core.Entities.DraftAttachments", b =>
@@ -268,7 +268,7 @@ namespace EmailingSystem.Repository.Migrations
 
                     b.HasIndex("DraftConversationId");
 
-                    b.ToTable("DraftAttachments");
+                    b.ToTable("DraftAttachments", (string)null);
                 });
 
             modelBuilder.Entity("EmailingSystem.Core.Entities.DraftConversations", b =>
@@ -300,7 +300,7 @@ namespace EmailingSystem.Repository.Migrations
 
                     b.HasIndex("SenderId");
 
-                    b.ToTable("DraftConversations");
+                    b.ToTable("DraftConversations", (string)null);
                 });
 
             modelBuilder.Entity("EmailingSystem.Core.Entities.Message", b =>
@@ -356,7 +356,7 @@ namespace EmailingSystem.Repository.Migrations
 
                     b.HasIndex("SenderId");
 
-                    b.ToTable("Messages");
+                    b.ToTable("Messages", (string)null);
                 });
 
             modelBuilder.Entity("EmailingSystem.Core.Entities.Signature", b =>
@@ -380,7 +380,7 @@ namespace EmailingSystem.Repository.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Signatures");
+                    b.ToTable("Signatures", (string)null);
                 });
 
             modelBuilder.Entity("EmailingSystem.Core.Entities.UserConversationStatus", b =>
@@ -404,7 +404,7 @@ namespace EmailingSystem.Repository.Migrations
 
                     b.HasIndex("Status");
 
-                    b.ToTable("UserConversationStatuses");
+                    b.ToTable("UserConversationStatuses", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
@@ -556,7 +556,7 @@ namespace EmailingSystem.Repository.Migrations
                         .HasForeignKey("EmailingSystem.Core.Entities.ApplicationUser", "SignatureId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.OwnsMany("EmailingSystem.Core.Entities.Token.RefreshToken", "RefreshTokens", b1 =>
+                    b.OwnsMany("EmailingSystem.Core.Entities.ApplicationUser.RefreshTokens#EmailingSystem.Core.Entities.Token.RefreshToken", "RefreshTokens", b1 =>
                         {
                             b1.Property<int>("ApplicationUserId")
                                 .HasColumnType("int");
@@ -579,7 +579,7 @@ namespace EmailingSystem.Repository.Migrations
 
                             b1.HasKey("ApplicationUserId", "Id");
 
-                            b1.ToTable("RefreshToken");
+                            b1.ToTable("RefreshToken", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("ApplicationUserId");
