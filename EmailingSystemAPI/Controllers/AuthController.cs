@@ -177,8 +177,8 @@ namespace EmailingSystemAPI.Controllers
             }
         }
 
-        [HttpGet("LogIn")]
-        public async Task<ActionResult<AuthDto>> Login([FromQuery] LogInDto loginDto)
+        [HttpPost("LogIn")]
+        public async Task<ActionResult<AuthDto>> Login([FromBody] LogInDto loginDto)
         {
             var user = await userManager.FindByEmailAsync(loginDto.Email);
 
@@ -204,7 +204,7 @@ namespace EmailingSystemAPI.Controllers
             }
 
             var userDto = mapper.Map<AuthDto>(user);
-            userDto.Role = (await userManager.GetRolesAsync(user)).ToString();
+            userDto.Role = (await userManager.GetRolesAsync(user))[0].ToString();
             userDto.AccessToken = await tokenService.CreateTokenAsync(user,userManager);
             userDto.RefreshTokenExpirationTime = user.RefreshTokens.FirstOrDefault(T => T.IsActive).ExpiresOn;
 
