@@ -70,10 +70,10 @@ namespace EmailingSystemAPI.Controllers
                 if (registerDto.CollegeId is null || registerDto.DepartmentId.HasValue)
                     return BadRequest("User with Role Dean must have a college and can't be in a department.");
             }
-            else if (registerDto.Role == UserRole.ViceDean)
-            {
-                //Some Code
-            }
+            //else if (registerDto.Role == UserRole.ViceDean)
+            //{
+            //    //Some Code
+            //}
             else if (registerDto.Role == UserRole.Secretary)
             {
                 if (registerDto.CollegeId is null || registerDto.DepartmentId.HasValue) 
@@ -177,8 +177,8 @@ namespace EmailingSystemAPI.Controllers
             }
         }
 
-        [HttpGet("LogIn")]
-        public async Task<ActionResult<AuthDto>> Login([FromQuery] LogInDto loginDto)
+        [HttpPost("LogIn")]
+        public async Task<ActionResult<AuthDto>> Login([FromBody] LogInDto loginDto)
         {
             var user = await userManager.FindByEmailAsync(loginDto.Email);
 
@@ -204,7 +204,7 @@ namespace EmailingSystemAPI.Controllers
             }
 
             var userDto = mapper.Map<AuthDto>(user);
-            userDto.Role = (await userManager.GetRolesAsync(user)).ToString();
+            userDto.Role = (await userManager.GetRolesAsync(user))[0].ToString();
             userDto.AccessToken = await tokenService.CreateTokenAsync(user,userManager);
             userDto.RefreshTokenExpirationTime = user.RefreshTokens.FirstOrDefault(T => T.IsActive).ExpiresOn;
 

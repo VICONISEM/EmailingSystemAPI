@@ -11,7 +11,7 @@ public class ConversationSpecifications : BaseSpecification<Conversation>
         Criteria = C => ((C.ReceiverId == UserId || C.SenderId == UserId))
                &&
                (C.UserConversationStatuses
-               .Any(C => C.UserId == UserId && C.Status == (ConversationStatus)Enum.Parse(typeof(ConversationStatus), Specs.Type))
+               .Any(C => C.UserId == UserId && C.Status == (ConversationStatus)Enum.Parse(typeof(ConversationStatus), Specs.Type,true))
                &&
                (string.IsNullOrEmpty(Specs.Search) ||
                (C.Subject.Contains(Specs.Search,StringComparison.OrdinalIgnoreCase)
@@ -21,15 +21,16 @@ public class ConversationSpecifications : BaseSpecification<Conversation>
                C.ReceiverId == UserId || C.Receiver.NormalizedName.Contains(Specs.Search,StringComparison.OrdinalIgnoreCase))));
 
              AddInclude(C => C.Include(C => C.UserConversationStatuses.Where(C => C.UserId == UserId)));
-             AddInclude(C => C.Include(C => C.Messages.Where(M => M.IsDraft && M.SenderId == UserId).FirstOrDefault()));
+            AddInclude(C => C.Include(C => C.Messages.Where(M => !M.IsDraft || (M.IsDraft && M.SenderId == UserId))));
 
 
-        if (Specs.Sort == "dsec")
+        if (Specs.Sort == "desc")
             OrderByDesc = (C => C.Messages.Where(C => ((C.SenderId == UserId && !C.SenderIsDeleted) || (C.ReceiverId == UserId && !C.ReceiverIsDeleted))&& !C.IsDraft).Max(M => M.SendAt));
 
         else
             OrderBy = (C => C.Messages.Where(C => ((C.SenderId == UserId && !C.SenderIsDeleted) || (C.ReceiverId == UserId && !C.ReceiverIsDeleted)) && !C.IsDraft).Max(M => M.SendAt));
 
+        IsPaginated = true;
 
         ApplyPagination(Specs.PageSize * (Specs.PageNumber - 1), Specs.PageSize);
     }

@@ -2,7 +2,7 @@
 {
     public class ConversationSpecParams
     {
-        public string Sort { get; set; } = "dsec";
+        public string Sort { get; set; } = "desc";
         public string Type { get; set; } = "inbox";
 
         private int pageNumber = 1;

@@ -24,6 +24,7 @@ namespace EmailingSystem.Core.Contracts.Specification.Contract
 
         public int Skip { get; set; } 
         public int Take { get; set; }
+        public bool IsPaginated { get; set; } = false;
 
         public void ApplyPagination(int Skip ,int Take)
         {
