@@ -25,7 +25,7 @@ namespace EmailingSystem.Repository
             }
             else if (spec.OrderByDesc is not null)
             {
-                query = query.OrderBy(spec.OrderByDesc);
+                query = query.OrderByDescending(spec.OrderByDesc);
             }
 
             if (spec.IsPaginated)

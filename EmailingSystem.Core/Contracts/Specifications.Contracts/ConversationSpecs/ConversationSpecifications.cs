@@ -21,7 +21,7 @@ public class ConversationSpecifications : BaseSpecification<Conversation>
                C.ReceiverId == UserId || C.Receiver.NormalizedName.Contains(Specs.Search,StringComparison.OrdinalIgnoreCase))));
 
              AddInclude(C => C.Include(C => C.UserConversationStatuses.Where(C => C.UserId == UserId)));
-             AddInclude(C => C.Include(C => C.Messages.Where(M => M.IsDraft && M.SenderId == UserId).FirstOrDefault()));
+            AddInclude(C => C.Include(C => C.Messages.Where(M => !M.IsDraft || (M.IsDraft && M.SenderId == UserId))));
 
 
         if (Specs.Sort == "dsec")

@@ -29,14 +29,14 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpe
 
             AddInclude(C => C.Include(C => C.UserConversationStatuses.Where(C => C.UserId == UserId)));
           
-            AddInclude(C => C.Include(C => C.Messages.Where(M => !M.IsDraft && M.SenderId==UserId)));
+            AddInclude(C => C.Include(C => C.Messages.Where(M => !M.IsDraft ||( M.IsDraft && M.SenderId==UserId))));
 
 
             if (Specs.Sort == "dsec")
-                OrderByDesc = (C => C.Messages.Where(M=>M.ReceiverId == UserId && !M.ReceiverIsDeleted && !M.IsDraft).MaxBy(M => M.SendAt).SendAt);
+                OrderByDesc = (C => C.Messages.Where(M=>M.ReceiverId == UserId && !M.ReceiverIsDeleted && !M.IsDraft).Max(M => M.SendAt));
                 
             else
-                OrderBy = (C => C.Messages.Where(M => M.ReceiverId == UserId && !M.ReceiverIsDeleted && !M.IsDraft).MaxBy(M => M.SendAt).SendAt);
+                OrderBy = (C => C.Messages.Where(M => M.ReceiverId == UserId && !M.ReceiverIsDeleted && !M.IsDraft).Max(M => M.SendAt));
 
             IsPaginated = true;
 
