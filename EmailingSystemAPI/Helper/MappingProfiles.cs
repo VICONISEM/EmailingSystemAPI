@@ -4,6 +4,7 @@ using EmailingSystemAPI.DTOs.Attachement;
 using EmailingSystemAPI.DTOs.College;
 using EmailingSystemAPI.DTOs.Conversation;
 using EmailingSystemAPI.DTOs.Department;
+using EmailingSystemAPI.DTOs.DraftConversation;
 using EmailingSystemAPI.DTOs.Message;
 using EmailingSystemAPI.DTOs.User;
 
@@ -51,8 +52,8 @@ namespace EmailingSystemAPI.Helper
                    .ForMember(C => C.ReceiverEmail, O => O.MapFrom(C => C.Receiver.Email))
 
                    //********************** Start Edits ***************************//
-                   .ForMember(C => C.SenderPictureURL, O => O.MapFrom(C => C.Sender.PicturePath))
-                   .ForMember(C => C.ReceiverPictureURL, O => O.MapFrom(C => C.Receiver.PicturePath));
+                   .ForMember(C => C.SenderPictureURL, O => O.MapFrom<ProfileImageResolverForConversation>())
+                   .ForMember(C => C.ReceiverPictureURL, O => O.MapFrom<ProfileImageResolverForConversation>());
                    //********************** End Edits ***************************//
             #endregion
 
@@ -60,9 +61,12 @@ namespace EmailingSystemAPI.Helper
             CreateMap<Message, MessageDto>()
                 .ForMember(C => C.SenderEmail, O => O.MapFrom(C => C.Sender.Email))
                 .ForMember(C => C.ReceiverEmail, O => O.MapFrom(C => C.Receiver.Email))
+                .ForMember(m => m.SentAt, O => O.MapFrom(M => M.SendAt))
+                
                 .ReverseMap();
 
-            CreateMap<Message, LastMessageDto>();
+            CreateMap<Message, LastMessageDto>()
+                .ForMember(m=>m.SentAt,O=>O.MapFrom(M=>M.SendAt));
 
             #endregion
 
@@ -90,6 +94,20 @@ namespace EmailingSystemAPI.Helper
             #region Attachment
             CreateMap<Attachment, AttachementDto>()
                 .ForMember(A => A.Name, M => M.MapFrom(O => O.FileName));
+            #endregion
+
+            #region DraftConversation
+            CreateMap<DraftConversations, DraftConversationDtoReturn>()
+                .ForMember(D => D.Subject, M => M.MapFrom(D => D.Subject))
+                .ForMember(D => D.CreatedAt, M => M.MapFrom(D => D.CreatedAt))
+                .ForMember(D => D.SenderEmail, M => M.MapFrom(D => D.Sender.Email))
+                .ForMember(D => D.ReceiverEmail, M => M.MapFrom(D => D.Receiver.Email != null ? D.Receiver.Email : null))
+                .ForMember(D => D.Body, M => M.MapFrom(D => D.Body))
+                .ForMember(D => D.Subject, M => M.MapFrom(D => D.Subject));
+
+
+            CreateMap<DraftAttachments,>
+               
             #endregion
 
         }
