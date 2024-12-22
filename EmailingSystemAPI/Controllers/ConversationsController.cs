@@ -101,7 +101,7 @@ namespace EmailingSystemAPI.Controllers
                 return NotFound();
             }
 
-            var user = await userManager.FindByIdAsync(Email);
+            var user = await userManager.FindByEmailAsync(Email);
 
             if(user is null)
             {
@@ -114,7 +114,9 @@ namespace EmailingSystemAPI.Controllers
 
             var ConversationCount = await unitOfWork.Repository<DraftConversations>().GetCountWithSpecs(SpecsCount);
 
-            return Ok(new Pagination<DraftConversations>(Specs.PageNumber,Specs.PageSize,ConversationCount,conversations));
+            var DraftDto = mapper.Map<List<DraftConversationDtoReturn>>(conversations);
+
+            return Ok(new Pagination<DraftConversationDtoReturn>(Specs.PageNumber,Specs.PageSize,ConversationCount, DraftDto));
         }
 
         [HttpGet("GetConversationById")]
@@ -151,7 +153,7 @@ namespace EmailingSystemAPI.Controllers
 
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
 
-            var user = userManager.FindByIdAsync(userEmail);
+            var user = await userManager.FindByEmailAsync(userEmail);
 
             if (user.Id != Conversation.SenderId && user.Id != Conversation.ReceiverId)
                 return Unauthorized(new APIErrorResponse(401, "You aren't authorized"));
@@ -165,6 +167,7 @@ namespace EmailingSystemAPI.Controllers
             {
                 UserConversationStatus.Status = (ConversationStatus)result;
                 unitOfWork.Repository<UserConversationStatus>().Update(UserConversationStatus);
+                await unitOfWork.CompleteAsync();
             }
             else
               return BadRequest(new APIErrorResponse(400));
@@ -242,7 +245,7 @@ namespace EmailingSystemAPI.Controllers
         }
 
         [HttpPost("ComposeDraft")]
-        public async Task<ActionResult<DraftConversations>> ComposeDraft([FromForm] DraftComposeDto draftComposeDto)
+        public async Task<ActionResult<DraftConversationDtoReturn>> ComposeDraft([FromForm] DraftComposeDto draftComposeDto)
         {
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
 
@@ -253,7 +256,7 @@ namespace EmailingSystemAPI.Controllers
                 Body = draftComposeDto?.Body,
                 DraftAttachments = new List<DraftAttachments>(),
                 SenderId = user.Id,
-                ReceiverId = draftComposeDto?.ReceiverId,
+                ReceiverId = draftComposeDto.ReceiverId,
                 Subject=draftComposeDto?.Subject,
             };
             if(!draftComposeDto.DraftAttachments.IsNullOrEmpty())
@@ -267,8 +270,10 @@ namespace EmailingSystemAPI.Controllers
 
             }
             await unitOfWork.Repository<DraftConversations>().AddAsync(DraftConversation);
+            await unitOfWork.CompleteAsync();
+            var DraftDto = mapper.Map<DraftConversationDtoReturn>(DraftConversation);
 
-            return Ok(DraftConversation);
+            return Ok(DraftDto);
 
         }
     
