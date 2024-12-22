@@ -11,7 +11,7 @@ public class ConversationSpecifications : BaseSpecification<Conversation>
         Criteria = C => ((C.ReceiverId == UserId || C.SenderId == UserId))
                &&
                (C.UserConversationStatuses
-               .Any(C => C.UserId == UserId && C.Status == (ConversationStatus)Enum.Parse(typeof(ConversationStatus), Specs.Type))
+               .Any(C => C.UserId == UserId && C.Status == (ConversationStatus)Enum.Parse(typeof(ConversationStatus), Specs.Type,true))
                &&
                (string.IsNullOrEmpty(Specs.Search) ||
                (C.Subject.Contains(Specs.Search,StringComparison.OrdinalIgnoreCase)
@@ -24,7 +24,7 @@ public class ConversationSpecifications : BaseSpecification<Conversation>
             AddInclude(C => C.Include(C => C.Messages.Where(M => !M.IsDraft || (M.IsDraft && M.SenderId == UserId))));
 
 
-        if (Specs.Sort == "dsec")
+        if (Specs.Sort == "desc")
             OrderByDesc = (C => C.Messages.Where(C => ((C.SenderId == UserId && !C.SenderIsDeleted) || (C.ReceiverId == UserId && !C.ReceiverIsDeleted))&& !C.IsDraft).Max(M => M.SendAt));
 
         else

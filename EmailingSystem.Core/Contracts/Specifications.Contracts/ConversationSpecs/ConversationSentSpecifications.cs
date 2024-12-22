@@ -33,7 +33,7 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpe
 
 
 
-            if (Specs.Sort == "dsec")
+            if (Specs.Sort == "desc")
                 OrderByDesc = (C => C.Messages.Where(M => M.SenderId == UserId && !M.SenderIsDeleted && !M.IsDraft).Max(M => M.SendAt));
 
             else
