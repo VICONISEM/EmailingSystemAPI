@@ -16,8 +16,17 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpe
         {
             Criteria = D => D.SenderId == UserId && (string.IsNullOrEmpty(specs.Search) || D.Subject.Trim().Contains(specs.Search,StringComparison.OrdinalIgnoreCase));
 
-            
-            
+            if(specs.Sort=="desc")
+            {
+                OrderByDesc = D => D.CreatedAt;
+            }
+            else
+            {
+                OrderBy = D => D.CreatedAt;
+            }
+
+
+            IsPaginated = true;
             
                
             ApplyPagination(specs.PageSize * (specs.PageNumber - 1), specs.PageSize);
