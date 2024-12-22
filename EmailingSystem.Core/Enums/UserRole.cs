@@ -10,9 +10,15 @@ namespace EmailingSystem.Core.Enums
     {
         NormalUser,
         Secretary,
-        ViceDean,
+        ViceDeanForEnvironment,
+        ViceDeanForStudentsAffairs,
+        ViceDeanForPostgraduatStudies,
+
         Dean,
-        VicePresedient,
+        VicePresedientForEnvironment,
+        VicePresedientForStudentsAffairs,
+        VicePresedientForPostgraduatStudies,
+
         Presedient,
         CollegeAdmin,
         Admin
