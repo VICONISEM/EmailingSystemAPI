@@ -38,8 +38,8 @@ namespace EmailingSystemAPI.Controllers
         [HttpGet("AllConversations")]
         public async Task<ActionResult<Pagination<ConversationDto>>> AllConversations([FromQuery] ConversationSpecParams Specs)
         {
-            var Email = User.FindFirstValue(ClaimTypes.Email);
-            var user = await userManager.FindByIdAsync(Email);
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            var user = await userManager.FindByEmailAsync(userEmail);
 
             IQueryable<Conversation> Query;
             int Count = 0;
@@ -47,7 +47,7 @@ namespace EmailingSystemAPI.Controllers
             if (Specs.Type == "inbox")
             {
                 var specs = new ConversationInboxSpecifications(Specs, user.Id);
-                Query = unitOfWork.Repository<Conversation>().GetAllQueryableWithSpecs(specs);
+                Query =  unitOfWork.Repository<Conversation>().GetAllQueryableWithSpecs(specs);
 
                 var CountSpecs = new ConversationInboxSpecificationsForCountPagination(Specs, user.Id);
                 Count = await unitOfWork.Repository<Conversation>().GetCountWithSpecs(CountSpecs);
@@ -69,9 +69,11 @@ namespace EmailingSystemAPI.Controllers
                 Count = await unitOfWork.Repository<Conversation>().GetCountWithSpecs(CountSpecs);
             }
 
+
             var conversations = await Query.ToListAsync();
 
             var ConversationDtoList = mapper.Map<IReadOnlyList<ConversationDto>>(conversations);
+            
 
             return Ok(new Pagination<ConversationDto>(Specs.PageNumber,Specs.PageSize,Count,ConversationDtoList));
         }
@@ -147,11 +149,11 @@ namespace EmailingSystemAPI.Controllers
         }
 
         [HttpPost("Compose")]
-        public async Task<ActionResult> ComposeConversation(ConversationComposeDto conversationDto)
+        public async Task<ActionResult> ComposeConversation([FromForm] ConversationComposeDto conversationDto)
         {
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
 
-            var user = userManager.FindByIdAsync(userEmail);
+            var user = await userManager.FindByEmailAsync(userEmail);
 
             var Conversation = new Conversation()
             {
@@ -208,6 +210,7 @@ namespace EmailingSystemAPI.Controllers
 
 
             await unitOfWork.Repository<Conversation>().AddAsync(Conversation);
+            await unitOfWork.CompleteAsync();
 
             return Ok("Conversation Added Successfully");
 
