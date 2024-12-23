@@ -28,16 +28,23 @@ namespace EmailingSystemAPI.Controllers
             this.userManager = userManager;
         }
 
-        [HttpPost("SendMessage/{ConversationId}")]
-        public async Task<ActionResult> SendMessage([FromForm]MessageTobeSentDto messageTobeSentDto,[FromRoute]long ConversationId)
+        [HttpPost("SendMessage/{conversationId}")]
+        public async Task<ActionResult> SendMessage([FromForm]MessageTobeSentDto messageTobeSentDto,[FromRoute]long conversationId)
         {
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
 
             var user = await userManager.FindByEmailAsync(userEmail);
 
-            var Conversation = await unitOfWork.Repository<Conversation>().GetByIdAsync<long>(ConversationId);
+            var Conversation = await unitOfWork.Repository<Conversation>().GetByIdAsync<long>(conversationId);
 
             if (Conversation is null) return NotFound(new APIErrorResponse(404, "Conversation Not Found."));
+
+            Message ParentMessage = null;
+
+            if (messageTobeSentDto.ParentMessageId.HasValue)
+                ParentMessage = await unitOfWork.Repository<Message>().GetByIdAsync(messageTobeSentDto.ParentMessageId);
+
+            if (ParentMessage is null) return BadRequest(new APIErrorResponse(400,"Message Not Found."));
 
 
             if (messageTobeSentDto.Content.IsNullOrEmpty() && messageTobeSentDto.Attachements.IsNullOrEmpty())
@@ -50,7 +57,7 @@ namespace EmailingSystemAPI.Controllers
                 Content = messageTobeSentDto?.Content,
                 Attachments = new List<Attachment>() { },
                 ParentMessageId = messageTobeSentDto?.ParentMessageId,
-                ConversationId = ConversationId,
+                ConversationId = conversationId,
                 SenderId = user.Id,
                 ReceiverId = (Conversation.SenderId == user.Id) ? Conversation.ReceiverId : Conversation.SenderId,
             };
@@ -66,8 +73,7 @@ namespace EmailingSystemAPI.Controllers
 
             Conversation.Messages.Add(Message);
             unitOfWork.Repository<Conversation>().Update(Conversation);
-            unitOfWork.CompleteAsync();
-
+            await unitOfWork.CompleteAsync();
 
             return Ok("Message Send Successfully");
         }
@@ -81,7 +87,14 @@ namespace EmailingSystemAPI.Controllers
             var Conversation = await unitOfWork.Repository<Conversation>().GetByIdAsync<long>(conversationId);
             
             if (Conversation is null) return NotFound(new APIErrorResponse(404,"Conversation Not Found."));
-            
+
+            Message ParentMessage = null;
+
+            if (messageDto.ParentMessageId.HasValue)
+                ParentMessage = await unitOfWork.Repository<Message>().GetByIdAsync(messageDto.ParentMessageId);
+
+            if (ParentMessage is null) return BadRequest(new APIErrorResponse(400, "Message Not Found."));
+
 
             if (messageDto.Content.IsNullOrEmpty() && messageDto.Attachements.IsNullOrEmpty())
             {

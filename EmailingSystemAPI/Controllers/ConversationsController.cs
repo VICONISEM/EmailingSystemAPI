@@ -40,21 +40,12 @@ namespace EmailingSystemAPI.Controllers
         [HttpGet("AllConversations")]
         public async Task<ActionResult<Pagination<ConversationDto>>> AllConversations([FromQuery] ConversationSpecParams Specs)
         {
-           
-                var userEmail = User.FindFirstValue(ClaimTypes.Email);
 
-                if(userEmail is null)
-                {
-                    return NotFound();
-                }
+            var Email = User.FindFirstValue(ClaimTypes.Email);
+            if (Email is null) return NotFound(new APIErrorResponse(404, "User Not Found."));
 
-                var user = await userManager.FindByEmailAsync(userEmail);
-
-                if(user is null)
-                {
-                    return NotFound();
-                }
-            
+            var user = await userManager.FindByEmailAsync(Email);
+            if (user is null) return NotFound(new APIErrorResponse(404, "User Not Found."));
 
             IQueryable<Conversation> Query;
             int Count = 0;
@@ -96,18 +87,11 @@ namespace EmailingSystemAPI.Controllers
         public async Task<ActionResult<Pagination<DraftConversations>>> DraftConversations([FromQuery] ConversationSpecParams Specs)
         {
             var Email = User.FindFirstValue(ClaimTypes.Email);
-
-            if(Email is null)
-            {
-                return NotFound();
-            }
-
+            if(Email is null) return NotFound(new APIErrorResponse(404,"User Not Found."));
+            
             var user = await userManager.FindByEmailAsync(Email);
+            if(user is null) return NotFound(new APIErrorResponse(404, "User Not Found."));
 
-            if(user is null)
-            {
-                return NotFound();
-            }
             var specs = new DraftSpecification(Specs, user.Id);
             var conversations = await unitOfWork.Repository<DraftConversations>().GetAllQueryableWithSpecs(specs).ToListAsync();
 
@@ -207,9 +191,6 @@ namespace EmailingSystemAPI.Controllers
                 
             };
 
-
-
-
             var Message = new Message()
             {
                 Attachments= new List<Attachment>(),
@@ -230,13 +211,10 @@ namespace EmailingSystemAPI.Controllers
                         FilePath=await FileHandler.SaveFile($"{user.Id}", "MessageAttachment", Attachment),
                         
                     });
-
-
                 }
             }
             Message.Attachments = Attachments;
             Conversation.Messages.Add(Message);
-
 
             await unitOfWork.Repository<Conversation>().AddAsync(Conversation);
             await unitOfWork.CompleteAsync();

@@ -22,8 +22,8 @@ namespace EmailingSystem.Core.Entities
         public long? ParentMessageId { get; set; }
         public virtual Message? ParentMessage { get; set; } = null!;
         public virtual ICollection<Attachment>? Attachments { get; set; }
-        public bool SenderIsDeleted { get; set; }
-        public bool ReceiverIsDeleted { get; set; }
+        public bool SenderIsDeleted { get; set; } = false;
+        public bool ReceiverIsDeleted { get; set; } = false;
         public bool IsDraft {  get; set; } = false;
     }
 }
