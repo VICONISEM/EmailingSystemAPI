@@ -227,8 +227,11 @@ namespace EmailingSystemAPI.Controllers
                     Attachments.Add(new Attachment()
                     {
                         FileName=Attachment.FileName,
-
+                        FilePath=await FileHandler.SaveFile($"{user.Id}", "MessageAttachment", Attachment),
+                        
                     });
+
+
                 }
             }
             Message.Attachments = Attachments;
