@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Security.Claims;
 
@@ -177,7 +178,7 @@ namespace EmailingSystemAPI.Controllers
         }
 
         [HttpPost("Compose")]
-        public async Task<ActionResult> ComposeConversation([FromForm] ConversationComposeDto conversationDto)
+        public async Task<ActionResult> ComposeConversation([FromForm]ConversationComposeDto conversationDto)
         {
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
 
@@ -226,7 +227,7 @@ namespace EmailingSystemAPI.Controllers
                     Attachments.Add(new Attachment()
                     {
                         FileName=Attachment.FileName,
-                        FilePath= await FileHandler.SaveFile(Attachment.FileName, "MessageAttachment", Attachment.File) 
+
                     });
                 }
             }
