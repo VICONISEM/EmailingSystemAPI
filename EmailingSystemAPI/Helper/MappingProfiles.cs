@@ -66,8 +66,8 @@ namespace EmailingSystemAPI.Helper
                 .ReverseMap();
 
             CreateMap<Message, LastMessageDto>()
-                .ForMember(m=>m.SentAt,O=>O.MapFrom(M=>M.SendAt));
-
+                .ForMember(m => m.SentAt, O => O.MapFrom(M => M.SendAt))
+                .ForMember(M => M.Attachements, O => O.MapFrom(M => M.Attachments));
             #endregion
 
             #region Department
@@ -93,7 +93,8 @@ namespace EmailingSystemAPI.Helper
 
             #region Attachment
             CreateMap<Attachment, AttachementDto>()
-                .ForMember(A => A.Name, M => M.MapFrom(O => O.FileName));
+                .ForMember(A => A.Name, M => M.MapFrom(O => O.FileName))
+                .ForMember(A => A.FileURL, O => O.MapFrom<MessageAttachmentResolver>());
             #endregion
 
             #region DraftConversation
