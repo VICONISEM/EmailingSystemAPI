@@ -22,6 +22,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="wwwroot\Attachments\MessageAttachment\" />
+    <Folder Include="wwwroot\Attachments\DraftMessageAttachment\" />
+    <Folder Include="wwwroot\Attachments\DraftConversationAttachment\" />
     <Folder Include="wwwroot\Attachments\Signatures\" />
     <Folder Include="wwwroot\Attachments\ProfileImages\" />
   </ItemGroup>
