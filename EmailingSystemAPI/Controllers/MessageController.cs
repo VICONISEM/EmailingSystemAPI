@@ -29,11 +29,11 @@ namespace EmailingSystemAPI.Controllers
         }
 
         [HttpPost("SendMessage/{ConversationId}")]
-        public async Task<ActionResult> SendMessage([FromBody]MessageTobeSentDto messageTobeSentDto,[FromRoute]long ConversationId)
+        public async Task<ActionResult> SendMessage([FromForm]MessageTobeSentDto messageTobeSentDto,[FromRoute]long ConversationId)
         {
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
 
-            var user = userManager.FindByIdAsync(userEmail);
+            var user = await userManager.FindByEmailAsync(userEmail);
 
             var Conversation = await unitOfWork.Repository<Conversation>().GetByIdAsync<long>(ConversationId);
 
@@ -60,18 +60,20 @@ namespace EmailingSystemAPI.Controllers
                 Message.Attachments.Add(new Attachment()
                 {
                     FileName = Attachment.FileName,
-                    FilePath = await FileHandler.SaveFile(Attachment.FileName,"MessageAttachment",Attachment.File),
+                    FilePath = await FileHandler.SaveFile(Attachment.FileName,"MessageAttachment",Attachment),
                 });
             }
 
-            await unitOfWork.Repository<Message>().AddAsync(Message);
-            await unitOfWork.CompleteAsync();
+            Conversation.Messages.Add(Message);
+            unitOfWork.Repository<Conversation>().Update(Conversation);
+            unitOfWork.CompleteAsync();
+
 
             return Ok("Message Send Successfully");
         }
 
         [HttpPost("SaveDraftMessage/{ConversationId}")]
-        public async Task<ActionResult> SaveDraftMessage([FromBody] MessageTobeSentDto messageDto, [FromRoute]long conversationId)
+        public async Task<ActionResult> SaveDraftMessage([FromForm] MessageTobeSentDto messageDto, [FromRoute]long conversationId)
         {
             var Email = User.FindFirstValue(ClaimTypes.Email);
             var user = await userManager.FindByEmailAsync(Email);
@@ -91,7 +93,6 @@ namespace EmailingSystemAPI.Controllers
                 SenderId = user.Id,
                 Content = messageDto.Content,
                 ReceiverId = messageDto.ReceiverId,
-                ConversationId = conversationId,
                 ParentMessageId = messageDto.ParentMessageId,
 
                 Attachments = new List<Attachment>() { },
@@ -104,7 +105,7 @@ namespace EmailingSystemAPI.Controllers
                 Message.Attachments.Add(new Attachment()
                 {
                     FileName = Attachment.FileName,
-                    FilePath = await FileHandler.SaveFile(Attachment.FileName, "DraftMessageAttachment", Attachment.File),
+                    FilePath = await FileHandler.SaveFile(Attachment.FileName, "DraftMessageAttachment", Attachment),
                 });
             }
 
