@@ -6,7 +6,7 @@ namespace EmailingSystemAPI.DTOs.Message
     {
         public string? Content { get; set; }
         public int ReceiverId { get; set; }
-        public long? ParentMessageId { get; set; }
+        public long? ParentMessageId { get; set; } = null;
 
         public IEnumerable<IFormFile>? Attachements { get; set; } = new List<IFormFile>();
 
