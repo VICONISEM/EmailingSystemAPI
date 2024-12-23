@@ -6,6 +6,7 @@ using EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpecs.P
 using EmailingSystem.Core.Contracts.Specifications.Contracts.SpecsParams;
 using EmailingSystem.Core.Entities;
 using EmailingSystem.Core.Enums;
+using EmailingSystem.Services;
 using EmailingSystemAPI.DTOs.Conversation;
 using EmailingSystemAPI.DTOs.DraftConversation;
 using EmailingSystemAPI.DTOs.Message;
@@ -89,7 +90,6 @@ namespace EmailingSystemAPI.Controllers
 
             return Ok(new Pagination<ConversationDto>(Specs.PageNumber,Specs.PageSize,Count,ConversationDtoList));
         }
-
 
         [HttpGet("DraftConversations")]
         public async Task<ActionResult<Pagination<DraftConversations>>> DraftConversations([FromQuery] ConversationSpecParams Specs)
@@ -226,11 +226,8 @@ namespace EmailingSystemAPI.Controllers
                     Attachments.Add(new Attachment()
                     {
                         FileName=Attachment.FileName,
-                        FilePath="To Be Edite Later",
-                        
+                        FilePath= await FileHandler.SaveFile(Attachment.FileName, "MessageAttachment", Attachment.File) 
                     });
-
-
                 }
             }
             Message.Attachments = Attachments;
@@ -264,8 +261,7 @@ namespace EmailingSystemAPI.Controllers
             {
                     DraftConversation.DraftAttachments.Add(new DraftAttachments()
                     {
-                        AttachmentPath = "Attachment.File"
-
+                        AttachmentPath = await FileHandler.SaveFile(Attachment.FileName, "DraftConversationAttachment", Attachment.File)
                     });
 
             }
