@@ -6,6 +6,7 @@ using EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpecs.P
 using EmailingSystem.Core.Contracts.Specifications.Contracts.SpecsParams;
 using EmailingSystem.Core.Entities;
 using EmailingSystem.Core.Enums;
+using EmailingSystem.Services;
 using EmailingSystemAPI.DTOs.Conversation;
 using EmailingSystemAPI.DTOs.DraftConversation;
 using EmailingSystemAPI.DTOs.Message;
@@ -15,6 +16,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Security.Claims;
 
@@ -177,7 +179,7 @@ namespace EmailingSystemAPI.Controllers
         }
 
         [HttpPost("Compose")]
-        public async Task<ActionResult> ComposeConversation([FromForm] ConversationComposeDto conversationDto)
+        public async Task<ActionResult> ComposeConversation([FromForm]ConversationComposeDto conversationDto)
         {
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
 
@@ -226,7 +228,7 @@ namespace EmailingSystemAPI.Controllers
                     Attachments.Add(new Attachment()
                     {
                         FileName=Attachment.FileName,
-                        FilePath="To Be Edite Later",
+                        FilePath=await FileHandler.SaveFile($"{user.Id}","Zz",Attachment),
                         
                     });
 
