@@ -92,7 +92,6 @@ namespace EmailingSystemAPI.Controllers
             return Ok(new Pagination<ConversationDto>(Specs.PageNumber,Specs.PageSize,Count,ConversationDtoList));
         }
 
-
         [HttpGet("DraftConversations")]
         public async Task<ActionResult<Pagination<DraftConversations>>> DraftConversations([FromQuery] ConversationSpecParams Specs)
         {
@@ -228,11 +227,8 @@ namespace EmailingSystemAPI.Controllers
                     Attachments.Add(new Attachment()
                     {
                         FileName=Attachment.FileName,
-                        FilePath=await FileHandler.SaveFile($"{user.Id}","Zz",Attachment),
-                        
+
                     });
-
-
                 }
             }
             Message.Attachments = Attachments;
@@ -266,8 +262,7 @@ namespace EmailingSystemAPI.Controllers
             {
                     DraftConversation.DraftAttachments.Add(new DraftAttachments()
                     {
-                        AttachmentPath = "Attachment.File"
-
+                        AttachmentPath = await FileHandler.SaveFile(Attachment.FileName, "DraftConversationAttachment", Attachment.File)
                     });
 
             }
