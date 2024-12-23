@@ -31,7 +31,6 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpe
           
             AddInclude(C => C.Include(C => C.Messages.Where(M => !M.IsDraft ||( M.IsDraft && M.SenderId==UserId))));
 
-
             if (Specs.Sort == "desc")
                 OrderByDesc = (C => C.Messages.Where(M=>M.ReceiverId == UserId && !M.ReceiverIsDeleted && !M.IsDraft).Max(M => M.SendAt));
                 

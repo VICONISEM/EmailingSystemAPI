@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +24,9 @@ namespace EmailingSystem.Services
         }
         public static async Task<bool> DeleteFile(string filePath)
         {
-            string FilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Attachments", filePath);
+            if (filePath.IsNullOrEmpty()) return false;
+
+            string FilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", filePath);
             if (File.Exists(FilePath))
             {
                 try

@@ -61,19 +61,21 @@ namespace EmailingSystemAPI.Controllers
                 if (registerDto.CollegeId.HasValue || registerDto.DepartmentId.HasValue)
                     return BadRequest(new APIErrorResponse(400, "Can't create user with Role Presedient with department and college."));
             }
-            //else if(registerDto.Role == UserRole.VicePresedient)
-            //{
-            //    //Some Code
-            //}
+            else if(registerDto.Role == UserRole.VicePresedientForStudentsAffairs || registerDto.Role == UserRole.VicePresedientForEnvironment || registerDto.Role == UserRole.VicePresedientForPostgraduatStudies)
+            {
+                if (registerDto.CollegeId.HasValue || registerDto.DepartmentId.HasValue)
+                    return BadRequest(new APIErrorResponse(400, "Can't create user with Role VicePresedient with department and college."));
+            }
             else if (registerDto.Role == UserRole.Dean)
             {
                 if (registerDto.CollegeId is null || registerDto.DepartmentId.HasValue)
                     return BadRequest("User with Role Dean must have a college and can't be in a department.");
             }
-            //else if (registerDto.Role == UserRole.ViceDean)
-            //{
-            //    //Some Code
-            //}
+            else if (registerDto.Role == UserRole.ViceDeanForStudentsAffairs || registerDto.Role == UserRole.ViceDeanForEnvironment || registerDto.Role == UserRole.ViceDeanForPostgraduatStudies)
+            {
+                if (!registerDto.CollegeId.HasValue || registerDto.DepartmentId.HasValue)
+                    return BadRequest(new APIErrorResponse(400, "Can't create user with Role ViceDean with department."));
+            }
             else if (registerDto.Role == UserRole.Secretary)
             {
                 if (registerDto.CollegeId is null || registerDto.DepartmentId.HasValue) 
@@ -114,12 +116,12 @@ namespace EmailingSystemAPI.Controllers
 
             using var transaction = await unitOfWork.BeginTransactionAsync();
 
+            ApplicationUser AppUser = new ApplicationUser();
             try
             {
-                var AppUser = mapper.Map<ApplicationUser>(registerDto);
+                AppUser = mapper.Map<ApplicationUser>(registerDto);
                 AppUser.UserName = registerDto.Email.Substring(0, registerDto.Email.IndexOf("@"));
                 AppUser.NormalizedName = AppUser.Name.Trim().ToUpper();
-                    
 
                 if (registerDto.Picture is not null)
                 {
@@ -154,7 +156,6 @@ namespace EmailingSystemAPI.Controllers
 
                 await userManager.AddToRoleAsync(AppUser,registerDto.Role.ToString());
 
-
                 var refreshToken = GenerateRefreshToken();
                 AppUser?.RefreshTokens?.Add(refreshToken);
 
@@ -172,6 +173,9 @@ namespace EmailingSystemAPI.Controllers
             }
             catch (Exception ex)
             {
+                await FileHandler.DeleteFile(AppUser?.PicturePath);
+                await FileHandler.DeleteFile(AppUser?.Signature?.FilePath);
+
                 await transaction.RollbackAsync();
                 return BadRequest(new APIErrorResponse(500, "An error occurred. Please try again later."));
             }
