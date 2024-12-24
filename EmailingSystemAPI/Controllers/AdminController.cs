@@ -4,6 +4,7 @@ using EmailingSystem.Core.Contracts.Specifications.Contracts.UserSpecs;
 using EmailingSystem.Core.Entities;
 using EmailingSystem.Core.Enums;
 using EmailingSystem.Repository.Data.Contexts;
+using EmailingSystem.Services;
 using EmailingSystemAPI.DTOs.User;
 using EmailingSystemAPI.Errors;
 using EmailingSystemAPI.Helper;
@@ -33,11 +34,11 @@ namespace EmailingSystemAPI.Controllers
         }
 
         [HttpGet("AllUsers")]
-        public async Task<ActionResult<Pagination<UserDto>>> GetAllUsers(UserSpecsParams Specs)
+        public async Task<ActionResult<Pagination<UserDto>>> GetAllUsers([FromQuery]UserSpecsParams Specs)
         {
             var Email = User.FindFirstValue(ClaimTypes.Email);
-            var admin = await userManager.FindByNameAsync(Email);
-            var role = (await userManager.GetRolesAsync(admin)).ToString();
+            var admin = await userManager.FindByEmailAsync(Email);
+            var role = (await userManager.GetRolesAsync(admin)).FirstOrDefault();
 
             var specs = new UserSpecifications(Specs, admin);
             var CountSpecs = new UserSpecificationsForCountPagination(Specs, admin);
@@ -61,7 +62,7 @@ namespace EmailingSystemAPI.Controllers
         {
             var adminEmail = User.FindFirstValue(ClaimTypes.Email);
             var admin = await userManager.FindByEmailAsync(adminEmail);
-            var adminRole = (await userManager.GetRolesAsync(admin)).ToString();
+            var adminRole = (await userManager.GetRolesAsync(admin)).FirstOrDefault();
 
             var user = await userManager.FindByEmailAsync(Email);
             if (user is null) { return NotFound(new APIErrorResponse(401, "User Not Found.")); }
@@ -98,7 +99,8 @@ namespace EmailingSystemAPI.Controllers
             }
 
             //Updating User
-            var userRole = (await userManager.GetRolesAsync(user)).ToString();
+            var Role = (await userManager.GetRolesAsync(user)).FirstOrDefault();
+            var userRole = (UserRole)Enum.Parse(typeof(UserRole), Role);
 
             if (userRole != userDto.Role)
             {
@@ -107,7 +109,7 @@ namespace EmailingSystemAPI.Controllers
                 {
                     try
                     {
-                        var removeResult = await userManager.RemoveFromRoleAsync(user, userRole);
+                        var removeResult = await userManager.RemoveFromRoleAsync(user, userRole.ToString());
 
                         if (!removeResult.Succeeded)
                         {
@@ -115,7 +117,7 @@ namespace EmailingSystemAPI.Controllers
                         }
 
         
-                        var newRole = Enum.Parse<UserRole>(userDto.Role, true).ToString();
+                        var newRole = Enum.Parse<UserRole>(userDto.Role.ToString(), true).ToString();
 
                         var addResult = await userManager.AddToRoleAsync(user, newRole);
 
@@ -142,26 +144,32 @@ namespace EmailingSystemAPI.Controllers
             user.CollegeId = userDto.CollegeId;
             user.DepartmentId = userDto.DepartmentId;
 
-            //if(userDto.Picture != null)
-            //{
+            if(userDto.Picture != null)
+            {
+                await FileHandler.DeleteFile(user.PicturePath);
+                user.PicturePath = await FileHandler.SaveFile(userDto.Picture.FileName, "ProfileImages",userDto.Picture);
+            }
 
-            //}
+            if (userDto.Signature != null)
+            {
+                await FileHandler.DeleteFile(user.Signature.FilePath);
+                user.Signature.FilePath = await FileHandler.SaveFile(userDto.Signature.FileName, "Signatures", userDto.Signature);
+            }
 
-            var Result = userManager.UpdateAsync(user);
+            var Result = await userManager.UpdateAsync(user);
 
-            if (!Result.IsCompletedSuccessfully) return BadRequest(new APIErrorResponse(401, "An error ocurred, Please try again later."));
+            if (!Result.Succeeded) return BadRequest(new APIErrorResponse(400, "An error ocurred, Please try again later."));
 
-            return Ok();
-            
+            return Ok();   
         }
 
         //Get Account By Email
         [HttpGet("GetAccountByEmail")]
-        public async Task<ActionResult> GetAccountByEmail(string Email)
+        public async Task<ActionResult<UserDto>> GetAccountByEmail(string Email)
         {
             var adminEmail = User.FindFirstValue(ClaimTypes.Email);
             var admin = await userManager.FindByEmailAsync(adminEmail);
-            var adminRole = (await userManager.GetRolesAsync(admin)).ToString();
+            var adminRole = (await userManager.GetRolesAsync(admin)).FirstOrDefault();
 
             var user = await userManager.FindByEmailAsync(Email);
             if (user is null) { return NotFound(new APIErrorResponse(401, "User Not Found.")); }
@@ -173,6 +181,8 @@ namespace EmailingSystemAPI.Controllers
             }
 
             var userDto = mapper.Map<UserDto>(user);
+
+            userDto.Role = (await userManager.GetRolesAsync(user)).FirstOrDefault();
 
             return Ok(userDto);
         }
