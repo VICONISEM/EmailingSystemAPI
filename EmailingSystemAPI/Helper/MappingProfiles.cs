@@ -86,7 +86,7 @@ namespace EmailingSystemAPI.Helper
                 .ForMember(C => C.Name, M => M.MapFrom(C => C.Name))
                 .ForMember(C => C.Abbreviation, M => M.MapFrom(C => C.Abbreviation))
                 .ForMember(C => C.Id, M => M.MapFrom(C => C.Id))
-                .ForMember(C => C.Departments, M => M.MapFrom(C => C.Departments)).ReverseMap();
+               .ReverseMap();
 
             CreateMap<College, CollegeAddDto>()
                 .ForMember(C => C.Name, M => M.MapFrom(C => C.Name))
