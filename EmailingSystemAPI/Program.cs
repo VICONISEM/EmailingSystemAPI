@@ -3,6 +3,8 @@ using EmailingSystem.Repository.Data.Contexts;
 using EmailingSystemAPI.Errors;
 using EmailingSystemAPI.Extensions;
 using EmailingSystemAPI.Middlewares;
+using HospitalML;
+using HospitalML.Extentions;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -96,6 +98,29 @@ namespace EmailingSystemAPI
             });
 
             var app = builder.Build();
+
+
+
+            using var scope = app.Services.CreateScope();
+            var services = scope.ServiceProvider;
+
+            var context = services.GetRequiredService<EmailDbContext>();
+
+            //HospitalMLSeed.SeedData(context);
+            //IdentitySeed.SeedIdentity(services);
+
+            try
+            {
+                DbAutomaticMigrations.ApplyMigrstions(services);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error While Applying Migrations.");
+            }
+
+
+
+
             app.UseRouting();
             app.UseCors("AllowAllOrigins");
 

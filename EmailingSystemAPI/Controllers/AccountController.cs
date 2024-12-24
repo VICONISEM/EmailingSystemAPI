@@ -47,6 +47,9 @@ namespace EmailingSystemAPI.Controllers
 
             var userDto = mapper.Map<UserDto>(user);
 
+            var userRole = (await userManager.GetRolesAsync(user)).FirstOrDefault();
+            userDto.Role = userRole;
+
             return Ok(userDto);
         }
         

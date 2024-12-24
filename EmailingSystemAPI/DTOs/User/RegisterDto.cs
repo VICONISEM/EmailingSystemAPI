@@ -12,8 +12,8 @@ namespace EmailingSystemAPI.DTOs.User
         [MinLength(8)]
         public string Password { get; set; } = null!;
         public string Name { get; set; } = null!;
-        public int? DepartmentId { get; set; } = 0;
-        public int? CollegeId { get; set; } = 0;
+        public int? DepartmentId { get; set; } = null;
+        public int? CollegeId { get; set; } = null;
         public UserRole Role { get; set; } = UserRole.NormalUser;
 
         [MinLength(14)]

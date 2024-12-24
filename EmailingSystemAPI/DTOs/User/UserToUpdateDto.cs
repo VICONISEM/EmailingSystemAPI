@@ -1,13 +1,15 @@
-﻿namespace EmailingSystemAPI.DTOs.User
+﻿using EmailingSystem.Core.Enums;
+
+namespace EmailingSystemAPI.DTOs.User
 {
     public class UserToUpdateDto
     {
         public string Name { get; set; } = null!;
-        public string Role { get; set; }
-        public string? PicturePath { get; set; } = null!;
-        public IFormFile? Picture { get; set; }
+        public UserRole Role { get; set; }
+        public IFormFile Signature { get; set; }
+        public IFormFile Picture { get; set; }
         public string NationalId { get; set; } = null!;
-        public int? CollegeId { get; set; } = null!;
-        public int? DepartmentId { get; set; } = null!;
+        public int? CollegeId { get; set; } = null;
+        public int? DepartmentId { get; set; } = null;
     }
 }

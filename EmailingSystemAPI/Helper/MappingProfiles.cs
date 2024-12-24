@@ -24,11 +24,14 @@ namespace EmailingSystemAPI.Helper
                 .ForMember(U => U.DepartmentName, O => O.MapFrom(U => U.Department != null ? U.Department.Name : null))
                 .ForMember(U => U.CollegeName, O => O.MapFrom(U => U.College != null ? U.College.Name : null))
                 .ForMember(U => U.PictureURL, O => O.MapFrom<ProfileImageResolver>())
-                .ForMember(U => U.SignatureURL, O => O.MapFrom<SignatureResolver>()).ReverseMap(); 
-            
+                .ForMember(U => U.SignatureURL, O => O.MapFrom<SignatureResolver>()).ReverseMap();
+
             CreateMap<ApplicationUser, UserDto>()
                 .ForMember(U => U.CollegeName, O => O.MapFrom(O => O.College != null ? O.College.Name : null))
-                .ForMember(U => U.DepartmentName, O => O.MapFrom(O => O.Department != null ? O.Department.Name : null));
+                .ForMember(U => U.DepartmentName, O => O.MapFrom(O => O.Department != null ? O.Department.Name : null))
+                .ForMember(U => U.PictureURL, O => O.MapFrom<UserProfileImageResolver>())
+                .ForMember(U => U.SignatureURL, O => O.MapFrom<UserProfileSignatureResolver>());
+
             #endregion
 
             #region Conversation
