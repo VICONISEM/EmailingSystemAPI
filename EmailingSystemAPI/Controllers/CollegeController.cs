@@ -7,6 +7,7 @@ using EmailingSystemAPI.Errors;
 using EmailingSystemAPI.Helper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace EmailingSystemAPI.Controllers
 {
@@ -37,7 +38,7 @@ namespace EmailingSystemAPI.Controllers
         }
 
         [HttpPost("UpdateCollege")]
-        public async Task<ActionResult>UpdateCollege(CollegesDto college , int ?Id)
+        public async Task<ActionResult>UpdateCollege([FromForm]CollegesDto college , int ?Id)
         {
             if(college is null || Id is null)
             {
@@ -48,10 +49,17 @@ namespace EmailingSystemAPI.Controllers
             {
                 return BadRequest("There Is Error When Fetching College");
             }
+            var Specs = new CollegeSpecificationCheckCollege(college.Name);
+            var IfExist = await unitOfWork.Repository<College>().GetAllQueryableWithSpecs(Specs).ToListAsync();
+            if(!IfExist.IsNullOrEmpty())
+            {
+                return BadRequest(new APIErrorResponse(400, "The College Exists already"));
+            }
 
             mapper.Map(college, College);
 
             unitOfWork.Repository<College>().Update(College);
+            await unitOfWork.CompleteAsync();
             return Ok($"College Updated Successfully"); 
 
         }
@@ -61,9 +69,10 @@ namespace EmailingSystemAPI.Controllers
         {
             var Specs = new CollegeSpecificationCheckCollege(college.Name);
             var IfExist = await unitOfWork.Repository<College>().GetAllQueryableWithSpecs(Specs).ToListAsync();
-            if(IfExist is null)
+            if(IfExist.IsNullOrEmpty())
             {
                 await unitOfWork.Repository<College>().AddAsync(mapper.Map<College>(college));
+                await unitOfWork.CompleteAsync();
                 return Ok("College Added Successfully");
             }
             return BadRequest(new APIErrorResponse(400,"The College Exists already"));
