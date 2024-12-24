@@ -45,7 +45,7 @@ namespace EmailingSystemAPI.Controllers
 
             var AdminEmail = User.FindFirstValue(ClaimTypes.Email);
             var Admin = await userManager.FindByEmailAsync(AdminEmail);
-            var AdminRole = (await userManager.GetRolesAsync(Admin)).ToString();
+            var AdminRole = (await userManager.GetRolesAsync(Admin)).FirstOrDefault();
 
             if(registerDto.Role == UserRole.Admin) 
             {
