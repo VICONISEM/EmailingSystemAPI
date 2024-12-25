@@ -10,9 +10,15 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.CollegeSpecs
 {
     public class CollegeSpecificationCheckCollege:BaseSpecification<College>
     {
-        public CollegeSpecificationCheckCollege(string Name)
+        public CollegeSpecificationCheckCollege(string ? Name,string ? Abbreviation)
         {
-            Criteria = Q=>Q.Name.Trim().ToUpper()==Name.Trim().ToUpper();
+            Criteria = Q=>(  
+            ( !string.IsNullOrEmpty(Name) && Q.Name.Trim().ToUpper()==Name.Trim().ToUpper())
+            ||
+            ( !string.IsNullOrEmpty(Abbreviation) && Q.Abbreviation.Trim().ToUpper() == Abbreviation.Trim().ToUpper() )
+            
+            
+            );
         }
     }
 }
