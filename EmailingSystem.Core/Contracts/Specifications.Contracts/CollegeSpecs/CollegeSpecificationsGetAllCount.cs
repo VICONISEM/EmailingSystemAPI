@@ -13,8 +13,8 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.CollegeSpecs
     {
         public CollegeSpecificationsGetAllCount(CollegeSpecsParams Specs) 
         {
-            Criteria = C => (string.IsNullOrEmpty(Specs.Search) || (C.Name == Specs.Search || C.Abbreviation == Specs.Search));
-            AddInclude(C => C.Include(cc => cc.Departments));
+            Criteria = C => (string.IsNullOrEmpty(Specs.Search) || (C.Name.Trim().ToUpper() == Specs.Search || C.Abbreviation.Trim().ToUpper() == Specs.Search));
+           
         }
     }
 }

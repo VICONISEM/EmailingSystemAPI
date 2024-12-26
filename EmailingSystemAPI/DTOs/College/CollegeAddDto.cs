@@ -2,7 +2,7 @@
 {
     public class CollegeAddDto
     {
-        public string? Name { get; set; }
-        public string? Abbreviation { get; set; }
+        public string Name { get; set; } = null!;
+        public string Abbreviation { get; set; } = null!;
     }
 }

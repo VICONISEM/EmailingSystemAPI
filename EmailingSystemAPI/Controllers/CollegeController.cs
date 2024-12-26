@@ -7,6 +7,7 @@ using EmailingSystemAPI.Errors;
 using EmailingSystemAPI.Helper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace EmailingSystemAPI.Controllers
 {
@@ -37,7 +38,7 @@ namespace EmailingSystemAPI.Controllers
         }
 
         [HttpPost("UpdateCollege")]
-        public async Task<ActionResult>UpdateCollege(CollegesDto college , int ?Id)
+        public async Task<ActionResult>UpdateCollege([FromForm]CollegesDto college , int ?Id)
         {
             if(college is null || Id is null)
             {
@@ -48,22 +49,48 @@ namespace EmailingSystemAPI.Controllers
             {
                 return BadRequest("There Is Error When Fetching College");
             }
+            var Specs = new CollegeSpecificationCheckCollege(college.Name,college.Abbreviation);
+            var IfExist = await unitOfWork.Repository<College>().GetAllQueryableWithSpecs(Specs).FirstOrDefaultAsync();
+            if(IfExist is not null)
+            {
+                return BadRequest(new APIErrorResponse(400, "The College Exists already"));
+            }
+            if(college.Name.IsNullOrEmpty() && college.Abbreviation.IsNullOrEmpty())
+            {
+                return BadRequest("No Data To Update");
 
-            mapper.Map(college, College);
+            }
+
+          else if(college.Name.IsNullOrEmpty())
+            {
+                College.Abbreviation = college.Abbreviation;
+            }
+           else if(college.Abbreviation.IsNullOrEmpty())
+            {
+                College.Name = college.Name;
+            }
+
+            else
+            {
+                mapper.Map(college, College);
+            }
 
             unitOfWork.Repository<College>().Update(College);
+            await unitOfWork.CompleteAsync();
             return Ok($"College Updated Successfully"); 
 
+        
         }
 
         [HttpPost("AddCollege")]
         public async Task<ActionResult<CollegeAddDto>>AddCollege(CollegeAddDto college) 
         {
-            var Specs = new CollegeSpecificationCheckCollege(college.Name);
-            var IfExist = await unitOfWork.Repository<College>().GetAllQueryableWithSpecs(Specs).ToListAsync();
+            var Specs = new CollegeSpecificationCheckCollege(college.Name,college.Abbreviation);
+            var IfExist = await unitOfWork.Repository<College>().GetAllQueryableWithSpecs(Specs).FirstOrDefaultAsync();
             if(IfExist is null)
             {
                 await unitOfWork.Repository<College>().AddAsync(mapper.Map<College>(college));
+                await unitOfWork.CompleteAsync();
                 return Ok("College Added Successfully");
             }
             return BadRequest(new APIErrorResponse(400,"The College Exists already"));
