@@ -5,6 +5,7 @@ using EmailingSystem.Core.Enums;
 using EmailingSystem.Repository.Data.Contexts;
 using EmailingSystemAPI.DTOs.Department;
 using EmailingSystemAPI.Errors;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +16,7 @@ namespace EmailingSystemAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class DepartmentController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> userManager;
