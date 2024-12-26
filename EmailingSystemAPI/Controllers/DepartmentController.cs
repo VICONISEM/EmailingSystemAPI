@@ -16,7 +16,7 @@ namespace EmailingSystemAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Roles = "Admin,CollegeAdmin")]
     public class DepartmentController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> userManager;

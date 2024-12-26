@@ -17,7 +17,7 @@ namespace EmailingSystemAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Roles = "Admin,CollegeAdmin")]
     public class CollegeController : ControllerBase
     {
        private readonly IUnitOfWork unitOfWork;
