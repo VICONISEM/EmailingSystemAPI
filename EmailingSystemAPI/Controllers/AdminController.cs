@@ -8,6 +8,7 @@ using EmailingSystem.Services;
 using EmailingSystemAPI.DTOs.User;
 using EmailingSystemAPI.Errors;
 using EmailingSystemAPI.Helper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -18,6 +19,8 @@ namespace EmailingSystemAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin,CollegeAdmin")]
+
     public class AdminController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> userManager;

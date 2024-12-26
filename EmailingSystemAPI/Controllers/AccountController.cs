@@ -2,6 +2,7 @@
 using EmailingSystem.Core.Entities;
 using EmailingSystemAPI.DTOs.User;
 using EmailingSystemAPI.Errors;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +12,7 @@ namespace EmailingSystemAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class AccountController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> userManager;
@@ -23,9 +25,10 @@ namespace EmailingSystemAPI.Controllers
         }
 
         [HttpPost("ChangePassword")]
+       
         public async Task<ActionResult> ChangePassword(ChangePasswordDto ChangePasswordDto)
         {
-            if(!ModelState.IsValid) return BadRequest(ModelState);
+           
 
             var Email = User.FindFirstValue(ClaimTypes.Email);
 

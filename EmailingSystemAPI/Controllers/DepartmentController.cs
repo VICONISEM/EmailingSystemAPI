@@ -30,7 +30,7 @@ namespace EmailingSystemAPI.Controllers
             this.dbContext = dbContext;
         }
 
-        [HttpPost]
+        [HttpPost("AddDepartment")]
         public async Task<ActionResult> AddDepartment(DepartmentDto departmentDto)
         {
             var adminEmail = User.FindFirstValue(ClaimTypes.Email);
@@ -43,19 +43,20 @@ namespace EmailingSystemAPI.Controllers
                 { return Unauthorized(new APIErrorResponse(401, "You aren't authorized to perform this action.")); }
             }
 
-            var departmentExists = await dbContext.Departments.FirstOrDefaultAsync(D => D.Name == departmentDto.Name && D.CollegeId == departmentDto.CollegeId);
+            var departmentExists = await dbContext.Departments.FirstOrDefaultAsync(D => (D.Name == departmentDto.Name || D.Abbreviation == departmentDto.Abbreviation) && D.CollegeId == departmentDto.CollegeId);
 
             if (departmentExists is not null)
-                return BadRequest(new APIErrorResponse(400,"A department with the same name and college already exists."));
+                return BadRequest(new APIErrorResponse(400, "A department with the same name or Same Abbreviation and college already exists."));
 
             var Department = mapper.Map<Department>(departmentDto);
 
             await unitOfWork.Repository<Department>().AddAsync(Department);
+            await unitOfWork.CompleteAsync();
 
-            return Ok();
+            return Ok("Department Added Succesfully");
         }
 
-        [HttpPut("{Id}")]
+        [HttpPost("EditDepartment/{Id}")]
         public async Task<ActionResult> EditDepartment(int Id, DepartmentDto departmentDto)
         {
             // Check if Department with Id Exists
@@ -63,10 +64,10 @@ namespace EmailingSystemAPI.Controllers
             if (Department == null) return NotFound(new APIErrorResponse(404,"Department Not Found."));
 
             // Check if Department with the same NAME & College Exists
-            var departmentExists = await dbContext.Departments.FirstOrDefaultAsync(D => D.Name == departmentDto.Name && D.CollegeId == departmentDto.CollegeId);
+            var departmentExists = await dbContext.Departments.FirstOrDefaultAsync(D => (D.Name == departmentDto.Name || D.Abbreviation == departmentDto.Abbreviation) && D.CollegeId == departmentDto.CollegeId);
 
             if (departmentExists is not null)
-                return BadRequest(new APIErrorResponse(400, "A department with the same name and college already exists."));
+                return BadRequest(new APIErrorResponse(400, "A department with the same name or Same Abbreviation and college already exists."));
 
 
             var adminEmail = User.FindFirstValue(ClaimTypes.Email);
@@ -82,11 +83,12 @@ namespace EmailingSystemAPI.Controllers
 
             Department = mapper.Map<Department>(departmentDto);
             unitOfWork.Repository<Department>().Update(Department);
+            await unitOfWork.CompleteAsync();
 
             return Ok();
         }
 
-        [HttpGet("{Id}")]
+        [HttpGet("GetById/{Id}")]
         public async Task<ActionResult<DepartmentWithUserDto>> GetDepartmentById(int Id)
         {
             // Check if Department with Id Exists
