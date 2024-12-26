@@ -4,6 +4,7 @@ using EmailingSystem.Core.Entities;
 using EmailingSystem.Services;
 using EmailingSystemAPI.DTOs.Message;
 using EmailingSystemAPI.Errors;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +16,7 @@ namespace EmailingSystemAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class MessageController : ControllerBase
     {
         private readonly IUnitOfWork unitOfWork;

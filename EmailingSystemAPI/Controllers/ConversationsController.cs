@@ -12,6 +12,7 @@ using EmailingSystemAPI.DTOs.DraftConversation;
 using EmailingSystemAPI.DTOs.Message;
 using EmailingSystemAPI.Errors;
 using EmailingSystemAPI.Helper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +25,7 @@ namespace EmailingSystemAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ConversationsController : ControllerBase
     {
         private readonly IUnitOfWork unitOfWork;
