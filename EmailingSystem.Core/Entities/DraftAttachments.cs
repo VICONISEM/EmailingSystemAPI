@@ -13,5 +13,9 @@ namespace EmailingSystem.Core.Entities
         public virtual DraftConversations draftConversations { get; set; }
         public string AttachmentPath { get; set; }
 
+        public string Name { get; set; }
+
+        public long size { get; set; }
+
     }
 }

@@ -2,9 +2,11 @@
 using EmailingSystem.Core.Contracts.Specifications.Contracts;
 using EmailingSystem.Repository.Data.Contexts;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -42,6 +44,10 @@ namespace EmailingSystem.Repository
         public void Update(T Entity)
         {
             _dbContext.Set<T>().Update(Entity);
+        }
+        public async Task UpdateRange(Expression<Func<SetPropertyCalls<T>,SetPropertyCalls<T>>> expression)
+        {
+            await _dbContext.Set<T>().ExecuteUpdateAsync(expression);
         }
 
         public void Delete(T Entity)

@@ -14,7 +14,7 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpe
         public ConversationDraftSpecificationForCountPagination(ConversationSpecParams Specs , int UserId) 
         {
 
-            Criteria = D => D.SenderId == UserId && (string.IsNullOrEmpty(Specs.Search) || D.Subject.Trim().Contains(Specs.Search, StringComparison.OrdinalIgnoreCase));
+            Criteria = D => D.SenderId == UserId && (string.IsNullOrEmpty(Specs.Search) || D.Subject.Trim().Contains(Specs.Search));
 
         }
     }

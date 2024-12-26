@@ -7,6 +7,7 @@ using EmailingSystem.Core.Enums;
 using EmailingSystem.Services;
 using EmailingSystemAPI.DTOs.User;
 using EmailingSystemAPI.Errors;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -38,6 +39,7 @@ namespace EmailingSystemAPI.Controllers
         }
 
         [HttpPost("Register")]
+        [Authorize(Roles = "Admin,CollegeAdmin")]
         public async Task<ActionResult<AuthDto>> Register(RegisterDto registerDto)
         {
 
@@ -216,6 +218,7 @@ namespace EmailingSystemAPI.Controllers
         }
 
         [HttpGet("LogOut")]
+        [Authorize]
         public async Task<ActionResult> LogOut()
         {
             var refreshToken = Request?.Cookies["RefreshToken"];
