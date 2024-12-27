@@ -210,7 +210,7 @@ namespace EmailingSystemAPI.Controllers
             }
 
             var userDto = mapper.Map<AuthDto>(user);
-            userDto.Role = (await userManager.GetRolesAsync(user))[0].ToString();
+            userDto.Role = (await userManager.GetRolesAsync(user)).FirstOrDefault();
             userDto.AccessToken = await tokenService.CreateTokenAsync(user,userManager);
             userDto.RefreshTokenExpirationTime = user.RefreshTokens.FirstOrDefault(T => T.IsActive).ExpiresOn;
 
@@ -246,12 +246,13 @@ namespace EmailingSystemAPI.Controllers
         {
             var refreshToken = Request.Cookies["RefreshToken"];
 
-            if(refreshToken.IsNullOrEmpty())
+            if (refreshToken.IsNullOrEmpty())
             {
-                return NotFound(new APIErrorResponse(404,"Log in and try again."));
+                return NotFound(new APIErrorResponse(404, "Log in and try again."));
             }
 
-            var user = userManager.Users.FirstOrDefault(U => U.RefreshTokens.Any(T => T.IsActive && T.Token == refreshToken));
+            //var user = userManager.Users.FirstOrDefault(U => U.RefreshTokens.Any(T => T.IsActive && T.Token == refreshToken));
+            var user = userManager.Users.FirstOrDefault(U => U.RefreshTokens.Any(T => T.ExpiresOn > DateTime.Now && T.Token == refreshToken));
 
             if (user is null)
             {
@@ -259,7 +260,7 @@ namespace EmailingSystemAPI.Controllers
             }
 
             var AuthDto = mapper.Map<AuthDto>(user);
-            AuthDto.Role = (await userManager.GetRolesAsync(user)).ToString();
+            AuthDto.Role = (await userManager.GetRolesAsync(user)).FirstOrDefault();
             AuthDto.AccessToken = await tokenService.CreateTokenAsync(user, userManager);
             AuthDto.RefreshTokenExpirationTime = user.RefreshTokens?.FirstOrDefault(T => T.IsActive)?.ExpiresOn;
 
