@@ -26,6 +26,7 @@ namespace EmailingSystem.Repository
         public async Task<IDbContextTransaction> BeginTransactionAsync()
         {
             return await DbContext.Database.BeginTransactionAsync();
+            
         }
         public async Task<int> CompleteAsync()
         {

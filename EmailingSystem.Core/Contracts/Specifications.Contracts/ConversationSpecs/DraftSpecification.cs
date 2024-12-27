@@ -14,7 +14,7 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpe
     {
         public DraftSpecification(ConversationSpecParams specs, int UserId):base ()
         {
-            Criteria = D => D.SenderId == UserId && (string.IsNullOrEmpty(specs.Search) || D.Subject.Trim().Contains(specs.Search,StringComparison.OrdinalIgnoreCase));
+            Criteria = D => D.SenderId == UserId && (string.IsNullOrEmpty(specs.Search) || D.Subject.Trim().ToUpper().Contains(specs.Search));
 
             if(specs.Sort=="desc")
             {

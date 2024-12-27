@@ -14,7 +14,8 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.CollegeSpecs
         public CollegeSpecificationsGetAll(CollegeSpecsParams Specs) 
         {
             Criteria = C => (string.IsNullOrEmpty(Specs.Search) || (C.Name.Trim().ToUpper() == Specs.Search || C.Abbreviation.Trim().ToUpper() == Specs.Search));
-           
+
+            
 
             ApplyPagination(Specs.PageSize * (Specs.PageIndex - 1), Specs.PageSize);
         

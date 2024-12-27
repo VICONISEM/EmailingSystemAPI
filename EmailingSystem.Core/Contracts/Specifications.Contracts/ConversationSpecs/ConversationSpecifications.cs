@@ -14,11 +14,11 @@ public class ConversationSpecifications : BaseSpecification<Conversation>
                .Any(C => C.UserId == UserId && C.Status == (ConversationStatus)Enum.Parse(typeof(ConversationStatus), Specs.Type,true))
                &&
                (string.IsNullOrEmpty(Specs.Search) ||
-               (C.Subject.Contains(Specs.Search,StringComparison.OrdinalIgnoreCase)
+               (C.Subject.Trim().ToUpper().Contains(Specs.Search)
                ||
-               C.SenderId == UserId || C.Sender.NormalizedName.Contains(Specs.Search, StringComparison.OrdinalIgnoreCase)
+               C.SenderId == UserId || C.Sender.NormalizedName.Contains(Specs.Search)
                ||
-               C.ReceiverId == UserId || C.Receiver.NormalizedName.Contains(Specs.Search,StringComparison.OrdinalIgnoreCase))));
+               C.ReceiverId == UserId || C.Receiver.NormalizedName.Contains(Specs.Search))));
 
              AddInclude(C => C.Include(C => C.UserConversationStatuses.Where(C => C.UserId == UserId)));
             AddInclude(C => C.Include(C => C.Messages.Where(M => !M.IsDraft || (M.IsDraft && M.SenderId == UserId))));

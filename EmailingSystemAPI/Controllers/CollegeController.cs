@@ -2,26 +2,33 @@
 using EmailingSystem.Core.Contracts;
 using EmailingSystem.Core.Contracts.Specifications.Contracts.CollegeSpecs;
 using EmailingSystem.Core.Entities;
+using EmailingSystem.Core.Enums;
 using EmailingSystemAPI.DTOs.College;
 using EmailingSystemAPI.Errors;
 using EmailingSystemAPI.Helper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 
 namespace EmailingSystemAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin,CollegeAdmin")]
     public class CollegeController : ControllerBase
     {
        private readonly IUnitOfWork unitOfWork;
         private readonly IMapper mapper;
+        private readonly UserManager<ApplicationUser> userManager;
 
-        public CollegeController(IUnitOfWork unitOfWork,IMapper mapper)
+        public CollegeController(IUnitOfWork unitOfWork,IMapper mapper,UserManager<ApplicationUser> userManager)
         {
             this.unitOfWork = unitOfWork;
             this.mapper = mapper;
+            this.userManager = userManager;
         }
 
         [HttpGet("GetAllColleges")]
@@ -94,6 +101,36 @@ namespace EmailingSystemAPI.Controllers
                 return Ok("College Added Successfully");
             }
             return BadRequest(new APIErrorResponse(400,"The College Exists already"));
+        }
+
+        [HttpGet("GetById/{Id}")]
+        public async Task<ActionResult<CollegeDto>> GetCollegeById(int Id)
+        {
+            var Email = User.FindFirstValue(ClaimTypes.Email);
+            var user = await userManager.FindByEmailAsync(Email);
+            var Role = (await userManager.GetRolesAsync(user)).FirstOrDefault();
+
+            if(Role == UserRole.CollegeAdmin.ToString())
+            {
+                if(user.CollegeId != Id)
+                {
+                    return Unauthorized();
+                }
+               
+            }
+
+            var college = await unitOfWork.Repository<College>().GetByIdAsync<int>(Id);
+
+            if(college is null)
+            {
+                return BadRequest("College not Exsit");
+            }
+
+            var College = mapper.Map<CollegeDto>(college);
+
+            return College;
+
+
         }
 
         //[HttpPost("DeleteCollegeById")]

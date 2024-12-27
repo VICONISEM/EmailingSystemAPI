@@ -30,7 +30,8 @@ namespace EmailingSystemAPI.Helper
                 .ForMember(U => U.CollegeName, O => O.MapFrom(O => O.College != null ? O.College.Name : null))
                 .ForMember(U => U.DepartmentName, O => O.MapFrom(O => O.Department != null ? O.Department.Name : null))
                 .ForMember(U => U.PictureURL, O => O.MapFrom<UserProfileImageResolver>())
-                .ForMember(U => U.SignatureURL, O => O.MapFrom<UserProfileSignatureResolver>());
+                .ForMember(U => U.SignatureURL, O => O.MapFrom<UserProfileSignatureResolver>())
+                .ForMember(U => U.Id, O => O.MapFrom(U => U.Id));
 
             #endregion
 
@@ -65,6 +66,8 @@ namespace EmailingSystemAPI.Helper
                 .ForMember(C => C.SenderEmail, O => O.MapFrom(C => C.Sender.Email))
                 .ForMember(C => C.ReceiverEmail, O => O.MapFrom(C => C.Receiver.Email))
                 .ForMember(m => m.SentAt, O => O.MapFrom(M => M.SendAt))
+                .ForMember(M => M.Attachements, O => O.MapFrom(M => M.Attachments))
+
                 
                 .ReverseMap();
 
@@ -74,7 +77,10 @@ namespace EmailingSystemAPI.Helper
             #endregion
 
             #region Department
-            CreateMap<Department, DepartmentDto>();
+            CreateMap<Department, DepartmentDto>()
+                .ForMember(D=>D.Name,M=>M.MapFrom(D=>D.Name))
+                .ForMember(D=>D.Abbreviation,M=>M.MapFrom(D=>D.Abbreviation))
+                .ForMember(D => D.CollegeId, M => M.MapFrom(D => D.CollegeId)).ReverseMap();
 
             CreateMap<Department, DepartmentWithUserDto>()
                 .ForMember(D => D.CollegeName, O => O.MapFrom(O => O.College.Name))
@@ -92,12 +98,24 @@ namespace EmailingSystemAPI.Helper
                 .ForMember(C => C.Name, M => M.MapFrom(C => C.Name))
                 .ForMember(C => C.Abbreviation, M => M.MapFrom(C => C.Abbreviation)).ReverseMap();
 
+            CreateMap<College, CollegeDto>()
+               .ForMember(C => C.Name, M => M.MapFrom(C => C.Name))
+               .ForMember(C => C.Abbreviation, M => M.MapFrom(C => C.Abbreviation))
+               .ForMember(C => C.Id, M => M.MapFrom(C => C.Id))
+               .ForMember(C => C.Departments, M => M.MapFrom(C => C.Departments))
+
+
+               .ReverseMap();
+
+
+
             #endregion
 
             #region Attachment
             CreateMap<Attachment, AttachementDto>()
                 .ForMember(A => A.Name, M => M.MapFrom(O => O.FileName))
-                .ForMember(A => A.FileURL, O => O.MapFrom<MessageAttachmentResolver>());
+                .ForMember(A => A.FileURL, O => O.MapFrom<MessageAttachmentResolver>())
+                .ForMember(A => A.Size, O => O.MapFrom(O => (((double)O.Size/1024))));
             #endregion
 
             #region DraftConversation
@@ -111,9 +129,13 @@ namespace EmailingSystemAPI.Helper
 
 
             CreateMap<DraftAttachments, AttachementDto>()
-                .ForMember(C => C.FileURL, M => M.MapFrom<FileResolver>());
-                
-               
+                .ForMember(C => C.FileURL, M => M.MapFrom<FileResolver>())
+                .ForMember(A => A.Name, M => M.MapFrom(O => O.Name))
+                .ForMember(A => A.Size, M => M.MapFrom(O => (double)O.size/1024));
+
+
+
+
             #endregion
 
         }

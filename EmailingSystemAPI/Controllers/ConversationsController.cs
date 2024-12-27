@@ -12,6 +12,7 @@ using EmailingSystemAPI.DTOs.DraftConversation;
 using EmailingSystemAPI.DTOs.Message;
 using EmailingSystemAPI.Errors;
 using EmailingSystemAPI.Helper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +25,7 @@ namespace EmailingSystemAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ConversationsController : ControllerBase
     {
         private readonly IUnitOfWork unitOfWork;
@@ -84,7 +86,7 @@ namespace EmailingSystemAPI.Controllers
         }
 
         [HttpGet("DraftConversations")]
-        public async Task<ActionResult<Pagination<DraftConversations>>> DraftConversations([FromQuery] ConversationSpecParams Specs)
+        public async Task<ActionResult<Pagination<DraftConversationDtoReturn>>> DraftConversations([FromQuery] ConversationSpecParams Specs)
         {
             var Email = User.FindFirstValue(ClaimTypes.Email);
             if(Email is null) return NotFound(new APIErrorResponse(404,"User Not Found."));
@@ -109,20 +111,24 @@ namespace EmailingSystemAPI.Controllers
         {
             var Conversation = await unitOfWork.Repository<Conversation>().GetByIdAsync<long>(SpecsParams.ConversationId);
 
+
+
             if(Conversation == null) return NotFound(new APIErrorResponse(400,"Not Found"));
 
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
 
             var user = await userManager.FindByEmailAsync(userEmail);
 
-            if (user.Id != Conversation.SenderId && user.Id != Conversation.ReceiverId)
+            if (user.Id != Conversation.SenderId && user.Id != Conversation.ReceiverId ||Conversation.UserConversationStatuses.Where(US => US.UserId==user.Id).FirstOrDefault().Status==ConversationStatus.Deleted)
                 return Unauthorized(new APIErrorResponse(401, "You aren't authorized"));
 
             var ConversationWithMessages = mapper.Map<ConversationToReturnDto>(Conversation);
 
             var MessagesSpecs = new MessagesInConversationSpecifications(SpecsParams, user.Id);
             var messages = (await unitOfWork.Repository<Conversation>().GetAllQueryableWithSpecs(MessagesSpecs).FirstOrDefaultAsync())?.Messages;
-            ConversationWithMessages.Messages=mapper.Map<List<MessageDto>>(messages);
+            await unitOfWork.Repository<Message>().UpdateRange(M => M.SetProperty(m => m.IsRead, m => m.IsRead||(user.Id==m.ReceiverId) ));
+            await unitOfWork.CompleteAsync();
+            ConversationWithMessages.Messages=mapper.Map<List<MessageDto>>(messages).OrderByDescending(M=>M.SentAt);
 
             var DraftMessageSpecs = new GetDraftMessageSpecification( user.Id , SpecsParams.ConversationId);
             var DraftMessage = await unitOfWork.Repository<Conversation>().GetAllQueryableWithSpecs(DraftMessageSpecs).FirstOrDefaultAsync();
@@ -208,7 +214,9 @@ namespace EmailingSystemAPI.Controllers
                     Attachments.Add(new Attachment()
                     {
                         FileName=Attachment.FileName,
-                        FilePath=await FileHandler.SaveFile($"{user.Id}", "MessageAttachment", Attachment),
+                        FilePath=await FileHandler.SaveFile(Attachment.FileName, "MessageAttachment", Attachment),
+                        Size=Attachment.Length
+                        
                         
                     });
                 }
@@ -224,7 +232,7 @@ namespace EmailingSystemAPI.Controllers
         }
 
         [HttpPost("ComposeDraft")]
-        public async Task<ActionResult<DraftConversationDtoReturn>> ComposeDraft([FromForm] DraftComposeDto draftComposeDto)
+        public async Task<ActionResult> ComposeDraft([FromForm] DraftComposeDto draftComposeDto)
         {
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
 
@@ -243,7 +251,10 @@ namespace EmailingSystemAPI.Controllers
             {
                     DraftConversation.DraftAttachments.Add(new DraftAttachments()
                     {
-                        AttachmentPath = await FileHandler.SaveFile(Attachment.FileName, "DraftConversationAttachment", Attachment.File)
+                        AttachmentPath = await FileHandler.SaveFile(Attachment.FileName, "DraftConversationAttachment", Attachment),
+                        Name= Attachment.FileName,
+                        size=Attachment.Length
+                        
                     });
 
             }
@@ -251,7 +262,7 @@ namespace EmailingSystemAPI.Controllers
             await unitOfWork.CompleteAsync();
             var DraftDto = mapper.Map<DraftConversationDtoReturn>(DraftConversation);
 
-            return Ok(DraftDto);
+            return Ok("Draft Conversation Created");
 
         }
     

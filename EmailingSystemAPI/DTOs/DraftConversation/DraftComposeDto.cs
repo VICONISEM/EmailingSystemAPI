@@ -8,6 +8,6 @@ namespace EmailingSystemAPI.DTOs.DraftConversation
         public string? Subject { get; set; } = null!;
         public int? ReceiverId { get; set; }
         public string? Body { get; set; }
-        public List<AttachmentDraftDto>? DraftAttachments { get; set; }
+        public List<IFormFile>? DraftAttachments { get; set; }
     }
 }

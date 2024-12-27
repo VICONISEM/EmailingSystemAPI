@@ -15,17 +15,17 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpe
     {
         public ConversationInboxSpecificationsForCountPagination(ConversationSpecParams Specs, int UserId)
         {
-            Criteria = C => ((C.ReceiverId == UserId || C.SenderId == UserId) && C.Messages.Any(M => M.ReceiverId == UserId))
+            Criteria = C => ((C.ReceiverId == UserId || C.SenderId == UserId) && C.Messages.Any(M => M.ReceiverId == UserId && !M.ReceiverIsDeleted))
             &&
             (C.UserConversationStatuses
                     .Any(C => C.UserId == UserId && (C.Status == ConversationStatus.Starred || C.Status == ConversationStatus.Active)))
             &&
             (string.IsNullOrEmpty(Specs.Search) ||
-            (C.Subject.Contains(Specs.Search, StringComparison.OrdinalIgnoreCase)
+            (C.Subject.Trim().ToUpper().Contains(Specs.Search)
             ||
-            C.SenderId == UserId || C.Sender.NormalizedName.Contains(Specs.Search, StringComparison.OrdinalIgnoreCase)
+            C.SenderId == UserId || C.Sender.NormalizedName.Contains(Specs.Search)
             ||
-            C.ReceiverId == UserId || C.Receiver.NormalizedName.Contains(Specs.Search, StringComparison.OrdinalIgnoreCase)));
+            C.ReceiverId == UserId || C.Receiver.NormalizedName.Contains(Specs.Search)));
 
 
 

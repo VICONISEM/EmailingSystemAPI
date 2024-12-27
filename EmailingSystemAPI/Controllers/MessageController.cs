@@ -4,6 +4,7 @@ using EmailingSystem.Core.Entities;
 using EmailingSystem.Services;
 using EmailingSystemAPI.DTOs.Message;
 using EmailingSystemAPI.Errors;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +16,7 @@ namespace EmailingSystemAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class MessageController : ControllerBase
     {
         private readonly IUnitOfWork unitOfWork;
@@ -42,9 +44,14 @@ namespace EmailingSystemAPI.Controllers
             Message ParentMessage = null;
 
             if (messageTobeSentDto.ParentMessageId.HasValue)
+            {
                 ParentMessage = await unitOfWork.Repository<Message>().GetByIdAsync(messageTobeSentDto.ParentMessageId);
+                if (ParentMessage is null) return BadRequest(new APIErrorResponse(400, "Message Not Found."));
 
-            if (ParentMessage is null) return BadRequest(new APIErrorResponse(400,"Message Not Found."));
+
+            }
+          
+
 
 
             if (messageTobeSentDto.Content.IsNullOrEmpty() && messageTobeSentDto.Attachements.IsNullOrEmpty())
@@ -68,6 +75,7 @@ namespace EmailingSystemAPI.Controllers
                 {
                     FileName = Attachment.FileName,
                     FilePath = await FileHandler.SaveFile(Attachment.FileName,"MessageAttachment",Attachment),
+                    Size=Attachment.Length
                 });
             }
 
@@ -79,22 +87,24 @@ namespace EmailingSystemAPI.Controllers
         }
 
         [HttpPost("SaveDraftMessage/{ConversationId}")]
-        public async Task<ActionResult> SaveDraftMessage([FromForm] MessageTobeSentDto messageDto, [FromRoute]long conversationId)
+        public async Task<ActionResult> SaveDraftMessage([FromForm] MessageTobeSentDto messageDto, [FromRoute]long ConversationId)
         {
             var Email = User.FindFirstValue(ClaimTypes.Email);
             var user = await userManager.FindByEmailAsync(Email);
 
-            var Conversation = await unitOfWork.Repository<Conversation>().GetByIdAsync<long>(conversationId);
+            var Conversation = await unitOfWork.Repository<Conversation>().GetByIdAsync<long>(ConversationId);
             
             if (Conversation is null) return NotFound(new APIErrorResponse(404,"Conversation Not Found."));
 
             Message ParentMessage = null;
 
             if (messageDto.ParentMessageId.HasValue)
+            {
                 ParentMessage = await unitOfWork.Repository<Message>().GetByIdAsync(messageDto.ParentMessageId);
+                if (ParentMessage is null) return BadRequest(new APIErrorResponse(400, "Message Not Found."));
 
-            if (ParentMessage is null) return BadRequest(new APIErrorResponse(400, "Message Not Found."));
-
+            }
+              
 
             if (messageDto.Content.IsNullOrEmpty() && messageDto.Attachements.IsNullOrEmpty())
             {
@@ -107,10 +117,9 @@ namespace EmailingSystemAPI.Controllers
                 Content = messageDto.Content,
                 ReceiverId = messageDto.ReceiverId,
                 ParentMessageId = messageDto.ParentMessageId,
-
                 Attachments = new List<Attachment>() { },
-
-                IsDraft = true
+                IsDraft = true,
+                ConversationId= ConversationId
             };
 
             foreach (var Attachment in messageDto.Attachements)
