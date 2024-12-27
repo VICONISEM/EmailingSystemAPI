@@ -25,11 +25,8 @@ namespace EmailingSystemAPI.Controllers
         }
 
         [HttpPost("ChangePassword")]
-       
         public async Task<ActionResult> ChangePassword(ChangePasswordDto ChangePasswordDto)
         {
-           
-
             var Email = User.FindFirstValue(ClaimTypes.Email);
 
             var user = await userManager.FindByEmailAsync(Email);

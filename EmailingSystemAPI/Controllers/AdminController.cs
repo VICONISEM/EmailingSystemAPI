@@ -101,13 +101,73 @@ namespace EmailingSystemAPI.Controllers
                 { return Unauthorized(new APIErrorResponse(401, "You aren't authorized to perform this action for this user.")); }
             }
 
+
+
+
+            #region Some Validations
+
+            if (userDto.Role == UserRole.Admin)
+            {
+                return Unauthorized(new APIErrorResponse(401, "Can't create user with Role Admin."));
+            }
+            else if (userDto.Role == UserRole.CollegeAdmin)
+            {
+                if (userDto.CollegeId is null || userDto.DepartmentId.HasValue)
+                    return BadRequest(new APIErrorResponse(400, "User with Role College Admin must be in a college and can't be in a department."));
+            }
+            else if (userDto.Role == UserRole.Presedient)
+            {
+                if (userDto.CollegeId.HasValue || userDto.DepartmentId.HasValue)
+                    return BadRequest(new APIErrorResponse(400, "Can't create user with Role Presedient with department and college."));
+            }
+            else if (userDto.Role == UserRole.VicePresedientForStudentsAffairs || userDto.Role == UserRole.VicePresedientForEnvironment || userDto.Role == UserRole.VicePresedientForPostgraduatStudies)
+            {
+                if (userDto.CollegeId.HasValue || userDto.DepartmentId.HasValue)
+                    return BadRequest(new APIErrorResponse(400, "Can't create user with Role VicePresedient with department and college."));
+            }
+            else if (userDto.Role == UserRole.Dean)
+            {
+                if (userDto.CollegeId is null || userDto.DepartmentId.HasValue)
+                    return BadRequest("User with Role Dean must have a college and can't be in a department.");
+            }
+            else if (userDto.Role == UserRole.ViceDeanForStudentsAffairs || userDto.Role == UserRole.ViceDeanForEnvironment || userDto.Role == UserRole.ViceDeanForPostgraduatStudies)
+            {
+                if (!userDto.CollegeId.HasValue || userDto.DepartmentId.HasValue)
+                    return BadRequest(new APIErrorResponse(400, "Can't create user with Role ViceDean with department."));
+            }
+            else if (userDto.Role == UserRole.Secretary)
+            {
+                if (userDto.CollegeId is null || userDto.DepartmentId.HasValue)
+                    return BadRequest(new APIErrorResponse(400, "User with Role Secertary must be in a college and can't be in  a department."));
+            }
+            else if (userDto.Role == UserRole.NormalUser)
+            {
+                if (!userDto.CollegeId.HasValue || !userDto.DepartmentId.HasValue)
+                    return BadRequest(new APIErrorResponse(400, "User with Role Normal User must be in a college and in a depertment."));
+            }
+
+
+            //Check if the selected department in the selected college
+            if (userDto.DepartmentId is not null && userDto.CollegeId is not null)
+            {
+                var College = await unitOfWork.Repository<College>().GetByIdAsync<int>(userDto.CollegeId);
+                var Department = await unitOfWork.Repository<Department>().GetByIdAsync<int>(userDto.DepartmentId);
+
+                if (Department is null) return NotFound(new APIErrorResponse(404, "Department Not Found."));
+                if (College is null) return NotFound(new APIErrorResponse(404, "College Not Found."));
+
+                if (!College.Departments.Any(D => D.Id == userDto.DepartmentId))
+                    return BadRequest(new APIErrorResponse(400, "This College doesn't contain such a department"));
+            }
+
+            #endregion
+
             //Updating User
             var Role = (await userManager.GetRolesAsync(user)).FirstOrDefault();
             var userRole = (UserRole)Enum.Parse(typeof(UserRole), Role);
 
             if (userRole != userDto.Role)
             {
-
                 using (var transaction = await dbContext.Database.BeginTransactionAsync())
                 {
                     try
@@ -119,7 +179,6 @@ namespace EmailingSystemAPI.Controllers
                             throw new Exception($"Failed to remove user from role: {string.Join(", ", removeResult.Errors.Select(e => e.Description))}");
                         }
 
-        
                         var newRole = Enum.Parse<UserRole>(userDto.Role.ToString(), true).ToString();
 
                         var addResult = await userManager.AddToRoleAsync(user, newRole);
