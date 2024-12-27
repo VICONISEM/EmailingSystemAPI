@@ -115,7 +115,7 @@ namespace EmailingSystemAPI.Controllers
             {
                 SenderId = user.Id,
                 Content = messageDto.Content,
-                ReceiverId = messageDto.ReceiverId,
+                ReceiverId = (user.Id==Conversation.SenderId? Conversation.ReceiverId:Conversation.SenderId),
                 ParentMessageId = messageDto.ParentMessageId,
                 Attachments = new List<Attachment>() { },
                 IsDraft = true,
@@ -127,7 +127,7 @@ namespace EmailingSystemAPI.Controllers
                 Message.Attachments.Add(new Attachment()
                 {
                     FileName = Attachment.FileName,
-                    FilePath = await FileHandler.SaveFile(Attachment.FileName, "DraftMessageAttachment", Attachment),
+                    FilePath = await FileHandler.SaveFile(Attachment.FileName,"DraftMessageAttachment", Attachment),
                 });
             }
 
