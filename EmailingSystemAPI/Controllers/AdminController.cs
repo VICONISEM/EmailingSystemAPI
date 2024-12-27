@@ -162,15 +162,6 @@ namespace EmailingSystemAPI.Controllers
 
             #endregion
 
-
-
-
-
-
-
-
-
-
             //Updating User
             var Role = (await userManager.GetRolesAsync(user)).FirstOrDefault();
             var userRole = (UserRole)Enum.Parse(typeof(UserRole), Role);
