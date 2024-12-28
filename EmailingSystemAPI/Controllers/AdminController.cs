@@ -53,7 +53,7 @@ namespace EmailingSystemAPI.Controllers
 
             for (int i = 0; i < users.Count(); i++)
             {
-                userDtoList[i].Role = (await userManager.GetRolesAsync(users[i])).ToString();
+                userDtoList[i].Role = (await userManager.GetRolesAsync(users[i])).FirstOrDefault();
             }
 
             return Ok(new Pagination<UserDto>(Specs.PageNumber, Specs.PageSize, Count, userDtoList));
@@ -100,9 +100,6 @@ namespace EmailingSystemAPI.Controllers
                 if (user.CollegeId != admin.CollegeId)
                 { return Unauthorized(new APIErrorResponse(401, "You aren't authorized to perform this action for this user.")); }
             }
-
-
-
 
             #region Some Validations
 
