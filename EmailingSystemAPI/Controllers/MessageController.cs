@@ -206,6 +206,11 @@ namespace EmailingSystemAPI.Controllers
             {
                 Message.SenderIsDeleted = true;
                 Message.ReceiverIsDeleted = true;
+                Message.Content = "this Message is Deleted";
+                foreach(var attachment in Message.Attachments)
+                {
+                    await FileHandler.DeleteFile(attachment.FilePath);
+                }
             }
             else
             {
