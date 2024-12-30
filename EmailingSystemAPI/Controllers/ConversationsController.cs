@@ -173,6 +173,14 @@ namespace EmailingSystemAPI.Controllers
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
 
             var user = await userManager.FindByEmailAsync(userEmail);
+            DraftConversations? draftConversation=null;
+            if (conversationDto.Id is not null)
+            {
+                 draftConversation = await unitOfWork.Repository<DraftConversations>().GetByIdAsync(conversationDto.Id);
+                if (draftConversation is null)
+                    return NotFound("The draft Conversation Dose'nt Exsite");
+            }
+
 
             var Conversation = new Conversation()
             {
@@ -207,7 +215,7 @@ namespace EmailingSystemAPI.Controllers
 
             var Attachments = new List<Attachment>() { };
 
-            if(!conversationDto.Message.Attachments.IsNullOrEmpty())
+            if(!conversationDto.Message.Attachments.IsNullOrEmpty() || (draftConversation is not null && !draftConversation.DraftAttachments.IsNullOrEmpty() ))
             {
                 foreach (var Attachment in conversationDto.Message.Attachments)
                 {
@@ -220,11 +228,32 @@ namespace EmailingSystemAPI.Controllers
                         
                     });
                 }
+
+
+
+                foreach (var Attachment in draftConversation.DraftAttachments)
+                {
+                    Attachments.Add(new Attachment()
+                    {
+                        FileName = Attachment.Name,
+                        FilePath = Attachment.AttachmentPath,
+                        Size = Attachment.size
+
+
+                    });
+                }
+
             }
             Message.Attachments = Attachments;
             Conversation.Messages.Add(Message);
 
             await unitOfWork.Repository<Conversation>().AddAsync(Conversation);
+
+
+            if (draftConversation is not null)
+            unitOfWork.Repository<DraftConversations>().Delete(draftConversation);
+            
+            
             await unitOfWork.CompleteAsync();
 
             return Ok("Conversation Added Successfully");
