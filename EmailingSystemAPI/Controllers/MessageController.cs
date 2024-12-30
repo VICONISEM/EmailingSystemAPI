@@ -52,12 +52,39 @@ namespace EmailingSystemAPI.Controllers
             }
           
 
-
-
             if (messageTobeSentDto.Content.IsNullOrEmpty() && messageTobeSentDto.Attachements.IsNullOrEmpty())
             {
                 return BadRequest(new APIErrorResponse(400, "Can't create empty message."));
             }
+
+            if(messageTobeSentDto.IsDraft && messageTobeSentDto.Id is not null)
+            {
+                var DraftToUpdate = await unitOfWork.Repository<Message>().GetByIdAsync<long>(messageTobeSentDto.Id);
+                if (DraftToUpdate is null) return NotFound("Draft Message You try to send dosen't Exsit");
+                DraftToUpdate.IsDraft = false;
+                DraftToUpdate.Content = messageTobeSentDto.Content;
+                DraftToUpdate.Attachments=new List<Attachment>();
+                DraftToUpdate.SenderId = user.Id;
+                DraftToUpdate.ReceiverId = (Conversation.SenderId == user.Id) ? Conversation.ReceiverId : Conversation.SenderId;
+
+
+                foreach (var Attachment in messageTobeSentDto.Attachements)
+                {
+                    DraftToUpdate.Attachments.Add(new Attachment()
+                    {
+                        FileName = Attachment.FileName,
+                        FilePath = await FileHandler.SaveFile(Attachment.FileName, "MessageAttachment", Attachment),
+                        Size = Attachment.Length
+                    });
+                }
+
+                unitOfWork.Repository<Message>().Update(DraftToUpdate);
+                await unitOfWork.CompleteAsync();
+                return Ok("Message Send Successfully");
+
+
+            }
+
 
             var Message = new Message()
             {
@@ -67,6 +94,7 @@ namespace EmailingSystemAPI.Controllers
                 ConversationId = conversationId,
                 SenderId = user.Id,
                 ReceiverId = (Conversation.SenderId == user.Id) ? Conversation.ReceiverId : Conversation.SenderId,
+                IsDraft=messageTobeSentDto.IsDraft
             };
 
             foreach(var Attachment  in messageTobeSentDto.Attachements)
@@ -84,7 +112,7 @@ namespace EmailingSystemAPI.Controllers
             await unitOfWork.CompleteAsync();
 
             return Ok("Message Send Successfully");
-        }
+         }
 
         [HttpPost("SaveDraftMessage/{ConversationId}")]
         public async Task<ActionResult> SaveDraftMessage([FromForm] MessageTobeSentDto messageDto, [FromRoute]long ConversationId)
