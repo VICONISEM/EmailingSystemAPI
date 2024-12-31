@@ -15,7 +15,7 @@ namespace EmailingSystem.Core.Entities
         public int? ReceiverId { get; set; }
         public virtual ApplicationUser? Receiver { get; set; } = null!;
         public string? Body { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public virtual List<DraftAttachments>? DraftAttachments  { get; set; }
 
 

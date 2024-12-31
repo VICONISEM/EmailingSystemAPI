@@ -191,13 +191,13 @@ namespace EmailingSystemAPI.Controllers
                     new UserConversationStatus()
                     { 
                         UserId=user.Id
-                        ,Status=ConversationStatus.Active,LastUpdated=DateTime.Now
+                        ,Status=ConversationStatus.Active,LastUpdated=DateTime.UtcNow
                     }
                 ,   
                     new UserConversationStatus()
                     { 
                     UserId = conversationDto.ReceiverId
-                    ,Status = ConversationStatus.Active, LastUpdated = DateTime.Now 
+                    ,Status = ConversationStatus.Active, LastUpdated = DateTime.UtcNow 
                     }
                 }
                 ,
