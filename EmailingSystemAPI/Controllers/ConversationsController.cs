@@ -179,6 +179,7 @@ namespace EmailingSystemAPI.Controllers
                  draftConversation = await unitOfWork.Repository<DraftConversations>().GetByIdAsync(conversationDto.Id);
                 if (draftConversation is null)
                     return NotFound("The draft Conversation Dose'nt Exsite");
+
             }
 
 
@@ -252,8 +253,6 @@ namespace EmailingSystemAPI.Controllers
 
             if (draftConversation is not null)
             unitOfWork.Repository<DraftConversations>().Delete(draftConversation);
-            
-            
             await unitOfWork.CompleteAsync();
 
             return Ok("Conversation Added Successfully");
