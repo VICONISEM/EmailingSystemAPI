@@ -12,9 +12,10 @@ namespace EmailingSystem.Core.Entities
         public int UserId { get; set; }
         public long ConversationId { get; set; }
         public ConversationStatus Status { get; set; } = ConversationStatus.Active;
-        public DateTime LastUpdated { get; set; } = DateTime.Now;
+        public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
         public virtual Conversation Conversation { get; set; } = null!;
         public virtual ApplicationUser User { get; set; } = null!;
 
     }
 }
+

@@ -17,7 +17,7 @@ namespace EmailingSystem.Core.Entities
         public int ReceiverId { get; set; }
         public virtual ApplicationUser Receiver { get; set; } = null!;
         public bool IsRead { get; set; } = false;
-        public DateTime SendAt { get; set; } = DateTime.Now;
+        public DateTime SendAt { get; set; } = DateTime.UtcNow;
         public DateTime ReceivedAt { get; set; }
         public long? ParentMessageId { get; set; }
         public virtual Message? ParentMessage { get; set; } = null!;

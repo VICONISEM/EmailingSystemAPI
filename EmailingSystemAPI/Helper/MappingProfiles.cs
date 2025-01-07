@@ -44,7 +44,9 @@ namespace EmailingSystemAPI.Helper
                    .ForMember(C => C.ReceiverEmail, O => O.MapFrom(C => C.Receiver.Email))
                    //.ForMember(C => C.LastMessageTime, O => O.MapFrom(C => C.Messages.Max(M => M.SendAt)))
                    .ForMember(C => C.HasDraftMessage, O => O.MapFrom(C => C.Messages.Any(m=>m.IsDraft)))
-                   .ForMember(C => C.LastMessage, O => O.MapFrom(C => C.Messages.Where(M => !M.IsDraft).MaxBy(M => M.SendAt)));
+                   .ForMember(C => C.LastMessage, O => O.MapFrom(C => C.Messages.Where(M => !M.IsDraft).MaxBy(M => M.SendAt)))
+                   .ForMember(C => C.SenderPictureURL, O => O.MapFrom<ProfileImageResolverForAllConversation>())
+                   .ForMember(C => C.ReceiverPictureURL, O => O.MapFrom<ProfileImageResolverForAllConversation>()); ;
 
 
 

@@ -14,7 +14,7 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpe
         public GetDraftMessageSpecification(int UserId,long ConversationId) 
         {
             Criteria = C => (C.Id == ConversationId);
-            AddInclude(In => In.Include(C => C.Messages.Where(M => M.SenderId == UserId && M.IsDraft)));
+            AddInclude(In => In.Include(C => C.Messages.Where(M => M.SenderId == UserId && M.IsDraft && !M.SenderIsDeleted )));
 
 
         }
