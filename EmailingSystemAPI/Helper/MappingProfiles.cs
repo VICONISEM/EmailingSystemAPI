@@ -33,6 +33,16 @@ namespace EmailingSystemAPI.Helper
                 .ForMember(U => U.SignatureURL, O => O.MapFrom<UserProfileSignatureResolver>())
                 .ForMember(U => U.Id, O => O.MapFrom(U => U.Id));
 
+
+
+            CreateMap<ApplicationUser, AllowedUserDto>()
+                .ForMember(U => U.Id, O => O.MapFrom(U => U.Id))
+                .ForMember(U => U.Email, O => O.MapFrom(U => U.Email))
+                .ForMember(U => U.Name, O => O.MapFrom(U => U.Name))
+                .ForMember(U => U.CollegeName, O => O.MapFrom(U => U.College != null ? U.College.Name : null))
+                .ForMember(U => U.DepartmentName, O => O.MapFrom(U => U.Department != null ? U.Department.Name : null))
+                .ForMember(U => U.PictureURL, O => O.MapFrom<ValidUserProfileResolver>());
+
             #endregion
 
             #region Conversation
