@@ -13,57 +13,80 @@ namespace EmailingSystemAPI.Helper
             var SenderRole = (await userManager.GetRolesAsync(Sender)).FirstOrDefault();
 
             var ReciverRole = (await userManager.GetRolesAsync(Reciver)).FirstOrDefault();
-
-            if (SenderRole == "Admin" || SenderRole == "Presedient")
+            if (Sender.Id != Reciver.Id)
             {
-                return true;
-            }
 
-
-            else if (SenderRole == "CollegeAdmin")
-            {
-                if (Reciver.CollegeId == Sender.CollegeId)
+                if (SenderRole == "Admin" || SenderRole == "Presedient")
                 {
                     return true;
+
                 }
-            }
 
-            else if (SenderRole == "Dean")
-            {
-                if (ReciverRole == "Presedient"
-                    || ReciverRole == "Secretary"
-                    || ReciverRole == "Dean"
-                    || Sender.CollegeId == Reciver.CollegeId
-                    )
-                { return true; }
 
-            }
-
-            else if(SenderRole == "VicePresedientForEnvironment")
-            {
-                if(ReciverRole == "Presedient" || ReciverRole == "ViceDeanForEnvironment")
+                else if (SenderRole == "CollegeAdmin")
                 {
-                    return true;
+                    if (Reciver.CollegeId == Sender.CollegeId)
+                    {
+                        return true;
+                    }
                 }
 
-            }
-
-            else if (SenderRole == "VicePresedientForStudentsAffairs")
-            {
-                if (ReciverRole == "Presedient" || ReciverRole == "ViceDeanForStudentsAffairs")
+                else if (SenderRole == "Dean") 
                 {
-                    return true;
+                    if (ReciverRole == "Presedient"
+                        || ReciverRole == "Secretary"
+                        || ReciverRole == "Dean"
+                        || Sender.CollegeId == Reciver.CollegeId
+                        )
+                    { return true; }
+
                 }
 
-            }
-
-            else if (SenderRole == "VicePresedientForPostgraduatStudies")
-            {
-                if (ReciverRole == "Presedient" || ReciverRole == "ViceDeanForPostgraduatStudies")
+                else if (SenderRole == "VicePresedientForEnvironment")
                 {
-                    return true;
+                    if (ReciverRole == "Presedient" || ReciverRole == "ViceDeanForEnvironment")
+                    {
+                        return true;
+                    }
+
                 }
 
+                else if (SenderRole == "VicePresedientForStudentsAffairs")
+                {
+                    if (ReciverRole == "Presedient" || ReciverRole == "ViceDeanForStudentsAffairs")
+                    {
+                        return true;
+                    }
+
+                }
+
+                else if (SenderRole == "VicePresedientForPostgraduatStudies")
+                {
+                    if (ReciverRole == "Presedient" || ReciverRole == "ViceDeanForPostgraduatStudies")
+                    {
+                        return true;
+                    }
+
+                }
+                else if (SenderRole == "NormalUser")
+                {
+                    if (Reciver.CollegeId == Sender.CollegeId && ReciverRole == "Secretary")
+                    {
+                        return true;
+                    }
+                }
+
+                else if (SenderRole == "Secretary")
+                {
+                    if (Sender.CollegeId == Reciver.CollegeId)
+                    {
+                        return true;
+                    }
+                    else if (ReciverRole == "Dean")
+                    {
+                        return true;
+                    }
+                }
             }
 
 
