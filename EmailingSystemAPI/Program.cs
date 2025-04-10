@@ -3,6 +3,7 @@ using EmailingSystem.Repository.Data.Contexts;
 using EmailingSystemAPI.Errors;
 using EmailingSystemAPI.Extensions;
 using EmailingSystemAPI.Middlewares;
+using EmailingSystemAPI.NotificationService;
 using HospitalML;
 using HospitalML.Extentions;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -25,6 +26,7 @@ namespace EmailingSystemAPI
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddSignalR();
 
             // Add Token To Swagger
 
@@ -100,6 +102,7 @@ namespace EmailingSystemAPI
             var app = builder.Build();
 
 
+          
 
             using var scope = app.Services.CreateScope();
             var services = scope.ServiceProvider;
@@ -155,6 +158,7 @@ namespace EmailingSystemAPI
             app.UseAuthorization();
 
             app.MapControllers();
+            app.MapHub<Notification>("/hubs/notify");
             
             app.Run();
         }

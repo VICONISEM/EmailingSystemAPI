@@ -2,12 +2,15 @@
 using EmailingSystem.Core.Contracts;
 using EmailingSystem.Core.Entities;
 using EmailingSystem.Services;
+using EmailingSystemAPI.DTOs;
 using EmailingSystemAPI.DTOs.Message;
 using EmailingSystemAPI.Errors;
+using EmailingSystemAPI.NotificationService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
@@ -22,12 +25,14 @@ namespace EmailingSystemAPI.Controllers
         private readonly IUnitOfWork unitOfWork;
         private readonly IMapper mapper;
         private readonly UserManager<ApplicationUser> userManager;
+        private readonly IHubContext<Notification> hubContext;
 
-        public MessageController(IUnitOfWork unitOfWork,IMapper mapper,UserManager<ApplicationUser> userManager)
+        public MessageController(IUnitOfWork unitOfWork,IMapper mapper,UserManager<ApplicationUser> userManager,IHubContext<Notification> hub)
         {
             this.unitOfWork = unitOfWork;
             this.mapper = mapper;
             this.userManager = userManager;
+            this.hubContext = hub;
         }
 
         [HttpPost("SendMessage/{conversationId}")]
@@ -80,6 +85,7 @@ namespace EmailingSystemAPI.Controllers
 
                 unitOfWork.Repository<Message>().Update(DraftToUpdate);
                 await unitOfWork.CompleteAsync();
+                await hubContext.Clients.User(DraftToUpdate.Receiver.Email.ToUpper()).SendAsync("Notification",$"You Get message from {DraftToUpdate.Sender.Name}");
                 return Ok("Message Send Successfully");
 
 
@@ -110,6 +116,9 @@ namespace EmailingSystemAPI.Controllers
             Conversation.Messages.Add(Message);
             unitOfWork.Repository<Conversation>().Update(Conversation);
             await unitOfWork.CompleteAsync();
+            var emailre = (Conversation.Receiver.Email == user.Email) ? Conversation.Sender.Email : Conversation.Receiver.Email;
+            await hubContext.Clients.User(emailre.ToUpper()).SendAsync("Notification", new { Note = $"You get Message From {user.Email}"});
+            await hubContext.Clients.User(emailre.ToUpper()).SendAsync("MessageInsideConversation", mapper.Map<MessageDto>(Message));
 
             return Ok("Message Send Successfully");
          }

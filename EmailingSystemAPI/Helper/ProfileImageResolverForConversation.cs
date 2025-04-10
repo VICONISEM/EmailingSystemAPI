@@ -17,12 +17,12 @@ namespace EmailingSystemAPI.Helper
 
         public string Resolve(Conversation source, ConversationToReturnDto destination, string destMember, ResolutionContext context)
         {
-            if (!string.IsNullOrEmpty(source.Sender.PicturePath) && destination.SenderPictureURL is null)
+            if ( destination.SenderPictureURL is null)
             {
                 var request = configuration?.HttpContext?.Request;
                 return $"{request?.Scheme}://{request?.Host}/{source.Sender.PicturePath}";
             }
-            if (!string.IsNullOrEmpty(source.Receiver.PicturePath) && destination.ReceiverPictureURL is null)
+            if (destination.ReceiverPictureURL is null)
             {
                 var request = configuration?.HttpContext?.Request;
                 return $"{request?.Scheme}://{request?.Host}/{source.Receiver.PicturePath}";

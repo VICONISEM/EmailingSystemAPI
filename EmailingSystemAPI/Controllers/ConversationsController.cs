@@ -276,18 +276,21 @@ namespace EmailingSystemAPI.Controllers
                 }
 
 
-
-                foreach (var Attachment in draftConversation.DraftAttachments)
+                if(draftConversation is not null)
                 {
-                    Attachments.Add(new Attachment()
+                    foreach (var Attachment in draftConversation.DraftAttachments)
                     {
-                        FileName = Attachment.Name,
-                        FilePath = Attachment.AttachmentPath,
-                        Size = Attachment.size
+                        Attachments.Add(new Attachment()
+                        {
+                            FileName = Attachment.Name,
+                            FilePath = Attachment.AttachmentPath,
+                            Size = Attachment.size
 
 
-                    });
+                        });
+                    }
                 }
+                
 
             }
             Message.Attachments = Attachments;
