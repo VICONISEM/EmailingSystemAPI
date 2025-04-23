@@ -43,8 +43,8 @@ namespace EmailingSystemAPI.Controllers
             var admin = await userManager.FindByEmailAsync(Email);
             var role = (await userManager.GetRolesAsync(admin)).FirstOrDefault();
 
-            var specs = new UserSpecifications(Specs, admin);
-            var CountSpecs = new UserSpecificationsForCountPagination(Specs, admin);
+            var specs = new UserSpecifications(Specs, admin,role);
+            var CountSpecs = new UserSpecificationsForCountPagination(Specs, admin ,role);
 
             List<ApplicationUser> users = await unitOfWork.Repository<ApplicationUser>().GetAllQueryableWithSpecs(specs).ToListAsync();
             int Count = await unitOfWork.Repository<ApplicationUser>().GetCountWithSpecs(CountSpecs);
