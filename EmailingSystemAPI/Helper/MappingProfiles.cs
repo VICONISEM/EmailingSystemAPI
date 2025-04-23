@@ -91,6 +91,7 @@ namespace EmailingSystemAPI.Helper
             #region Department
             CreateMap<Department, DepartmentDto>()
                 .ForMember(D=>D.Name,M=>M.MapFrom(D=>D.Name))
+                .ForMember(D=>D.Id,M=>M.MapFrom(D=>D.Id))
                 .ForMember(D=>D.Abbreviation,M=>M.MapFrom(D=>D.Abbreviation))
                 .ForMember(D => D.CollegeId, M => M.MapFrom(D => D.CollegeId)).ReverseMap();
 
