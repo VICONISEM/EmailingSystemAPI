@@ -43,8 +43,8 @@ namespace EmailingSystemAPI.Controllers
             var admin = await userManager.FindByEmailAsync(Email);
             var role = (await userManager.GetRolesAsync(admin)).FirstOrDefault();
 
-            var specs = new UserSpecifications(Specs, admin);
-            var CountSpecs = new UserSpecificationsForCountPagination(Specs, admin);
+            var specs = new UserSpecifications(Specs, admin,role);
+            var CountSpecs = new UserSpecificationsForCountPagination(Specs, admin ,role);
 
             List<ApplicationUser> users = await unitOfWork.Repository<ApplicationUser>().GetAllQueryableWithSpecs(specs).ToListAsync();
             int Count = await unitOfWork.Repository<ApplicationUser>().GetCountWithSpecs(CountSpecs);
@@ -159,6 +159,40 @@ namespace EmailingSystemAPI.Controllers
 
             #endregion
 
+            if(userDto.Picture != null)
+            {
+                await FileHandler.DeleteFile(user.PicturePath);
+                user.PicturePath = await FileHandler.SaveFile(userDto.Picture.FileName, "ProfileImages",userDto.Picture);
+            }
+
+            if (userDto.Signature != null)
+            {
+
+                if (user.Signature is not null)
+                {
+                    await FileHandler.DeleteFile(user.Signature.FilePath);
+                    user.Signature.FilePath = await FileHandler.SaveFile(userDto.Signature.FileName, "Signatures", userDto.Signature);
+                    user.Signature.FileName = userDto.Signature.FileName;
+                }
+                else
+                {
+                    Signature signature = new Signature()
+                    {
+                        FileName = userDto.Signature.FileName,
+                        FilePath = await FileHandler.SaveFile(userDto.Signature.FileName, "Signatures", userDto.Signature)
+                    };
+
+                    await unitOfWork.Repository<Signature>().AddAsync(signature);
+                    await unitOfWork.CompleteAsync();
+
+                    user.SignatureId = signature.Id;
+
+                     
+
+                }
+            }
+
+            #region Update Role
             //Updating User
             var Role = (await userManager.GetRolesAsync(user)).FirstOrDefault();
             var userRole = (UserRole)Enum.Parse(typeof(UserRole), Role);
@@ -197,23 +231,12 @@ namespace EmailingSystemAPI.Controllers
                 }
 
             }
+            #endregion
 
             user.Name = userDto.Name;
             user.NationalId = userDto.NationalId;
             user.CollegeId = userDto.CollegeId;
             user.DepartmentId = userDto.DepartmentId;
-
-            if(userDto.Picture != null)
-            {
-                await FileHandler.DeleteFile(user.PicturePath);
-                user.PicturePath = await FileHandler.SaveFile(userDto.Picture.FileName, "ProfileImages",userDto.Picture);
-            }
-
-            if (userDto.Signature != null)
-            {
-                await FileHandler.DeleteFile(user.Signature.FilePath);
-                user.Signature.FilePath = await FileHandler.SaveFile(userDto.Signature.FileName, "Signatures", userDto.Signature);
-            }
 
             var Result = await userManager.UpdateAsync(user);
 

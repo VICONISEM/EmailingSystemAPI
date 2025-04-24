@@ -83,7 +83,7 @@ namespace EmailingSystemAPI.Controllers
             }
 
 
-            Department = mapper.Map<Department>(departmentDto);
+            mapper.Map(departmentDto,Department);
             unitOfWork.Repository<Department>().Update(Department);
             await unitOfWork.CompleteAsync();
 
