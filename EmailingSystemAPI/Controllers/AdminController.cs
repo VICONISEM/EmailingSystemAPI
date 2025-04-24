@@ -159,15 +159,8 @@ namespace EmailingSystemAPI.Controllers
 
             #endregion
 
-            if(userDto.Picture != null)
-            {
-                await FileHandler.DeleteFile(user.PicturePath);
-                user.PicturePath = await FileHandler.SaveFile(userDto.Picture.FileName, "ProfileImages",userDto.Picture);
-            }
-
             if (userDto.Signature != null)
             {
-
                 if (user.Signature is not null)
                 {
                     await FileHandler.DeleteFile(user.Signature.FilePath);
@@ -176,21 +169,21 @@ namespace EmailingSystemAPI.Controllers
                 }
                 else
                 {
-                    Signature signature = new Signature()
+                    var signature = new Signature
                     {
                         FileName = userDto.Signature.FileName,
-                        FilePath = await FileHandler.SaveFile(userDto.Signature.FileName, "Signatures", userDto.Signature)
+                        FilePath = await FileHandler.SaveFile(userDto.Signature.FileName, "Signatures", userDto.Signature),
+                        User = user 
                     };
 
-                    await unitOfWork.Repository<Signature>().AddAsync(signature);
-                    await unitOfWork.CompleteAsync();
-
+                   
+                    user.Signature = signature;
                     user.SignatureId = signature.Id;
 
-                     
-
+                   
                 }
             }
+
 
             #region Update Role
             //Updating User
@@ -238,9 +231,31 @@ namespace EmailingSystemAPI.Controllers
             user.CollegeId = userDto.CollegeId;
             user.DepartmentId = userDto.DepartmentId;
 
-            var Result = await userManager.UpdateAsync(user);
+            try
+            {
+                var Result = await userManager.UpdateAsync(user);
+                if (!Result.Succeeded)
+                    return BadRequest(new APIErrorResponse(400, string.Join(", ", Result.Errors.Select(e => e.Description))));
+            }
+            catch (DbUpdateException ex)
+            {
+                return StatusCode(500, new
+                {
+                    message = "Database error while updating user",
+                    inner = ex.InnerException?.Message ?? ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    message = "Unexpected error",
+                    error = ex.Message
+                });
+            }
 
-            if (!Result.Succeeded) return BadRequest(new APIErrorResponse(400, "An error ocurred, Please try again later."));
+
+          
 
             return Ok();   
         }
