@@ -23,8 +23,7 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.UserSpecs
 
             Criteria = U =>
              (U.Id != Admin.Id &&
-             (role == UserRole.Admin.ToString()) ||
-             (U.CollegeId == Admin.CollegeId))
+             (role == UserRole.Admin.ToString() || U.CollegeId == Admin.CollegeId))
              &&
              (string.IsNullOrEmpty(Specs.Search)) ||
              ((U.NormalizedEmail.Contains(Specs.Search)) ||
