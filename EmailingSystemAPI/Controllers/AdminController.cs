@@ -158,6 +158,11 @@ namespace EmailingSystemAPI.Controllers
             }
 
             #endregion
+            if (userDto.Picture != null)
+            {
+                await FileHandler.DeleteFile(user.PicturePath);
+                user.PicturePath = await FileHandler.SaveFile(userDto.Picture.FileName, "ProfileImages", userDto.Picture);
+            }
 
             if (userDto.Signature != null)
             {
