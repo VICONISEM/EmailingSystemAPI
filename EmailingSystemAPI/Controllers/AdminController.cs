@@ -168,7 +168,9 @@ namespace EmailingSystemAPI.Controllers
             {
                 if (user.Signature is not null)
                 {
+
                     await FileHandler.DeleteFile(user.Signature.FilePath);
+                    unitOfWork.Repository<Signature>().Delete(user.Signature);
                     user.Signature.FilePath = await FileHandler.SaveFile(userDto.Signature.FileName, "Signatures", userDto.Signature);
                     user.Signature.FileName = userDto.Signature.FileName;
                 }
