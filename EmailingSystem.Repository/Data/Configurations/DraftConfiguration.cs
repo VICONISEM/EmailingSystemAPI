@@ -9,23 +9,20 @@ using System.Threading.Tasks;
 
 namespace EmailingSystem.Repository.Data.Configurations
 {
-    public class DraftConfiguration : IEntityTypeConfiguration<Draft>
+    public class DraftConfiguration : IEntityTypeConfiguration<DraftConversations>
     {
-        public void Configure(EntityTypeBuilder<Draft> builder)
+        public void Configure(EntityTypeBuilder<DraftConversations> builder)
         {
             #region Id
             builder.HasKey(D => D.Id);
             builder.Property(D => D.Id).UseIdentityColumn(1, 1);
             #endregion
 
-            #region Relations 1-M With User
-            builder.HasOne(C => C.Sender)
-                   .WithMany(U => U.DraftsSender)
-                   .HasForeignKey(C => C.SenderId).OnDelete(DeleteBehavior.NoAction);
-
-            builder.HasOne(C => C.Receiver)
-                   .WithMany(U => U.DraftsReceiver)
-                   .HasForeignKey(C => C.ReceiverId).OnDelete(DeleteBehavior.SetNull);
+            #region 1-M Relation With Attach
+            builder.HasMany(D => D.DraftAttachments)
+                .WithOne(C => C.draftConversations)
+                .HasForeignKey(D=>D.DraftConversationId)
+                .OnDelete(DeleteBehavior.Cascade);
             #endregion
 
 

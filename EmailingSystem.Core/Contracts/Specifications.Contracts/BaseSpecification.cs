@@ -22,9 +22,9 @@ namespace EmailingSystem.Core.Contracts.Specification.Contract
         public Expression<Func<T, object>>? OrderBy { get; set; } = null;
         public Expression<Func<T, object>>? OrderByDesc { get; set; } = null;
 
-
         public int Skip { get; set; } 
         public int Take { get; set; }
+        public bool IsPaginated { get; set; } = false;
 
         public void ApplyPagination(int Skip ,int Take)
         {

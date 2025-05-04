@@ -18,6 +18,9 @@ namespace EmailingSystem.Repository.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "8.0.10")
+                .HasAnnotation("Proxies:ChangeTracking", false)
+                .HasAnnotation("Proxies:CheckEquality", false)
+                .HasAnnotation("Proxies:LazyLoading", true)
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -33,11 +36,14 @@ namespace EmailingSystem.Repository.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
+                    b.Property<int?>("CollegeId")
+                        .HasColumnType("int");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("DepartmentId")
+                    b.Property<int?>("DepartmentId")
                         .HasColumnType("int");
 
                     b.Property<string>("Email")
@@ -106,8 +112,11 @@ namespace EmailingSystem.Repository.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CollegeId");
+
                     b.HasIndex("DepartmentId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[DepartmentId] IS NOT NULL");
 
                     b.HasIndex("NationalId")
                         .IsUnique();
@@ -151,6 +160,9 @@ namespace EmailingSystem.Repository.Migrations
                     b.Property<long>("MessageId")
                         .HasColumnType("bigint");
 
+                    b.Property<long>("Size")
+                        .HasColumnType("bigint");
+
                     b.HasKey("Id");
 
                     b.HasIndex("MessageId");
@@ -165,6 +177,10 @@ namespace EmailingSystem.Repository.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Abbreviation")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -190,14 +206,8 @@ namespace EmailingSystem.Repository.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<long?>("LastMessageId")
-                        .HasColumnType("bigint");
-
                     b.Property<int>("ReceiverId")
                         .HasColumnType("int");
-
-                    b.Property<DateTime>("SendAt")
-                        .HasColumnType("datetime2");
 
                     b.Property<int>("SenderId")
                         .HasColumnType("int");
@@ -208,13 +218,7 @@ namespace EmailingSystem.Repository.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("LastMessageId")
-                        .IsUnique()
-                        .HasFilter("[LastMessageId] IS NOT NULL");
-
                     b.HasIndex("ReceiverId");
-
-                    b.HasIndex("SendAt");
 
                     b.HasIndex("SenderId");
 
@@ -228,6 +232,10 @@ namespace EmailingSystem.Repository.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Abbreviation")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("CollegeId")
                         .HasColumnType("int");
@@ -247,7 +255,36 @@ namespace EmailingSystem.Repository.Migrations
                     b.ToTable("Departments");
                 });
 
-            modelBuilder.Entity("EmailingSystem.Core.Entities.Draft", b =>
+            modelBuilder.Entity("EmailingSystem.Core.Entities.DraftAttachments", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AttachmentPath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("DraftConversationId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("size")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DraftConversationId");
+
+                    b.ToTable("DraftAttachments");
+                });
+
+            modelBuilder.Entity("EmailingSystem.Core.Entities.DraftConversations", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -276,7 +313,7 @@ namespace EmailingSystem.Repository.Migrations
 
                     b.HasIndex("SenderId");
 
-                    b.ToTable("Drafts");
+                    b.ToTable("DraftConversations");
                 });
 
             modelBuilder.Entity("EmailingSystem.Core.Entities.Message", b =>
@@ -292,6 +329,9 @@ namespace EmailingSystem.Repository.Migrations
 
                     b.Property<long>("ConversationId")
                         .HasColumnType("bigint");
+
+                    b.Property<bool>("IsDraft")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsRead")
                         .HasColumnType("bit");
@@ -364,6 +404,9 @@ namespace EmailingSystem.Repository.Migrations
                     b.Property<long>("ConversationId")
                         .HasColumnType("bigint");
 
+                    b.Property<DateTime>("LastUpdated")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -375,36 +418,6 @@ namespace EmailingSystem.Repository.Migrations
                     b.HasIndex("Status");
 
                     b.ToTable("UserConversationStatuses");
-                });
-
-            modelBuilder.Entity("EmailingSystem.Core.Entities.UserInbox", b =>
-                {
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<long>("ConversationId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("UserId", "ConversationId");
-
-                    b.HasIndex("ConversationId");
-
-                    b.ToTable("UserInboxes");
-                });
-
-            modelBuilder.Entity("EmailingSystem.Core.Entities.UserSent", b =>
-                {
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<long>("ConversationId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("UserId", "ConversationId");
-
-                    b.HasIndex("ConversationId");
-
-                    b.ToTable("UserSents");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
@@ -542,11 +555,14 @@ namespace EmailingSystem.Repository.Migrations
 
             modelBuilder.Entity("EmailingSystem.Core.Entities.ApplicationUser", b =>
                 {
+                    b.HasOne("EmailingSystem.Core.Entities.College", "College")
+                        .WithMany()
+                        .HasForeignKey("CollegeId");
+
                     b.HasOne("EmailingSystem.Core.Entities.Department", "Department")
                         .WithOne("User")
                         .HasForeignKey("EmailingSystem.Core.Entities.ApplicationUser", "DepartmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("EmailingSystem.Core.Entities.Signature", "Signature")
                         .WithOne("User")
@@ -582,6 +598,8 @@ namespace EmailingSystem.Repository.Migrations
                                 .HasForeignKey("ApplicationUserId");
                         });
 
+                    b.Navigation("College");
+
                     b.Navigation("Department");
 
                     b.Navigation("RefreshTokens");
@@ -602,10 +620,6 @@ namespace EmailingSystem.Repository.Migrations
 
             modelBuilder.Entity("EmailingSystem.Core.Entities.Conversation", b =>
                 {
-                    b.HasOne("EmailingSystem.Core.Entities.Message", "LastMessage")
-                        .WithOne()
-                        .HasForeignKey("EmailingSystem.Core.Entities.Conversation", "LastMessageId");
-
                     b.HasOne("EmailingSystem.Core.Entities.ApplicationUser", "Receiver")
                         .WithMany("ConversationsReceiver")
                         .HasForeignKey("ReceiverId")
@@ -617,8 +631,6 @@ namespace EmailingSystem.Repository.Migrations
                         .HasForeignKey("SenderId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
-
-                    b.Navigation("LastMessage");
 
                     b.Navigation("Receiver");
 
@@ -636,17 +648,28 @@ namespace EmailingSystem.Repository.Migrations
                     b.Navigation("College");
                 });
 
-            modelBuilder.Entity("EmailingSystem.Core.Entities.Draft", b =>
+            modelBuilder.Entity("EmailingSystem.Core.Entities.DraftAttachments", b =>
+                {
+                    b.HasOne("EmailingSystem.Core.Entities.DraftConversations", "draftConversations")
+                        .WithMany("DraftAttachments")
+                        .HasForeignKey("DraftConversationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("draftConversations");
+                });
+
+            modelBuilder.Entity("EmailingSystem.Core.Entities.DraftConversations", b =>
                 {
                     b.HasOne("EmailingSystem.Core.Entities.ApplicationUser", "Receiver")
                         .WithMany("DraftsReceiver")
                         .HasForeignKey("ReceiverId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("EmailingSystem.Core.Entities.ApplicationUser", "Sender")
                         .WithMany("DraftsSender")
                         .HasForeignKey("SenderId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Receiver");
@@ -697,44 +720,6 @@ namespace EmailingSystem.Repository.Migrations
 
                     b.HasOne("EmailingSystem.Core.Entities.ApplicationUser", "User")
                         .WithMany("UserConversationStatuses")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Conversation");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("EmailingSystem.Core.Entities.UserInbox", b =>
-                {
-                    b.HasOne("EmailingSystem.Core.Entities.Conversation", "Conversation")
-                        .WithMany("UserInboxes")
-                        .HasForeignKey("ConversationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("EmailingSystem.Core.Entities.ApplicationUser", "User")
-                        .WithMany("UserInboxes")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Conversation");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("EmailingSystem.Core.Entities.UserSent", b =>
-                {
-                    b.HasOne("EmailingSystem.Core.Entities.Conversation", "Conversation")
-                        .WithMany("UserSents")
-                        .HasForeignKey("ConversationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("EmailingSystem.Core.Entities.ApplicationUser", "User")
-                        .WithMany("UserSents")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -810,10 +795,6 @@ namespace EmailingSystem.Repository.Migrations
                     b.Navigation("MessagesSender");
 
                     b.Navigation("UserConversationStatuses");
-
-                    b.Navigation("UserInboxes");
-
-                    b.Navigation("UserSents");
                 });
 
             modelBuilder.Entity("EmailingSystem.Core.Entities.College", b =>
@@ -826,16 +807,17 @@ namespace EmailingSystem.Repository.Migrations
                     b.Navigation("Messages");
 
                     b.Navigation("UserConversationStatuses");
-
-                    b.Navigation("UserInboxes");
-
-                    b.Navigation("UserSents");
                 });
 
             modelBuilder.Entity("EmailingSystem.Core.Entities.Department", b =>
                 {
                     b.Navigation("User")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("EmailingSystem.Core.Entities.DraftConversations", b =>
+                {
+                    b.Navigation("DraftAttachments");
                 });
 
             modelBuilder.Entity("EmailingSystem.Core.Entities.Message", b =>

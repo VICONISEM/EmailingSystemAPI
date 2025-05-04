@@ -42,13 +42,26 @@ namespace EmailingSystem.Repository.Data.Configurations
             #region Relation 1-1 With Signature
             builder.HasOne(U => U.Signature)
                    .WithOne(D => D.User)
-                   .HasForeignKey<ApplicationUser>(U => U.SignatureId).OnDelete(DeleteBehavior.Cascade).IsRequired(false);
+                   .HasForeignKey<ApplicationUser>(U => U.SignatureId).OnDelete(DeleteBehavior.SetNull).IsRequired(false);
 
             builder.Property(U => U.SignatureId).IsRequired(false);
             #endregion
 
             #region Index
             builder.HasIndex(U => U.NormalizedName);
+            #endregion
+
+            #region Relation 1-M With DraftConversationSender
+            builder.HasMany(U => U.DraftsSender)
+                .WithOne(D => D.Sender)
+                .HasForeignKey(D => D.SenderId).OnDelete(DeleteBehavior.Cascade);
+            #endregion
+
+            #region Relation 1-M With DraftConversationRecever 
+            builder.HasMany(U => U.DraftsReceiver)
+                .WithOne(D => D.Receiver)
+                .HasForeignKey(D => D.ReceiverId).OnDelete(DeleteBehavior.NoAction);
+
             #endregion
 
         }
