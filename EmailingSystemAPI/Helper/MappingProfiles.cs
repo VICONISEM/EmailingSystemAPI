@@ -87,7 +87,9 @@ namespace EmailingSystemAPI.Helper
 
             CreateMap<Message, LastMessageDto>()
                 .ForMember(m => m.SentAt, O => O.MapFrom(M => M.SendAt))
-                .ForMember(M => M.Attachements, O => O.MapFrom(M => M.Attachments));
+                .ForMember(M => M.Attachements, O => O.MapFrom(M => M.Attachments))
+                .ForMember(m=>m.SenderId,o=>o.MapFrom(M=>M.SenderId))
+                .ForMember(m=>m.ReceiverId,o=>o.MapFrom(M=>M.ReceiverId));
             #endregion
 
             #region Department
