@@ -39,6 +39,22 @@ namespace EmailingSystemAPI.Extensions
                             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Key"] ?? string.Empty)),
                             ClockSkew = TimeSpan.Zero
                         };
+                        options.Events = new JwtBearerEvents
+                        {
+                            OnMessageReceived = context =>
+                            {
+                                var accessToken = context.Request.Query["access_token"];
+                                var path = context.HttpContext.Request.Path;
+
+                                // Only apply this logic for SignalR endpoints
+                                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs/notify")) // Replace "/Vico" with your hub endpoint
+                                {
+                                    context.Token = accessToken;
+                                }
+
+                                return Task.CompletedTask;
+                            }
+                        };
                     }
                 );
 

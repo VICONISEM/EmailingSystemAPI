@@ -17,10 +17,10 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpe
 
             Criteria = C => C.Id == Specs.ConversationId;
 
-            AddInclude(In => In.Include(M=>M.Messages.Where(m => 
+            AddInclude(In => In.Include(M=>M.Messages.Where(m =>( 
             (m.SenderId == userId && !m.SenderIsDeleted)
             ||
-            (m.ReceiverId == userId && !m.ReceiverIsDeleted))).ThenInclude(A=>A.Attachments));
+            (m.ReceiverId == userId && !m.ReceiverIsDeleted))&&!m.IsDraft)).ThenInclude(A=>A.Attachments));
 
 
             

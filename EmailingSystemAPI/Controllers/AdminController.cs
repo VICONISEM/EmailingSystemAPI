@@ -43,8 +43,8 @@ namespace EmailingSystemAPI.Controllers
             var admin = await userManager.FindByEmailAsync(Email);
             var role = (await userManager.GetRolesAsync(admin)).FirstOrDefault();
 
-            var specs = new UserSpecifications(Specs, admin);
-            var CountSpecs = new UserSpecificationsForCountPagination(Specs, admin);
+            var specs = new UserSpecifications(Specs, admin,role);
+            var CountSpecs = new UserSpecificationsForCountPagination(Specs, admin ,role);
 
             List<ApplicationUser> users = await unitOfWork.Repository<ApplicationUser>().GetAllQueryableWithSpecs(specs).ToListAsync();
             int Count = await unitOfWork.Repository<ApplicationUser>().GetCountWithSpecs(CountSpecs);
@@ -53,7 +53,7 @@ namespace EmailingSystemAPI.Controllers
 
             for (int i = 0; i < users.Count(); i++)
             {
-                userDtoList[i].Role = (await userManager.GetRolesAsync(users[i])).ToString();
+                userDtoList[i].Role = (await userManager.GetRolesAsync(users[i])).FirstOrDefault();
             }
 
             return Ok(new Pagination<UserDto>(Specs.PageNumber, Specs.PageSize, Count, userDtoList));
@@ -101,13 +101,103 @@ namespace EmailingSystemAPI.Controllers
                 { return Unauthorized(new APIErrorResponse(401, "You aren't authorized to perform this action for this user.")); }
             }
 
+            #region Some Validations
+
+            if (userDto.Role == UserRole.Admin)
+            {
+                return Unauthorized(new APIErrorResponse(401, "Can't create user with Role Admin."));
+            }
+            else if (userDto.Role == UserRole.CollegeAdmin)
+            {
+                if (userDto.CollegeId is null || userDto.DepartmentId.HasValue)
+                    return BadRequest(new APIErrorResponse(400, "User with Role College Admin must be in a college and can't be in a department."));
+            }
+            else if (userDto.Role == UserRole.Presedient)
+            {
+                if (userDto.CollegeId.HasValue || userDto.DepartmentId.HasValue)
+                    return BadRequest(new APIErrorResponse(400, "Can't create user with Role Presedient with department and college."));
+            }
+            else if (userDto.Role == UserRole.VicePresedientForStudentsAffairs || userDto.Role == UserRole.VicePresedientForEnvironment || userDto.Role == UserRole.VicePresedientForPostgraduatStudies)
+            {
+                if (userDto.CollegeId.HasValue || userDto.DepartmentId.HasValue)
+                    return BadRequest(new APIErrorResponse(400, "Can't create user with Role VicePresedient with department and college."));
+            }
+            else if (userDto.Role == UserRole.Dean)
+            {
+                if (userDto.CollegeId is null || userDto.DepartmentId.HasValue)
+                    return BadRequest("User with Role Dean must have a college and can't be in a department.");
+            }
+            else if (userDto.Role == UserRole.ViceDeanForStudentsAffairs || userDto.Role == UserRole.ViceDeanForEnvironment || userDto.Role == UserRole.ViceDeanForPostgraduatStudies)
+            {
+                if (!userDto.CollegeId.HasValue || userDto.DepartmentId.HasValue)
+                    return BadRequest(new APIErrorResponse(400, "Can't create user with Role ViceDean with department."));
+            }
+            else if (userDto.Role == UserRole.Secretary)
+            {
+                if (userDto.CollegeId is null || userDto.DepartmentId.HasValue)
+                    return BadRequest(new APIErrorResponse(400, "User with Role Secertary must be in a college and can't be in  a department."));
+            }
+            else if (userDto.Role == UserRole.NormalUser)
+            {
+                if (!userDto.CollegeId.HasValue || !userDto.DepartmentId.HasValue)
+                    return BadRequest(new APIErrorResponse(400, "User with Role Normal User must be in a college and in a depertment."));
+            }
+
+
+            //Check if the selected department in the selected college
+            if (userDto.DepartmentId is not null && userDto.CollegeId is not null)
+            {
+                var College = await unitOfWork.Repository<College>().GetByIdAsync<int>(userDto.CollegeId);
+                var Department = await unitOfWork.Repository<Department>().GetByIdAsync<int>(userDto.DepartmentId);
+
+                if (Department is null) return NotFound(new APIErrorResponse(404, "Department Not Found."));
+                if (College is null) return NotFound(new APIErrorResponse(404, "College Not Found."));
+
+                if (!College.Departments.Any(D => D.Id == userDto.DepartmentId))
+                    return BadRequest(new APIErrorResponse(400, "This College doesn't contain such a department"));
+            }
+
+            #endregion
+            if (userDto.Picture != null)
+            {
+                await FileHandler.DeleteFile(user.PicturePath);
+                user.PicturePath = await FileHandler.SaveFile(userDto.Picture.FileName, "ProfileImages", userDto.Picture);
+            }
+
+            if (userDto.Signature != null)
+            {
+                if (user.Signature is not null)
+                {
+
+                    await FileHandler.DeleteFile(user.Signature.FilePath);
+                    user.Signature.FilePath = await FileHandler.SaveFile(userDto.Signature.FileName, "Signatures", userDto.Signature);
+                    user.Signature.FileName = userDto.Signature.FileName;
+                }
+                else
+                {
+                    var signature = new Signature
+                    {
+                        FileName = userDto.Signature.FileName,
+                        FilePath = await FileHandler.SaveFile(userDto.Signature.FileName, "Signatures", userDto.Signature),
+                        User = user 
+                    };
+
+                   
+                    user.Signature = signature;
+                    user.SignatureId = signature.Id;
+
+                   
+                }
+            }
+
+
+            #region Update Role
             //Updating User
             var Role = (await userManager.GetRolesAsync(user)).FirstOrDefault();
             var userRole = (UserRole)Enum.Parse(typeof(UserRole), Role);
 
             if (userRole != userDto.Role)
             {
-
                 using (var transaction = await dbContext.Database.BeginTransactionAsync())
                 {
                     try
@@ -119,7 +209,6 @@ namespace EmailingSystemAPI.Controllers
                             throw new Exception($"Failed to remove user from role: {string.Join(", ", removeResult.Errors.Select(e => e.Description))}");
                         }
 
-        
                         var newRole = Enum.Parse<UserRole>(userDto.Role.ToString(), true).ToString();
 
                         var addResult = await userManager.AddToRoleAsync(user, newRole);
@@ -141,27 +230,38 @@ namespace EmailingSystemAPI.Controllers
                 }
 
             }
+            #endregion
 
             user.Name = userDto.Name;
             user.NationalId = userDto.NationalId;
             user.CollegeId = userDto.CollegeId;
             user.DepartmentId = userDto.DepartmentId;
 
-            if(userDto.Picture != null)
+            try
             {
-                await FileHandler.DeleteFile(user.PicturePath);
-                user.PicturePath = await FileHandler.SaveFile(userDto.Picture.FileName, "ProfileImages",userDto.Picture);
+                var Result = await userManager.UpdateAsync(user);
+                if (!Result.Succeeded)
+                    return BadRequest(new APIErrorResponse(400, string.Join(", ", Result.Errors.Select(e => e.Description))));
+            }
+            catch (DbUpdateException ex)
+            {
+                return StatusCode(500, new
+                {
+                    message = "Database error while updating user",
+                    inner = ex.InnerException?.Message ?? ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    message = "Unexpected error",
+                    error = ex.Message
+                });
             }
 
-            if (userDto.Signature != null)
-            {
-                await FileHandler.DeleteFile(user.Signature.FilePath);
-                user.Signature.FilePath = await FileHandler.SaveFile(userDto.Signature.FileName, "Signatures", userDto.Signature);
-            }
 
-            var Result = await userManager.UpdateAsync(user);
-
-            if (!Result.Succeeded) return BadRequest(new APIErrorResponse(400, "An error ocurred, Please try again later."));
+          
 
             return Ok();   
         }

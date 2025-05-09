@@ -2,12 +2,15 @@
 using EmailingSystem.Core.Contracts;
 using EmailingSystem.Core.Entities;
 using EmailingSystem.Services;
+using EmailingSystemAPI.DTOs;
 using EmailingSystemAPI.DTOs.Message;
 using EmailingSystemAPI.Errors;
+using EmailingSystemAPI.NotificationService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
@@ -22,12 +25,14 @@ namespace EmailingSystemAPI.Controllers
         private readonly IUnitOfWork unitOfWork;
         private readonly IMapper mapper;
         private readonly UserManager<ApplicationUser> userManager;
+        private readonly IHubContext<Notification> hubContext;
 
-        public MessageController(IUnitOfWork unitOfWork,IMapper mapper,UserManager<ApplicationUser> userManager)
+        public MessageController(IUnitOfWork unitOfWork,IMapper mapper,UserManager<ApplicationUser> userManager,IHubContext<Notification> hub)
         {
             this.unitOfWork = unitOfWork;
             this.mapper = mapper;
             this.userManager = userManager;
+            this.hubContext = hub;
         }
 
         [HttpPost("SendMessage/{conversationId}")]
@@ -52,12 +57,40 @@ namespace EmailingSystemAPI.Controllers
             }
           
 
-
-
             if (messageTobeSentDto.Content.IsNullOrEmpty() && messageTobeSentDto.Attachements.IsNullOrEmpty())
             {
                 return BadRequest(new APIErrorResponse(400, "Can't create empty message."));
             }
+
+            if(messageTobeSentDto.IsDraft && messageTobeSentDto.Id is not null)
+            {
+                var DraftToUpdate = await unitOfWork.Repository<Message>().GetByIdAsync<long>(messageTobeSentDto.Id);
+                if (DraftToUpdate is null) return NotFound("Draft Message You try to send dosen't Exsit");
+                DraftToUpdate.IsDraft = false;
+                DraftToUpdate.Content = messageTobeSentDto.Content;
+                DraftToUpdate.Attachments=new List<Attachment>();
+                DraftToUpdate.SenderId = user.Id;
+                DraftToUpdate.ReceiverId = (Conversation.SenderId == user.Id) ? Conversation.ReceiverId : Conversation.SenderId;
+
+
+                foreach (var Attachment in messageTobeSentDto.Attachements)
+                {
+                    DraftToUpdate.Attachments.Add(new Attachment()
+                    {
+                        FileName = Attachment.FileName,
+                        FilePath = await FileHandler.SaveFile(Attachment.FileName, "MessageAttachment", Attachment),
+                        Size = Attachment.Length
+                    });
+                }
+
+                unitOfWork.Repository<Message>().Update(DraftToUpdate);
+                await unitOfWork.CompleteAsync();
+                await hubContext.Clients.User(DraftToUpdate.Receiver.Email.ToUpper()).SendAsync("Notification",$"You Get message from {DraftToUpdate.Sender.Name}");
+                return Ok("Message Send Successfully");
+
+
+            }
+
 
             var Message = new Message()
             {
@@ -67,6 +100,7 @@ namespace EmailingSystemAPI.Controllers
                 ConversationId = conversationId,
                 SenderId = user.Id,
                 ReceiverId = (Conversation.SenderId == user.Id) ? Conversation.ReceiverId : Conversation.SenderId,
+                IsDraft=messageTobeSentDto.IsDraft
             };
 
             foreach(var Attachment  in messageTobeSentDto.Attachements)
@@ -82,9 +116,12 @@ namespace EmailingSystemAPI.Controllers
             Conversation.Messages.Add(Message);
             unitOfWork.Repository<Conversation>().Update(Conversation);
             await unitOfWork.CompleteAsync();
+            var emailre = (Conversation.Receiver.Email == user.Email) ? Conversation.Sender.Email : Conversation.Receiver.Email;
+            await hubContext.Clients.User(emailre.ToUpper()).SendAsync("Notification", new { Note = $"You get Message From {user.Email}"});
+            await hubContext.Clients.User(emailre.ToUpper()).SendAsync("MessageInsideConversation", mapper.Map<MessageDto>(Message));
 
             return Ok("Message Send Successfully");
-        }
+         }
 
         [HttpPost("SaveDraftMessage/{ConversationId}")]
         public async Task<ActionResult> SaveDraftMessage([FromForm] MessageTobeSentDto messageDto, [FromRoute]long ConversationId)
@@ -115,7 +152,7 @@ namespace EmailingSystemAPI.Controllers
             {
                 SenderId = user.Id,
                 Content = messageDto.Content,
-                ReceiverId = messageDto.ReceiverId,
+                ReceiverId = (user.Id==Conversation.SenderId? Conversation.ReceiverId:Conversation.SenderId),
                 ParentMessageId = messageDto.ParentMessageId,
                 Attachments = new List<Attachment>() { },
                 IsDraft = true,
@@ -127,7 +164,7 @@ namespace EmailingSystemAPI.Controllers
                 Message.Attachments.Add(new Attachment()
                 {
                     FileName = Attachment.FileName,
-                    FilePath = await FileHandler.SaveFile(Attachment.FileName, "DraftMessageAttachment", Attachment),
+                    FilePath = await FileHandler.SaveFile(Attachment.FileName,"DraftMessageAttachment", Attachment),
                 });
             }
 
@@ -178,6 +215,11 @@ namespace EmailingSystemAPI.Controllers
             {
                 Message.SenderIsDeleted = true;
                 Message.ReceiverIsDeleted = true;
+                Message.Content = "this Message is Deleted";
+                foreach(var attachment in Message.Attachments)
+                {
+                    await FileHandler.DeleteFile(attachment.FilePath);
+                }
             }
             else
             {

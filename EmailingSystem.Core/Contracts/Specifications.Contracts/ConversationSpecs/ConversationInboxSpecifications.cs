@@ -20,12 +20,14 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpe
             (C.UserConversationStatuses
                     .Any(C => C.UserId == UserId && (C.Status == ConversationStatus.Starred || C.Status == ConversationStatus.Active)))
             &&
-            (string.IsNullOrEmpty(Specs.Search) || 
-            (C.Subject.Trim().ToUpper().Contains(Specs.Search)
-            ||
-            C.SenderId == UserId || C.Sender.NormalizedName.Contains(Specs.Search)
-            ||
-            C.ReceiverId == UserId || C.Receiver.NormalizedName.Contains(Specs.Search)));
+
+    (string.IsNullOrEmpty(Specs.Search) ||
+
+        C.Subject.Trim().ToUpper().Contains(Specs.Search)
+        ||
+        (C.SenderId != UserId && C.Sender.NormalizedName.Contains(Specs.Search))
+        ||
+        (C.ReceiverId != UserId && C.Receiver.NormalizedName.Contains(Specs.Search)));
 
             AddInclude(C => C.Include(C => C.UserConversationStatuses.Where(C => C.UserId == UserId)));
           

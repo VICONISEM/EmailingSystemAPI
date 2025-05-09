@@ -10,12 +10,14 @@ using EmailingSystem.Services;
 using EmailingSystemAPI.DTOs.Conversation;
 using EmailingSystemAPI.DTOs.DraftConversation;
 using EmailingSystemAPI.DTOs.Message;
+using EmailingSystemAPI.DTOs.User;
 using EmailingSystemAPI.Errors;
 using EmailingSystemAPI.Helper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Tokens;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
@@ -38,6 +40,42 @@ namespace EmailingSystemAPI.Controllers
             this.userManager = userManager;
             this.mapper = mapper;
         }
+
+
+        [HttpGet("ValidUsersToSend")]
+        public async Task<ActionResult<List<AllowedUserDto>>> GetAllowedUsers()
+        {
+            var Email =  User.FindFirstValue(ClaimTypes.Email);
+            if (Email is null)
+            {
+                return BadRequest();
+            }
+            var user = await userManager.FindByEmailAsync(Email);
+            if (user is null)
+            { 
+                return BadRequest();
+            }
+            var Users = await userManager.Users.ToListAsync();
+
+
+            List<ApplicationUser> ValidUsers = new List<ApplicationUser>();
+
+
+            foreach (var User in Users)
+            {
+                if (await userManager.IsUserValidToRecieve(user, User))
+                {
+                    ValidUsers.Add(User);
+                }
+
+            }
+            var ValidUsersToSent = mapper.Map<List<AllowedUserDto>>(ValidUsers);
+
+            return Ok(ValidUsersToSent);
+
+        }
+
+
 
         [HttpGet("AllConversations")]
         public async Task<ActionResult<Pagination<ConversationDto>>> AllConversations([FromQuery] ConversationSpecParams Specs)
@@ -126,7 +164,7 @@ namespace EmailingSystemAPI.Controllers
 
             var MessagesSpecs = new MessagesInConversationSpecifications(SpecsParams, user.Id);
             var messages = (await unitOfWork.Repository<Conversation>().GetAllQueryableWithSpecs(MessagesSpecs).FirstOrDefaultAsync())?.Messages;
-            await unitOfWork.Repository<Message>().UpdateRange(M => M.SetProperty(m => m.IsRead, m => m.IsRead||(user.Id==m.ReceiverId) ));
+            await unitOfWork.Repository<Message>().UpdateRange(M => M.SetProperty(m => m.IsRead, m => m.IsRead||(user.Id==m.ReceiverId && m.ConversationId==Conversation.Id) ));
             await unitOfWork.CompleteAsync();
             ConversationWithMessages.Messages=mapper.Map<List<MessageDto>>(messages).OrderByDescending(M=>M.SentAt);
 
@@ -173,6 +211,22 @@ namespace EmailingSystemAPI.Controllers
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
 
             var user = await userManager.FindByEmailAsync(userEmail);
+            var Reciver = await userManager.FindByIdAsync(conversationDto.ReceiverId.ToString());
+
+            if(! await userManager.IsUserValidToRecieve(user,Reciver))
+            {
+                return BadRequest();
+            }
+
+            DraftConversations? draftConversation=null;
+            if (conversationDto.Id is not null)
+            {
+                 draftConversation = await unitOfWork.Repository<DraftConversations>().GetByIdAsync(conversationDto.Id);
+                if (draftConversation is null)
+                    return NotFound("The draft Conversation Dose'nt Exsite");
+
+            }
+
 
             var Conversation = new Conversation()
             {
@@ -183,13 +237,13 @@ namespace EmailingSystemAPI.Controllers
                     new UserConversationStatus()
                     { 
                         UserId=user.Id
-                        ,Status=ConversationStatus.Active,LastUpdated=DateTime.Now
+                        ,Status=ConversationStatus.Active,LastUpdated=DateTime.UtcNow
                     }
                 ,   
                     new UserConversationStatus()
                     { 
                     UserId = conversationDto.ReceiverId
-                    ,Status = ConversationStatus.Active, LastUpdated = DateTime.Now 
+                    ,Status = ConversationStatus.Active, LastUpdated = DateTime.UtcNow 
                     }
                 }
                 ,
@@ -207,7 +261,7 @@ namespace EmailingSystemAPI.Controllers
 
             var Attachments = new List<Attachment>() { };
 
-            if(!conversationDto.Message.Attachments.IsNullOrEmpty())
+            if(!conversationDto.Message.Attachments.IsNullOrEmpty() || (draftConversation is not null && !draftConversation.DraftAttachments.IsNullOrEmpty() ))
             {
                 foreach (var Attachment in conversationDto.Message.Attachments)
                 {
@@ -220,11 +274,33 @@ namespace EmailingSystemAPI.Controllers
                         
                     });
                 }
+
+
+                if(draftConversation is not null)
+                {
+                    foreach (var Attachment in draftConversation.DraftAttachments)
+                    {
+                        Attachments.Add(new Attachment()
+                        {
+                            FileName = Attachment.Name,
+                            FilePath = Attachment.AttachmentPath,
+                            Size = Attachment.size
+
+
+                        });
+                    }
+                }
+                
+
             }
             Message.Attachments = Attachments;
             Conversation.Messages.Add(Message);
 
             await unitOfWork.Repository<Conversation>().AddAsync(Conversation);
+
+
+            if (draftConversation is not null)
+            unitOfWork.Repository<DraftConversations>().Delete(draftConversation);
             await unitOfWork.CompleteAsync();
 
             return Ok("Conversation Added Successfully");
