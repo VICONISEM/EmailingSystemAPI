@@ -24,9 +24,9 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpe
             ||
             (C.Subject.Trim().ToUpper().Contains(Specs.Search)
             ||
-            C.SenderId != UserId || C.Sender.NormalizedName.Contains(Specs.Search)
+            C.SenderId != UserId && C.Sender.NormalizedName.Contains(Specs.Search)
             ||
-            C.ReceiverId != UserId || C.Receiver.NormalizedName.Contains(Specs.Search)));
+            C.ReceiverId != UserId && C.Receiver.NormalizedName.Contains(Specs.Search)));
 
 
 
