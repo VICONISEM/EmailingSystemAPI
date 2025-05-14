@@ -117,8 +117,9 @@ namespace EmailingSystemAPI.Controllers
 
             var conversations = await Query.ToListAsync();
 
+
             var ConversationDtoList = mapper.Map<IReadOnlyList<ConversationDto>>(conversations);
-            
+            ConversationDtoList= ConversationDtoList.OrderByDescending(c => c.LastMessage.SentAt).ToList();
 
             return Ok(new Pagination<ConversationDto>(Specs.PageNumber,Specs.PageSize,Count,ConversationDtoList));
         }
