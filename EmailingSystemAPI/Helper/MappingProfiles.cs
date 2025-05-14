@@ -130,6 +130,7 @@ namespace EmailingSystemAPI.Helper
 
             #region Attachment
             CreateMap<Attachment, AttachementDto>()
+                .ForMember(C => C.Id, M => M.MapFrom(O => O.Id))
                 .ForMember(A => A.Name, M => M.MapFrom(O => O.FileName))
                 .ForMember(A => A.FileURL, O => O.MapFrom<MessageAttachmentResolver>())
                 .ForMember(A => A.Size, O => O.MapFrom(O => (((double)O.Size/1024))));
