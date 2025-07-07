@@ -67,7 +67,7 @@ namespace EmailingSystemAPI.Controllers
 
             // Check if Department with the same NAME & College Exists
             var departmentExists = await dbContext.Departments.FirstOrDefaultAsync(D => (D.Name == departmentDto.Name || D.Abbreviation == departmentDto.Abbreviation) && D.CollegeId == departmentDto.CollegeId);
-
+            
             if (departmentExists is not null)
                 return BadRequest(new APIErrorResponse(400, "A department with the same name or Same Abbreviation and college already exists."));
 
@@ -83,11 +83,13 @@ namespace EmailingSystemAPI.Controllers
             }
 
 
-            Department = mapper.Map<Department>(departmentDto);
-            unitOfWork.Repository<Department>().Update(Department);
+            //Department = mapper.Map<Department>(departmentDto);
+            //unitOfWork.Repository<Department>().Update(Department);
+            //await unitOfWork.CompleteAsync();
+            mapper.Map(departmentDto, Department);
             await unitOfWork.CompleteAsync();
 
-            return Ok();
+            return Ok("Department Updated Succesfully");
         }
 
         [HttpGet("GetById/{Id}")]

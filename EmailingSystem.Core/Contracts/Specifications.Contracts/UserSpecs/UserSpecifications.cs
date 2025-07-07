@@ -1,5 +1,6 @@
 ﻿using EmailingSystem.Core.Contracts.Specification.Contract;
 using EmailingSystem.Core.Entities;
+using EmailingSystem.Core.Enums;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.UserSpecs
 {
     public class UserSpecifications : BaseSpecification<ApplicationUser>
     {
-        public UserSpecifications(UserSpecsParams Specs, ApplicationUser Admin)
+        public UserSpecifications(UserSpecsParams Specs, ApplicationUser Admin, string role)
         {
             //Criteria = U =>
             //    (U.Id != Admin.Id && 
@@ -22,7 +23,8 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.UserSpecs
 
             Criteria = U =>
             (U.Id != Admin.Id &&
-            (!U.CollegeId.HasValue || U.CollegeId == Admin.CollegeId))
+            (role == UserRole.Admin.ToString()) || 
+            ( U.CollegeId == Admin.CollegeId))
             &&
             (string.IsNullOrEmpty(Specs.Search)) ||
             ((U.NormalizedEmail.Contains(Specs.Search)) ||

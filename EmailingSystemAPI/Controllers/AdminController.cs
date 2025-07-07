@@ -43,7 +43,7 @@ namespace EmailingSystemAPI.Controllers
             var admin = await userManager.FindByEmailAsync(Email);
             var role = (await userManager.GetRolesAsync(admin)).FirstOrDefault();
 
-            var specs = new UserSpecifications(Specs, admin);
+            var specs = new UserSpecifications(Specs, admin, role);
             var CountSpecs = new UserSpecificationsForCountPagination(Specs, admin);
 
             List<ApplicationUser> users = await unitOfWork.Repository<ApplicationUser>().GetAllQueryableWithSpecs(specs).ToListAsync();
@@ -159,13 +159,59 @@ namespace EmailingSystemAPI.Controllers
 
             #endregion
 
+            
+            if(userDto.Picture != null)
+            {
+                await FileHandler.DeleteFile(user.PicturePath);
+                user.PicturePath = await FileHandler.SaveFile(userDto.Picture.FileName, "ProfileImages",userDto.Picture);
+            }
+
+            if (userDto.Signature != null)
+            {
+                if (user.Signature != null)
+                {
+                    await FileHandler.DeleteFile(user.Signature.FilePath);
+                    user.Signature.FileName = userDto.Signature.FileName;
+                    user.Signature.FilePath = await FileHandler.SaveFile(userDto.Signature.FileName, "Signatures", userDto.Signature);
+                    //unitOfWork.Repository<Signature>().Update(user.Signature);
+                }
+                else
+                {
+                    //var signature = new Signature
+                    //{
+                    //    FileName = userDto.Signature.FileName,
+                    //    FilePath = await FileHandler.SaveFile(userDto.Signature.FileName, "Signatures", userDto.Signature)
+                    //};
+                    //dbContext.Signatures.Add(signature);
+
+                    //user.Signature = signature;
+                    //await dbContext.SaveChangesAsync();
+
+                    //dbContext.Users.Update(user);
+
+
+
+                    var Signature = new Signature()
+                    {
+                        FileName = userDto.Signature.FileName,
+                        FilePath = await FileHandler.SaveFile(userDto.Signature.FileName, "Signatures", userDto.Signature)
+                    };
+
+                    await unitOfWork.Repository<Signature>().AddAsync(Signature);
+                    await unitOfWork.CompleteAsync();
+
+                    user.SignatureId = Signature.Id;
+                }
+
+            }
+
             //Updating User
             var Role = (await userManager.GetRolesAsync(user)).FirstOrDefault();
             var userRole = (UserRole)Enum.Parse(typeof(UserRole), Role);
 
             if (userRole != userDto.Role)
             {
-                using (var transaction = await dbContext.Database.BeginTransactionAsync())
+                using (var transaction = await unitOfWork.BeginTransactionAsync())
                 {
                     try
                     {
@@ -203,21 +249,11 @@ namespace EmailingSystemAPI.Controllers
             user.CollegeId = userDto.CollegeId;
             user.DepartmentId = userDto.DepartmentId;
 
-            if(userDto.Picture != null)
-            {
-                await FileHandler.DeleteFile(user.PicturePath);
-                user.PicturePath = await FileHandler.SaveFile(userDto.Picture.FileName, "ProfileImages",userDto.Picture);
-            }
+            await unitOfWork.CompleteAsync();
 
-            if (userDto.Signature != null)
-            {
-                await FileHandler.DeleteFile(user.Signature.FilePath);
-                user.Signature.FilePath = await FileHandler.SaveFile(userDto.Signature.FileName, "Signatures", userDto.Signature);
-            }
+            //var Result = await userManager.UpdateAsync(user);
 
-            var Result = await userManager.UpdateAsync(user);
-
-            if (!Result.Succeeded) return BadRequest(new APIErrorResponse(400, "An error ocurred, Please try again later."));
+            //if (!Result.Succeeded) return BadRequest(new APIErrorResponse(400, "An error ocurred, Please try again later."));
 
             return Ok();   
         }

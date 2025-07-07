@@ -45,7 +45,7 @@ namespace EmailingSystemAPI.Controllers
         [HttpGet("ValidUsersToSend")]
         public async Task<ActionResult<List<AllowedUserDto>>> GetAllowedUsers()
         {
-            var Email =  User.FindFirstValue(ClaimTypes.Email);
+            var Email = User.FindFirstValue(ClaimTypes.Email);
             if (Email is null)
             {
                 return BadRequest();
