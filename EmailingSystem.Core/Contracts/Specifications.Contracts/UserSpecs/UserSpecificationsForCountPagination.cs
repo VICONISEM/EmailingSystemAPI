@@ -1,5 +1,6 @@
 ﻿using EmailingSystem.Core.Contracts.Specification.Contract;
 using EmailingSystem.Core.Entities;
+using EmailingSystem.Core.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,11 +11,12 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.UserSpecs
 {
     public class UserSpecificationsForCountPagination : BaseSpecification<ApplicationUser>
     {
-        public UserSpecificationsForCountPagination(UserSpecsParams Specs, ApplicationUser Admin)
+        public UserSpecificationsForCountPagination(UserSpecsParams Specs, ApplicationUser Admin ,string role)
         {
             Criteria = U =>
             (U.Id != Admin.Id &&
-            (!U.CollegeId.HasValue || U.CollegeId == Admin.CollegeId))
+            (role == UserRole.Admin.ToString()) ||
+            (U.CollegeId == Admin.CollegeId))
             &&
             (string.IsNullOrEmpty(Specs.Search)) ||
             ((U.NormalizedEmail.Contains(Specs.Search)) ||

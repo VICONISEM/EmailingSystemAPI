@@ -10,7 +10,7 @@ namespace EmailingSystemAPI.Extensions
 {
     public static class ApplicationServicesExtensions
     {
-        public static IServiceCollection ApplicationServices(this IServiceCollection Services)
+        public static IServiceCollection ApplicationServices(this IServiceCollection Services,IConfiguration configuration )
         {
 
             Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
@@ -18,6 +18,7 @@ namespace EmailingSystemAPI.Extensions
             Services.AddScoped<IUnitOfWork, UnitOfWork>();
             Services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();
             Services.AddHttpContextAccessor();
+            Services.AddHealthChecks().AddSqlServer(configuration.GetConnectionString("DefaultConnection"));
 
 
             return Services;

@@ -567,7 +567,7 @@ namespace EmailingSystem.Repository.Migrations
                     b.HasOne("EmailingSystem.Core.Entities.Signature", "Signature")
                         .WithOne("User")
                         .HasForeignKey("EmailingSystem.Core.Entities.ApplicationUser", "SignatureId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.OwnsMany("EmailingSystem.Core.Entities.Token.RefreshToken", "RefreshTokens", b1 =>
                         {

@@ -69,7 +69,7 @@ namespace EmailingSystemAPI
                        .UseLazyLoadingProxies();
             });
 
-            builder.Services.ApplicationServices();
+            builder.Services.ApplicationServices(builder.Configuration);
             builder.Services.AddIdentityServices(builder.Configuration);
 
             //Overriding Validation Error
@@ -153,6 +153,7 @@ namespace EmailingSystemAPI
             app.UseStaticFiles();
 
             app.UseHttpsRedirection();
+            app.MapHealthChecks("/Health");
 
             app.UseAuthentication();
             app.UseAuthorization();

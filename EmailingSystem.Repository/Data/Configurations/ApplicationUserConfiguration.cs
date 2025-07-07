@@ -42,7 +42,7 @@ namespace EmailingSystem.Repository.Data.Configurations
             #region Relation 1-1 With Signature
             builder.HasOne(U => U.Signature)
                    .WithOne(D => D.User)
-                   .HasForeignKey<ApplicationUser>(U => U.SignatureId).OnDelete(DeleteBehavior.Cascade).IsRequired(false);
+                   .HasForeignKey<ApplicationUser>(U => U.SignatureId).OnDelete(DeleteBehavior.SetNull).IsRequired(false);
 
             builder.Property(U => U.SignatureId).IsRequired(false);
             #endregion

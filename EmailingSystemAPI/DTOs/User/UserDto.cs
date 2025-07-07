@@ -9,6 +9,7 @@
         public string? PictureURL { get; set; } = null!;
         public string? SignatureURL { get; set; } = null!;
         public string? CollegeName { get; set; } = null!;
+        public int ? CollegeId { get; set; }
         public string? DepartmentName { get; set; } = null!;
         public string NationalId { get; set; } = null!;
     }

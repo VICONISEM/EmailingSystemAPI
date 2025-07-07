@@ -158,6 +158,37 @@ namespace EmailingSystemAPI.Controllers
             }
 
             #endregion
+            if (userDto.Picture != null)
+            {
+                await FileHandler.DeleteFile(user.PicturePath);
+                user.PicturePath = await FileHandler.SaveFile(userDto.Picture.FileName, "ProfileImages", userDto.Picture);
+            }
+
+            if (userDto.Signature != null)
+            {
+                if (user.Signature is not null)
+                {
+
+                    await FileHandler.DeleteFile(user.Signature.FilePath);
+                    user.Signature.FilePath = await FileHandler.SaveFile(userDto.Signature.FileName, "Signatures", userDto.Signature);
+                    user.Signature.FileName = userDto.Signature.FileName;
+                }
+                else
+                {
+                    var signature = new Signature
+                    {
+                        FileName = userDto.Signature.FileName,
+                        FilePath = await FileHandler.SaveFile(userDto.Signature.FileName, "Signatures", userDto.Signature),
+                        User = user 
+                    };
+
+                   
+                    user.Signature = signature;
+                    user.SignatureId = signature.Id;
+
+                   
+                }
+            }
 
             
             if(userDto.Picture != null)
@@ -243,13 +274,35 @@ namespace EmailingSystemAPI.Controllers
                 }
 
             }
+            #endregion
 
             user.Name = userDto.Name;
             user.NationalId = userDto.NationalId;
             user.CollegeId = userDto.CollegeId;
             user.DepartmentId = userDto.DepartmentId;
 
-            await unitOfWork.CompleteAsync();
+            try
+            {
+                var Result = await userManager.UpdateAsync(user);
+                if (!Result.Succeeded)
+                    return BadRequest(new APIErrorResponse(400, string.Join(", ", Result.Errors.Select(e => e.Description))));
+            }
+            catch (DbUpdateException ex)
+            {
+                return StatusCode(500, new
+                {
+                    message = "Database error while updating user",
+                    inner = ex.InnerException?.Message ?? ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    message = "Unexpected error",
+                    error = ex.Message
+                });
+            }
 
             //var Result = await userManager.UpdateAsync(user);
 

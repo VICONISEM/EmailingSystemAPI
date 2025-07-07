@@ -23,9 +23,9 @@ namespace EmailingSystem.Core.Contracts.Specifications.Contracts.ConversationSpe
                    (string.IsNullOrEmpty(Specs.Search) ||
                    (C.Subject.Trim().ToUpper().Contains(Specs.Search,StringComparison.OrdinalIgnoreCase)
                    ||
-                   C.SenderId == UserId || C.Sender.NormalizedName.Contains(Specs.Search)
+                   C.SenderId != UserId && C.Sender.NormalizedName.Contains(Specs.Search)
                    ||
-                   C.ReceiverId == UserId || C.Receiver.NormalizedName.Contains(Specs.Search)));
+                   C.ReceiverId != UserId && C.Receiver.NormalizedName.Contains(Specs.Search)));
         }
     }
 }

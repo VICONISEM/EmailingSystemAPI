@@ -117,8 +117,9 @@ namespace EmailingSystemAPI.Controllers
 
             var conversations = await Query.ToListAsync();
 
+
             var ConversationDtoList = mapper.Map<IReadOnlyList<ConversationDto>>(conversations);
-            
+            ConversationDtoList= ConversationDtoList.OrderByDescending(c => c.LastMessage.SentAt).ToList();
 
             return Ok(new Pagination<ConversationDto>(Specs.PageNumber,Specs.PageSize,Count,ConversationDtoList));
         }
@@ -164,7 +165,7 @@ namespace EmailingSystemAPI.Controllers
 
             var MessagesSpecs = new MessagesInConversationSpecifications(SpecsParams, user.Id);
             var messages = (await unitOfWork.Repository<Conversation>().GetAllQueryableWithSpecs(MessagesSpecs).FirstOrDefaultAsync())?.Messages;
-            await unitOfWork.Repository<Message>().UpdateRange(M => M.SetProperty(m => m.IsRead, m => m.IsRead||(user.Id==m.ReceiverId) ));
+            await unitOfWork.Repository<Message>().UpdateRange(M => M.SetProperty(m => m.IsRead, m => m.IsRead||(user.Id==m.ReceiverId && m.ConversationId==Conversation.Id) ));
             await unitOfWork.CompleteAsync();
             ConversationWithMessages.Messages=mapper.Map<List<MessageDto>>(messages).OrderByDescending(M=>M.SentAt);
 
